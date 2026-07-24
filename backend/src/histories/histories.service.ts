@@ -32,7 +32,7 @@ export class HistoriesService {
     const [items, totalItems] = await Promise.all([
       this.historyModel
         .find(filter)
-        .populate('film', 'title slug posterUrl thumbUrl episodeCurrent category')
+        .populate('film', 'title slug posterUrl thumbUrl episodeCurrent category isPublished')
         .sort({ lastWatchedAt: -1 })
         .skip(query.skip)
         .limit(query.limit)
