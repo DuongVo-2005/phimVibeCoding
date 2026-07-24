@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>RoPhim - Trải nghiệm điện ảnh đỉnh cao</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<style>
+        body {
+            font-family: 'Geist', sans-serif;
+            background-color: #0A0A0A;
+            color: #e5e2e1;
+            overflow-x: hidden;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .movie-card-glow:hover {
+            box-shadow: 0 0 30px rgba(239, 193, 28, 0.15);
+        }
+
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            user-select: none;
+        }
+
+        .fill-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+
+        .glass-panel-mobile {
+            background: rgba(26, 26, 26, 0.4);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+        }
+        .hero-gradient {
+            background: linear-gradient(0deg, #0A0A0A 0%, rgba(10,10,10,0.8) 20%, rgba(10,10,10,0) 50%, rgba(10,10,10,0.4) 100%);
+        }
+        .card-inner-border {
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+
+        /* Responsive layout switch: .layout-mobile is the untouched Mobile design,
+           .layout-desktop is the untouched Desktop design (its own sm:/md:/lg: classes
+           already adapt it across the 768-1023 tablet range and 1024+ desktop range). */
+        .layout-desktop {
+            display: none;
+        }
+        .layout-mobile {
+            display: block;
+            min-height: max(884px, 100dvh);
+        }
+        @media (min-width: 768px) {
+            .layout-desktop {
+                display: block;
+            }
+            .layout-mobile {
+                display: none;
+            }
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-lowest": "#0e0e0e",
+                      "secondary-container": "#4b8eff",
+                      "surface-container": "#201f1f",
+                      "tertiary-container": "#76c5ff",
+                      "inverse-on-surface": "#313030",
+                      "surface-tint": "#efc11c",
+                      "on-secondary": "#002e69",
+                      "on-secondary-container": "#00285c",
+                      "outline-variant": "#4e4633",
+                      "inverse-primary": "#745b00",
+                      "on-primary": "#3d2f00",
+                      "inverse-surface": "#e5e2e1",
+                      "tertiary-fixed": "#cae6ff",
+                      "primary-fixed-dim": "#efc11c",
+                      "surface-container-low": "#1c1b1b",
+                      "on-primary-fixed-variant": "#574400",
+                      "on-error": "#690005",
+                      "on-tertiary": "#00344f",
+                      "surface-bright": "#3a3939",
+                      "on-tertiary-container": "#005179",
+                      "on-tertiary-fixed-variant": "#004b70",
+                      "secondary-fixed": "#d8e2ff",
+                      "surface-dim": "#131313",
+                      "on-secondary-fixed": "#001a41",
+                      "tertiary": "#b7deff",
+                      "surface-variant": "#353534",
+                      "outline": "#9a9079",
+                      "surface-container-highest": "#353534",
+                      "surface-container-high": "#2a2a2a",
+                      "primary-container": "#e5b80b",
+                      "primary-fixed": "#ffe089",
+                      "background": "#131313",
+                      "on-tertiary-fixed": "#001e30",
+                      "on-secondary-fixed-variant": "#004493",
+                      "on-primary-container": "#5e4a00",
+                      "on-error-container": "#ffdad6",
+                      "error": "#ffb4ab",
+                      "on-primary-fixed": "#241a00",
+                      "secondary-fixed-dim": "#adc6ff",
+                      "error-container": "#93000a",
+                      "primary": "#ffd552",
+                      "surface": "#131313",
+                      "on-surface": "#e5e2e1",
+                      "secondary": "#adc6ff",
+                      "on-surface-variant": "#d1c5ac",
+                      "tertiary-fixed-dim": "#8dcdff",
+                      "on-background": "#e5e2e1"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xs": "4px",
+                      "sm": "12px",
+                      "container-max": "1440px",
+                      "base": "8px",
+                      "xl": "80px",
+                      "gutter": "24px",
+                      "md": "24px",
+                      "lg": "48px"
+              },
+              "fontFamily": {
+                      "body-lg": ["Geist"],
+                      "headline-lg-mobile": ["Geist"],
+                      "headline-md": ["Geist"],
+                      "label-md": ["Geist"],
+                      "headline-lg": ["Geist"],
+                      "body-md": ["Geist"],
+                      "display-lg": ["Geist"],
+                      "headline-xl": ["Geist"]
+              },
+              "fontSize": {
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "headline-lg-mobile": ["28px", {"lineHeight": "34px", "fontWeight": "700"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "display-lg": ["64px", {"lineHeight": "72px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                      "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.01em", "fontWeight": "700"}]
+              }
+            },
+          },
+        }
+    </script>
+</head>
+<body class="bg-background selection:bg-primary/30 text-on-surface">
+<!-- ============================= -->
+<!-- DESKTOP / TABLET LAYOUT (>=768px) — unchanged from homepage.html -->
+<!-- ============================= -->
+<div class="layout-desktop">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full flex justify-between items-center px-gutter py-base bg-surface/80 dark:bg-surface/80 backdrop-blur-xl z-50 border-b border-white/10 shadow-xl">
+<div class="flex items-center gap-lg">
+<span class="text-headline-md font-headline-xl font-bold text-on-surface dark:text-on-surface tracking-tighter">RoPhim</span>
+<div class="hidden md:flex items-center gap-md">
+<a class="text-primary font-bold text-label-md font-label-md transition-all duration-300" href="#">Chủ Đề</a>
+<a class="text-on-surface/70 hover:text-on-surface transition-colors text-label-md font-label-md" href="#">Thể loại</a>
+<a class="text-on-surface/70 hover:text-on-surface transition-colors text-label-md font-label-md" href="#">Phim Lẻ</a>
+<a class="text-on-surface/70 hover:text-on-surface transition-colors text-label-md font-label-md" href="#">Phim Bộ</a>
+<a class="text-on-surface/70 hover:text-on-surface transition-colors text-label-md font-label-md" href="#">Xem Chung</a>
+<a class="text-on-surface/70 hover:text-on-surface transition-colors text-label-md font-label-md" href="#">Quốc gia</a>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<div class="relative hidden lg:block">
+<input class="bg-surface-container-high border-none rounded-full py-base px-lg w-64 text-label-md focus:ring-2 focus:ring-primary/50 transition-all" placeholder="Tìm kiếm phim..." type="text"/>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+</div>
+<button class="p-2 hover:bg-white/5 rounded-full transition-all scale-95 active:scale-90">
+<span class="material-symbols-outlined text-on-surface">notifications</span>
+</button>
+<button class="bg-primary text-on-primary font-bold px-md py-base rounded-lg text-label-md transition-transform scale-95 active:scale-90 shadow-lg shadow-primary/20">
+                Thành viên
+            </button>
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-white/10 cursor-pointer">
+<img class="w-full h-full object-cover" data-alt="Close up portrait of a stylish young adult with soft studio lighting against a dark moody background, high fashion photography style with vibrant cinematic color grading in orange and teal tones, sharp focus and high resolution." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAyrLNp0uWY_9064oGoEOv_zBDu7ppNPIeTCNk9mUM_-YIzJDOUMU4x9q7xPrLcVIt3NFQvmqHoBJvBBwueZEPpWaj3nTAwksCza35pqvZbM4G3bTk5SIn93K31DUeXi5ZWPy8FqBXGa1g1j-6RB-2Y8UD7CL81CZ_a2_0Fpvue49WCn6ceJhqFq4S02QagFteacRS8v7ICpLrnCMNQNtmWcwTS4rpL2FFLIHqitKCWotn8lomRb9PJVmDBtr9O-p6KpxO8_r-pcDPl"/>
+</div>
+</div>
+</nav>
+<!-- Hero Banner -->
+<section class="relative h-[972px] w-full flex items-end pb-xl px-gutter overflow-hidden">
+<div class="absolute inset-0 z-0">
+<div class="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent z-10"></div>
+<div class="absolute inset-0 bg-gradient-to-r from-background via-background/40 to-transparent z-10"></div>
+<img class="w-full h-full object-cover" data-alt="Ultra-high definition cinematic wide shot of a futuristic neon-lit metropolis at night, with towering skyscrapers and flying vehicles. The scene is dominated by a palette of deep obsidian, cinematic gold, and electric blue. Highly detailed textures, 8k resolution, cinematic lighting, ethereal atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDHp2pS-Q20UinoO__e6998fPNoDyGmHJWFl4pZFVuFzSFZEEZlD-l2y-tO304vJhtvrOovZwDB9Uv4b2Cf5W91ycnGP6_hjtu7l38RUdeqA5mXNiYgBVwEwlejFKdBCpW4RNkwA6PUcUW4-I5KY1VV-3lPDo_HnUOWVNRV1qssyMYm4AHko0yK0morNB5gTLH4Tc16TpRkfEdvq0IWHo1zEJlc-pjs4dEjCCTJbmcmgLmiUFjUqrxXy0eExomJoeHFHOZhkyRBKmh6"/>
+</div>
+<div class="relative z-20 max-w-3xl space-y-md">
+<div class="flex items-center gap-base">
+<span class="bg-primary/20 text-primary border border-primary/30 px-base py-1 rounded text-label-md backdrop-blur-md">#1 Xu hướng tuần này</span>
+<span class="text-on-surface-variant text-label-md">2026 • 2h 45m • Hành động • 4K HDR</span>
+</div>
+<h1 class="font-display-lg text-display-lg text-white leading-tight">Vương Triều Bóng Đêm</h1>
+<p class="text-body-lg font-body-lg text-on-surface-variant max-w-xl">Hành trình tìm lại công lý của những hiệp sĩ cuối cùng trong một thế giới đang dần bị nuốt chửng bởi hư không. Một kiệt tác điện ảnh không thể bỏ lỡ.</p>
+<div class="flex items-center gap-md pt-base">
+<button class="flex items-center gap-base bg-primary text-on-primary font-bold px-lg py-md rounded-xl text-headline-md hover:scale-105 transition-transform shadow-2xl shadow-primary/40">
+<span class="material-symbols-outlined fill-icon" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+                    Xem Ngay
+                </button>
+<button class="flex items-center gap-base glass-panel text-white font-bold px-lg py-md rounded-xl text-headline-md hover:bg-white/10 transition-all">
+<span class="material-symbols-outlined">add</span>
+                    Danh Sách
+                </button>
+</div>
+</div>
+</section>
+<main class="relative z-20 -mt-20 space-y-xl pb-xl">
+<!-- Continue Watching (Glassmorphic) -->
+<section class="px-gutter">
+<div class="flex items-center justify-between mb-md">
+<h2 class="text-headline-lg font-headline-lg flex items-center gap-base">
+<span class="material-symbols-outlined text-primary">history</span>
+                    Tiếp tục xem
+                </h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-md">
+<!-- Card 1 -->
+<div class="glass-panel p-base rounded-[20px] group cursor-pointer hover:bg-white/5 transition-all">
+<div class="relative aspect-video rounded-xl overflow-hidden mb-base">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="A dramatic interior shot of a luxurious high-tech spacecraft cockpit, glowing with soft blue and amber lights. Cinematic perspective, wide angle, hyper-realistic, dark luxury aesthetic with golden accents, sharp details and deep blacks." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6oQ_UeusgTzY4cBmx1G4omFO4OwGYEgeqE7j-gYiklbjH9Kswte_ZnOhzWQuRtgAKkKN60QGbVwY5Zkx78SZRAjfJbNr2REsBKFWjfNxoMgQaCspv_lWKWZbOqlIZRwpuNGumNExGZ2g9NdAbU9aftFwJ4G-aBO1VhrebQx16S7Xlh4F7U_E_CLT2P6Ty70bULJSn79NerQhYFKIXWJSR-sLwMehcg932atj4C8rCZsHv6aRO5cm-sCGnquxWOcDnC4AxI7tb8-DH"/>
+<div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-white text-[48px] fill-icon" style="font-variation-settings: 'FILL' 1;">play_circle</span>
+</div>
+<!-- Progress Bar -->
+<div class="absolute bottom-0 left-0 w-full h-1 bg-white/10">
+<div class="h-full bg-secondary-container w-[65%]"></div>
+</div>
+</div>
+<div class="px-2">
+<h3 class="font-bold text-body-lg text-on-surface">Kỷ Nguyên Mới</h3>
+<p class="text-label-md text-on-surface-variant">Tập 04 • Còn 22 phút</p>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="glass-panel p-base rounded-[20px] group cursor-pointer hover:bg-white/5 transition-all">
+<div class="relative aspect-video rounded-xl overflow-hidden mb-base">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Epic fantasy landscape with floating islands and cascading waterfalls under a twilight sky filled with purple and orange hues. High-end cinematic art style, vibrant atmospheric lighting, detailed foliage and ancient stone structures, 8k resolution." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBW08SZHGgakBiw79y-fwiUxhdeVq6rgq8bLwX82QLpCZDboSgE-sZ1OLtPxYXesa0j1E3RhbmkJbLATYNoiRY3N3Tchv6w4WwXxogL1eH2njgTwSfMkWgs40Cl_UpE1WqV7Mu1_TTRGwl45mwsYLbvfgnO97E1hn-A6GGwfFk8jkwA--RM8otTtZf60qgA6yrXb2kWVYGjZKa3UckBPwEXEbC88feN-uDmlnXdRutUwyUFB7JWMwqDtifJsKaMNS2FcgQyzSAsxZJ1"/>
+<div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-white text-[48px] fill-icon" style="font-variation-settings: 'FILL' 1;">play_circle</span>
+</div>
+<div class="absolute bottom-0 left-0 w-full h-1 bg-white/10">
+<div class="h-full bg-secondary-container w-[30%]"></div>
+</div>
+</div>
+<div class="px-2">
+<h3 class="font-bold text-body-lg text-on-surface">Thế Giới Ảo</h3>
+<p class="text-label-md text-on-surface-variant">Phim Lẻ • Còn 1h 45 phút</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Trending Now -->
+<section class="pl-gutter">
+<h2 class="text-headline-lg font-headline-lg mb-md">Đang thịnh hành</h2>
+<div class="flex overflow-x-auto gap-md hide-scrollbar pr-gutter">
+<!-- Movie Cards -->
+<div class="min-w-[240px] aspect-[2/3] relative rounded-[20px] overflow-hidden group cursor-pointer movie-card-glow transition-all duration-300">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="Cinematic movie poster style illustration of a mysterious figure in a dark cloak standing in a rainy alleyway illuminated by golden streetlamps. Dark moody color palette with rich black shadows and warm amber highlights, hyper-detailed textures, premium streaming service aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4n0b_VYI9g2XgnrccYOs9Klx85Q-657Hzmio9nGz2cDWqtxkdVlv1ShOncPDw9amfls7mzqtcCipZ1vKMRw6CH2Ui-ihb48y3IrKL25KzQXW6Nidkk7oOECSlFHq_tTkSArtxv1euUcnjJtweWjnJpzlSynXgvUg3JsYGdubpa8THALt7eXv4yRdmIPosvjZNzCbM0ihD3pFq2O3rgzf03xNOtSOFKf-OU7EzLPWS8EHdDLfLkmsqYCTlpDxb8_CrNSN3WgeZYTCt"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-end p-md">
+<h3 class="font-bold text-headline-md text-white">Bóng Đêm Trỗi Dậy</h3>
+<div class="flex gap-2 mt-2">
+<span class="bg-white/20 text-white text-[10px] font-bold px-2 py-0.5 rounded">4K</span>
+<span class="bg-primary/20 text-primary text-[10px] font-bold px-2 py-0.5 rounded">HDR</span>
+</div>
+</div>
+</div>
+<div class="min-w-[240px] aspect-[2/3] relative rounded-[20px] overflow-hidden group cursor-pointer movie-card-glow transition-all duration-300">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="A futuristic racing scene with sleek chrome vehicles zooming through a high-speed glass tunnel. Dynamic motion blur, brilliant neon lighting in cyan and magenta, cinematic composition, high-end visual effects style, sharp focus on the lead vehicle." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNWu8Sd0AA87lkfeoehK9dcu9thO9fPPo3myoZGWi0MEBHfc3Plp6Dt8ShQmoEARmBK7nUN3XMJPgAdtyVMJ659fad_UbKRial0tURfJPF9h0-djJSe58ApW5OoK8pBj_04162cyLP5ApwH_5tKyW6kjcHeB-TWnQ_LzARxDwXo35Zc4rXpnVuPffS2DNKS97hawZ0ew8Enc5d7uFuNeaJZtM2usBjkYe-EC5IDpQGCYyD7gHMlv1UzcKXmxFENKG4YRVotCOqKRPq"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-end p-md">
+<h3 class="font-bold text-headline-md text-white">Tốc Độ Tử Thần</h3>
+<div class="flex gap-2 mt-2">
+<span class="bg-white/20 text-white text-[10px] font-bold px-2 py-0.5 rounded">HD</span>
+</div>
+</div>
+</div>
+<div class="min-w-[240px] aspect-[2/3] relative rounded-[20px] overflow-hidden group cursor-pointer movie-card-glow transition-all duration-300">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="Portrait of an elegant queen sitting on an intricate obsidian throne in a grand, dimly lit gothic hall. Volumetric lighting streaming through stained glass, deep rich colors, regal atmosphere, cinematic lighting, 8k resolution, detailed costume design." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBg-oEIVX8KfDai3PLk66I3ptAIE6_jg97-tlVAe-SSCvYviSCE0ySEiz08Nznj4pixCS7VNw0bi3YF14sZdEnj_xMjXgw88rrsHow4FSkFz76Eppj3n4__7CWvJQvsxwYJxMaIri25emKyG8aR9J3V7qgBozSLev7ZpRXPC-eIyHZdTDX6eGY-ShKQy9TDHnUHRr6OnmwwNLx1KaYSZN-jFsN9mkj-Y7NKyuJvb006ZfUZ_AFRr7k8qZ0g8Xo-E21krhsx3RxLUc95"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-end p-md">
+<h3 class="font-bold text-headline-md text-white">Vương Quyền</h3>
+<div class="flex gap-2 mt-2">
+<span class="bg-white/20 text-white text-[10px] font-bold px-2 py-0.5 rounded">4K</span>
+</div>
+</div>
+</div>
+<div class="min-w-[240px] aspect-[2/3] relative rounded-[20px] overflow-hidden group cursor-pointer movie-card-glow transition-all duration-300">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="A breathtaking view of a lush underwater city with bioluminescent plants and futuristic domes. Deep ocean blue palette with glowing cyan accents, serene and majestic atmosphere, cinematic 3D render style, hyper-realistic water effects and lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAPTQCwiDBGsQ6AIjhfTwQ6kSqsDMQZqai5cNWhNjM0HJfVKeHm8kwbQzAHnLNyrv25_T5Da_Qq5O-9ss_mw4OQDx3wbfcO9hEuGO1i_VoUreuZV8QIZKzu0mHeU9pKXS2D0WuKbdJFScZseW3peIXEvd9ZFj8YAM1EycfiruSJdfx2pYpyzqwFjsm2IJM-YkLsiiM3seWEOFUfcg2QmrwpP1DSbJF8rhwteMwzjJqcw8yKIBqfcWxJ57a-SlyQ1p6DDpmxL8nOzfCo"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-end p-md">
+<h3 class="font-bold text-headline-md text-white">Hải Vương</h3>
+<div class="flex gap-2 mt-2">
+<span class="bg-white/20 text-white text-[10px] font-bold px-2 py-0.5 rounded">HDR</span>
+</div>
+</div>
+</div>
+<div class="min-w-[240px] aspect-[2/3] relative rounded-[20px] overflow-hidden group cursor-pointer movie-card-glow transition-all duration-300">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="A close-up of a high-tech android eye reflecting a data-filled screen. Cyberpunk aesthetic, extreme detail, macro photography style, intricate mechanical parts, vibrant neon blue and amber lighting, dark background, sharp and crisp resolution." src="https://lh3.googleusercontent.com/aida-public/AB6AXuArcx3Uz-MRAmEfM2K-fFqhBnZ5Z-8Ec2uk54qCn128PXgq6lHZEosIuHSz2AmTKolgNNL1-Kz3oC8U0neGIQrOjcgltzROZnj-CmVGmuYkgVDYaDtxnjRilLd71FbSYAmPSSfIR2btmf34UcXlf7GOMRI0_2xbwQBRkhohxoypRH9MQysVwRvLvAtmzOGhDOuvV8rKVwy5gy4ySZ3UFfzWRsYtMw5LyYd86lJOCaxCIr451ScF-YpQbE6pkLegh_ySyEZznVFPguYl"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-end p-md">
+<h3 class="font-bold text-headline-md text-white">Tư Duy Nhân Tạo</h3>
+<div class="flex gap-2 mt-2">
+<span class="bg-white/20 text-white text-[10px] font-bold px-2 py-0.5 rounded">4K</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Categories & Top Rated Mixed Layout -->
+<section class="px-gutter grid grid-cols-1 lg:grid-cols-12 gap-lg">
+<!-- Left: Categories (Bento Grid) -->
+<div class="lg:col-span-8 space-y-md">
+<h2 class="text-headline-lg font-headline-lg">Khám phá Thể loại</h2>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-base">
+<div class="col-span-2 row-span-2 relative h-64 rounded-xl overflow-hidden group cursor-pointer">
+<div class="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-all z-10"></div>
+<img class="w-full h-full object-cover" data-alt="Action-packed scene of a car chase through a modern European city at dusk. Dramatic lighting, sparks flying, high kinetic energy, cinematic teal and orange color grade, premium production quality." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdMpmjmd6JAJ1V1aW_vFEchEd829131-muO9tUs2QKiFyj31qkGH3WJON_kkWLoHPImoU9Kjegn67sgn0W8H73GrNb4vXUy7CvLUsc5cOsW_vOzJWpff6IO1Lk0CrYfnB4Cv2qpPtzgfRH7t3hG9YXcWw5LCGjpTb-6SUnNvw_tW_uzoHZeSOr4EQ5pMbunqk5RgBmSMRLA1Ot0y0iwhXHkSGqy66nJKAwtgmAnh80JZikCT62xQtpl8ewq5jfNKqqMvYSzonNcQZB"/>
+<span class="absolute bottom-4 left-4 z-20 text-headline-md font-bold text-white">Hành Động</span>
+</div>
+<div class="relative h-32 rounded-xl overflow-hidden group cursor-pointer">
+<div class="absolute inset-0 bg-purple-900/40 group-hover:bg-purple-900/20 transition-all z-10"></div>
+<img class="w-full h-full object-cover" data-alt="Spooky dark forest with a mysterious glowing cabin in the distance. Misty atmosphere, high contrast shadows, horror movie aesthetic, dark obsidian and deep purple tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLHcsNjDUI-PfprOG8DVen3Duym5UaqpDLxWMj-guDGRixL1ecwYydMqRyQTUfCCpGOx6h2Ir6sOjBmFCNTlyRG82ACeEkFO8HEJRiEwIVHmV9N5qAy4CmPOxaoygd93VsMe0MmX3wd-fFuK2cHtG1RjdMUqxwPLGRNcsyUXZdNfQvRJ1UODiIvgU2J0iocBmsVkAA69it9qqnVi36ngBdrAo07lMduBRe9aIVHCrR1Nrgo2w8bHAWQlxL-4gI_jz0oqBgWMFtpQwY"/>
+<span class="absolute bottom-2 left-3 z-20 text-label-md font-bold text-white">Kinh Dị</span>
+</div>
+<div class="relative h-32 rounded-xl overflow-hidden group cursor-pointer">
+<div class="absolute inset-0 bg-blue-900/40 group-hover:bg-blue-900/20 transition-all z-10"></div>
+<img class="w-full h-full object-cover" data-alt="Grand library with magical floating books and golden stardust in the air. Whimsical fantasy style, warm lighting, soft focus, high-end digital art." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_0wywHHvfz_gcQipnHwgMwx6nu-_JZRfk7RGKgFIJiAJcIpiqO81JVsu-RD3Q5hf-ZzFdLraGmQd8KLLcAvB717JM15ARDAHUCJ2yQVhJICfhAAtDRoBu_CXV0dpTaWkAFl2kAfG0k9m5OxbQdLgy8f-dVieDK5TjKgM15iAQesMS2yiXW9nsmDAJSmgce5hDWv1f_XtlGCvnWHUGGAtffUHDr7uM3aDIsfu3fmBVVfGvD9AvmwjpdHVA112MBgC76juCBWyRFFVi"/>
+<span class="absolute bottom-2 left-3 z-20 text-label-md font-bold text-white">Viễn Tưởng</span>
+</div>
+<div class="relative h-28 rounded-xl overflow-hidden group cursor-pointer mt-1">
+<div class="absolute inset-0 bg-red-900/40 group-hover:bg-red-900/20 transition-all z-10"></div>
+<img class="w-full h-full object-cover" data-alt="Intimate candlelit dinner scene with soft romantic atmosphere. Warm red tones, high-key lighting, soft focus bokeh background, cinematic romance style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAqjR3dHAObrB3ZrxvQ3jJsXL3o90HLhVl1vDs0Y56S9gUH0q2IzXPgAJpD8YxxSiALlBSQoKtab9RVDSmCq0KUpAbjIHFwnu6j3NijtwgL2kObvGAdWP7QqKbnKKOZWMA7gKyWykPPTzyZR8OZX72BqGwHBVq5PYEnqSHJqpqzSClIQEEMMzFT3CeCoVvbJ8Trd9CyPK2rReweCYr69K65UZP-ShAiPLJG2-ju_PAQQuwkDqm5ZReuMpPET1_WK3NDU03rBJYxceSs"/>
+<span class="absolute bottom-2 left-3 z-20 text-label-md font-bold text-white">Lãng Mạn</span>
+</div>
+<div class="relative h-28 rounded-xl overflow-hidden group cursor-pointer mt-1">
+<div class="absolute inset-0 bg-green-900/40 group-hover:bg-green-900/20 transition-all z-10"></div>
+<img class="w-full h-full object-cover" data-alt="Animated colorful landscape from a Pixar-style movie featuring a friendly dragon. Vibrant colors, soft 3D textures, whimsical and bright lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDizdWYU365AciMgByYzrgqXMb9xVb89qM3IosvGXLMUucnXYblF86P44SyaPKcNFCHo0xsQhj4TkWNyCmccezWasm1gjnilwev-uLAQl6Vbb0QEQYysddlq-ivIQqELjOAxLLcXXNIMB9RNX8YcJAuLCHXWjJ0KXEHlfMsN4S1vMSfrpcDssqVtkHOG3PkEJsFIJrLntus_RkuHVnvUjb-e9w_rmt7zo2e0SgvTFVH-E9D6tUG8bO4oTXoOJuOgPO8xKdcaDyREa-z"/>
+<span class="absolute bottom-2 left-3 z-20 text-label-md font-bold text-white">Hoạt Hình</span>
+</div>
+</div>
+</div>
+<!-- Right: Top Rated (IMDb List) -->
+<div class="lg:col-span-4 space-y-md">
+<h2 class="text-headline-lg font-headline-lg">Đánh giá cao</h2>
+<div class="space-y-base">
+<!-- Item 1 -->
+<div class="flex items-center gap-md glass-panel p-base rounded-xl hover:translate-x-2 transition-transform cursor-pointer">
+<div class="w-16 h-20 rounded-lg overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Close up of a legendary actor's face in a dramatic black and white cinematic portrait. High contrast, sharp details, moody and serious expression, timeless movie icon style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYZialT86_9lYjwrVQ2Xq7X4kZbApbLfP_bKlTwBLP30Liyo_xje_Y5f5PKkrWw3tfRmPPn7joLoyWfKhfkNL4YWtEo6G_ADP5llH43lGvadGb2Jce1hWA5WLD259zdGoRHKst0qkGA6YOcwXx8zydiAK4XadSg3ufIjO3Lp8IyK5KgXGbLRWO63wKFPBXJn1WgHNPj1ajL6TdTNZBhgdAOl-mRvRo4WTSqNPY29Vx-INlPU_ovXn5fUNACI2pa5Ykr8kHQC57sKrm"/>
+</div>
+<div class="flex-grow">
+<h4 class="font-bold text-body-lg">Huyền Thoại Trở Lại</h4>
+<div class="flex items-center gap-base mt-1">
+<span class="bg-primary text-on-primary text-[10px] font-extrabold px-1.5 py-0.5 rounded">IMDb</span>
+<span class="text-primary font-bold text-label-md">9.2</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</div>
+<!-- Item 2 -->
+<div class="flex items-center gap-md glass-panel p-base rounded-xl hover:translate-x-2 transition-transform cursor-pointer">
+<div class="w-16 h-20 rounded-lg overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="A lone samurai standing on a snowy hill overlooking a traditional Japanese village. Minimalist cinematic composition, high contrast, blue and white color palette, serene yet powerful atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdPP2VAtyBGpiAngL0gxRZUAhc2Iw5Hju83SdArUw_9DAUuxcFV-HISbeewSO20GvKArUgAjhaj9fu_qvjBnI-zVXC9RY6sNUvSfHqXjkjvMGlE3SCK2dieITJ4yUVFlJuBcSJXssr_Gl5mbRiwNPLxJa1vTOQXxaieujdNjczq-EozMdkhtGylYtfMWv4ZJLWnsEOcnYqF4UByqSSTAAnu-3Fuq4tfZtLvUwDmn_6huW1ekZVhcN8c9ZByOUZ9d2ijkn11BrpOV-H"/>
+</div>
+<div class="flex-grow">
+<h4 class="font-bold text-body-lg">Vết Sẹo Cuối Cùng</h4>
+<div class="flex items-center gap-base mt-1">
+<span class="bg-primary text-on-primary text-[10px] font-extrabold px-1.5 py-0.5 rounded">IMDb</span>
+<span class="text-primary font-bold text-label-md">8.8</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</div>
+<!-- Item 3 -->
+<div class="flex items-center gap-md glass-panel p-base rounded-xl hover:translate-x-2 transition-transform cursor-pointer">
+<div class="w-16 h-20 rounded-lg overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="A beautiful sci-fi landscape of a desert planet with two suns setting. Golden and orange lighting, vast dunes, futuristic ship silhouette, cinematic wide shot." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9rm07nJ-kwY0uhwPJprIGJCqlXu0g-h9Jr_3ivJ6K3O_F9HyHEk4yq0UINJG7gR2fWA9NR5qEhp7Upxr1nQwyUL7HBll2OKmpuGAcK8ra2TLNvWbYymyj_MbHwwxqVxrIZbDWjEpnBYuANZAe4pWWgXgsv2rd3d1xN3U_bTUGYZ7Q33lsrXmKvQ3CCMwRKxH_2TB8Qj24prjPhhuP3a9NtpZOlpUjebF0bcJqBLglOLSwHA_e1aqqmizhB6t9r7waUb_46NfvvU10"/>
+</div>
+<div class="flex-grow">
+<h4 class="font-bold text-body-lg">Hành Tinh Cát</h4>
+<div class="flex items-center gap-base mt-1">
+<span class="bg-primary text-on-primary text-[10px] font-extrabold px-1.5 py-0.5 rounded">IMDb</span>
+<span class="text-primary font-bold text-label-md">8.5</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Recommendations -->
+<section class="px-gutter">
+<h2 class="text-headline-lg font-headline-lg mb-md">Gợi ý riêng cho bạn</h2>
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-md">
+<!-- Repeat Movie Cards but smaller or simpler -->
+<div class="aspect-[2/3] relative rounded-xl overflow-hidden group cursor-pointer movie-card-glow">
+<img class="w-full h-full object-cover" data-alt="Abstract cinematic art of a galaxy forming, with swirls of stardust and vibrant nebula gases. Deep purple, blue, and gold tones, glowing particles, high-end visual effects style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDSsYUD6MuUDzqVNG-LeaBjm5JInZqzY52pDAyw2Ii8d-4Yg4mMsCeFnpUPECa0_dkWLaKYBVndKUFYsWyCma-RfcrCHuZAdkkwWB0jVygMilwKPTAyXH6F8j1uYnhjsHR-CckHJMQ6VHGdUVfYAhd1h4jIy196D-15GYS03RI6EyQkKQXJnW9HHOacALP5zc6nfW5nFgJ-mc19s6YPYnYZPZWEAQ5ZmfeQWfqpDD5C0EQQlzQo5NCeaZij9ErjQ7H7IaM_ieSD87UA"/>
+<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-[32px]">play_circle</span>
+</div>
+</div>
+<div class="aspect-[2/3] relative rounded-xl overflow-hidden group cursor-pointer movie-card-glow">
+<img class="w-full h-full object-cover" data-alt="A dramatic detective scene in a rain-slicked city at night. Noir aesthetic with a modern twist, sharp neon reflections, deep shadows, cinematic atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAKMojeF-pw1OrxVkPqM-8VwVSffydyVPG0RPTxMjg19SvZ4Rg4f19INIM3Pu55KHSXq6fFqSs9OJqzK8i8CTzU8o-h7f3sAv0gAoTaHPth4Q5XtKua4Q8OHFA4jl-kENw0RIlxzDPmmOk-tDe9C_e0umGIrcPQsStCdqolp4PgYam-sNHb_ysNc91k-uYKbiy1tALBIiX9ArRskx03E0x1q6CNQ-yXsa8GJRBIJrkzQGE-gHKnSo7yKu3DcBWMjgqNAJg-Luoxojht"/>
+<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-[32px]">play_circle</span>
+</div>
+</div>
+<div class="aspect-[2/3] relative rounded-xl overflow-hidden group cursor-pointer movie-card-glow">
+<img class="w-full h-full object-cover" data-alt="High-speed aircraft flying through a canyon of clouds at sunrise. Golden hour lighting, majestic sky, cinematic scale and movement, sharp and detailed resolution." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC2zrzY2MEkaR-eX_Epf9_mshIMbMX0F4ad_j1DeKEMhmgRD-gKyHpuOUqL42A-kT0caA3cTzH91l37M6LbM9qkbx-I3vIctcrkPXMrrECBaeSpXZN5T9n1i2wJ5w4k3F8K714NVcYeD5EYYIxkZoHkvSKGTSx681V9Phm6e08cs0z06eXbgNiNDpIZ0cxBAPPzscn2ckJHgFe1FXSRG0QKcmmeCX_IfmvfdZP6MDtpTotvtjED8vQxUSJQBpWHzL8-9olEio9t99IX"/>
+<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-[32px]">play_circle</span>
+</div>
+</div>
+<div class="aspect-[2/3] relative rounded-xl overflow-hidden group cursor-pointer movie-card-glow">
+<img class="w-full h-full object-cover" data-alt="A lush prehistoric jungle with a large dinosaur visible through the trees. Realistic textures, atmospheric lighting, cinematic prehistoric adventure theme." src="https://lh3.googleusercontent.com/aida-public/AB6AXuASNBxJ3hB7Bw9kZQvOw-hTN6zYzkmaQ_91MFNVxXnU1C4GUDRTCY33YBKX3rZbj4NLO8UlnVuzA6hbPcMtKfYLWFWqa7CgstWUMBGFRBEiONHWRgAz_IGPzCALYVfqlJDJtwjoa9L-J-r8_R8lC6ifsG0AfhacBGACA-PB98MTYnGBdHDbfoJf4Ogj6_NYGuCuJOQ4-l6DsH9vUj2wCrLt480tKmipfqmxoKKVYpXftBQlllTY-lVk7f_4agcQgIKrWcfx6bEczoWp"/>
+<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-[32px]">play_circle</span>
+</div>
+</div>
+<div class="aspect-[2/3] relative rounded-xl overflow-hidden group cursor-pointer movie-card-glow">
+<img class="w-full h-full object-cover" data-alt="A futuristic medical lab with holographic screens and robotic arms. Sterile clean aesthetic with soft blue lighting, high-tech science fiction theme." src="https://lh3.googleusercontent.com/aida-public/AB6AXuApUOshVPo_LEJ0yyXPJ2FiqcSlfvfCWrN1ek-MHmVOAZQ9NEHNQhWgL8pwGeD117AMvImdL971c23UY-_olJf7NQpddp-lvUgH7fvMZJEa58DiQ5scWY-MnVen_pQ_mbzUeRKfup8GX9FIsVLSjmLMZl6_9vwDcrv34MNT7PJIxne8y0-WfiqmvUNWeRLJ9GzgE0QeMxffwNPzGTMrIzf1rmSnBKeGTs_tVxx4LHwDk703_wr0pIGbQI7oqXes9EwTSzOL_HVksilW"/>
+<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-[32px]">play_circle</span>
+</div>
+</div>
+<div class="aspect-[2/3] relative rounded-xl overflow-hidden group cursor-pointer movie-card-glow">
+<img class="w-full h-full object-cover" data-alt="An expansive ancient Roman arena during a dramatic sunset. Historical epic style, large scale, cinematic lighting, rich textures of stone and dust." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAnsdaQy2saRbk9xCBwKcvovyH4fTHdxMay74MKmVlCyU5H0SrZh_g8F6R-VMUdQJwBvvl2DEZqtjko0X4pzGabZnK0ByTNxxsr0w_9__zyNQtpTlTCPOEm9LAjz9Twbe1kw0Xtiws3JrVAbWn-_9iV1b-J6NgVIA8QWP5903hX_ePUKDL3VUzyiu--hJgbR7Gv8oNzeV6qr9_zsGDDcRbm64CojEdYsfrHMPMtbtoFF7DsxV-XDsygbNSBHo60dze0tWFD0v6Y7DFs"/>
+<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-[32px]">play_circle</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- SideNavBar (Mobile Floating or Desktop Side) -->
+<aside class="fixed left-6 top-1/2 -translate-y-1/2 hidden xl:flex flex-col gap-sm p-md bg-surface-container dark:bg-surface-container rounded-xl w-64 shadow-lg z-40 border border-white/5">
+<div class="flex items-center gap-base mb-base">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-primary/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">person</span>
+</div>
+<div class="overflow-hidden">
+<h3 class="font-bold text-body-md truncate">duong vo</h3>
+<p class="text-[12px] text-on-surface-variant truncate">voduong1147@gmail.com</p>
+</div>
+</div>
+<nav class="space-y-1">
+<a class="flex items-center gap-base px-md py-sm rounded-lg bg-primary/10 text-primary border-r-4 border-primary rounded-r-none transition-all duration-200" href="#">
+<span class="material-symbols-outlined fill-icon" style="font-variation-settings: 'FILL' 1;">favorite</span>
+<span class="text-label-md font-label-md">Yêu thích</span>
+</a>
+<a class="flex items-center gap-base px-md py-sm rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">bookmark</span>
+<span class="text-label-md font-label-md">Danh sách</span>
+</a>
+<a class="flex items-center gap-base px-md py-sm rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="text-label-md font-label-md">Xem tiếp</span>
+</a>
+<a class="flex items-center gap-base px-md py-sm rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">notifications</span>
+<span class="text-label-md font-label-md">Thông báo</span>
+</a>
+<a class="flex items-center gap-base px-md py-sm rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-label-md font-label-md">Tài khoản</span>
+</a>
+</nav>
+<button class="mt-md w-full border border-outline-variant/30 py-base rounded-lg text-on-surface hover:bg-error/10 hover:text-error hover:border-error transition-all duration-300">
+            Thoát
+        </button>
+</aside>
+<!-- Footer -->
+<footer class="w-full flex flex-col items-center justify-center gap-md px-gutter text-center py-lg bg-surface-container-low dark:bg-surface-container-low border-t border-outline-variant/30">
+<span class="text-headline-lg font-bold text-on-surface tracking-tighter">RoPhim</span>
+<div class="flex flex-wrap justify-center gap-md">
+<a class="text-on-surface-variant hover:text-on-surface text-label-md transition-colors" href="#">Hỏi-Đáp</a>
+<a class="text-on-surface-variant hover:text-on-surface text-label-md transition-colors" href="#">Chính sách bảo mật</a>
+<a class="text-on-surface-variant hover:text-on-surface text-label-md transition-colors" href="#">Điều khoản sử dụng</a>
+<a class="text-on-surface-variant hover:text-on-surface text-label-md transition-colors" href="#">Giới thiệu</a>
+<a class="text-on-surface-variant hover:text-on-surface text-label-md transition-colors" href="#">Liên hệ</a>
+</div>
+<p class="text-body-md font-body-md text-on-surface-variant opacity-80">© 2026 RoPhim. Bản quyền thuộc về RoPhim.</p>
+<div class="flex gap-md mt-base">
+<button class="w-10 h-10 rounded-full glass-panel flex items-center justify-center hover:bg-primary hover:text-on-primary transition-all duration-300">
+<span class="material-symbols-outlined">public</span>
+</button>
+<button class="w-10 h-10 rounded-full glass-panel flex items-center justify-center hover:bg-primary hover:text-on-primary transition-all duration-300">
+<span class="material-symbols-outlined">chat_bubble</span>
+</button>
+<button class="w-10 h-10 rounded-full glass-panel flex items-center justify-center hover:bg-primary hover:text-on-primary transition-all duration-300">
+<span class="material-symbols-outlined">share</span>
+</button>
+</div>
+</footer>
+<!-- Micro-interaction Script -->
+<script>
+        // Transparent Navbar effect on scroll
+        const navbar = document.querySelector('.layout-desktop nav');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('shadow-2xl');
+                navbar.style.backgroundColor = 'rgba(19, 19, 19, 0.95)';
+            } else {
+                navbar.classList.remove('shadow-2xl');
+                navbar.style.backgroundColor = 'rgba(19, 19, 19, 0.8)';
+            }
+        });
+
+        // Simple smooth scroll for side nav
+        document.querySelectorAll('aside nav a').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                // Add active state handling
+                document.querySelectorAll('aside nav a').forEach(a => {
+                    a.classList.remove('bg-primary/10', 'text-primary', 'border-r-4', 'border-primary');
+                    a.classList.add('text-on-surface-variant');
+                });
+                this.classList.add('bg-primary/10', 'text-primary', 'border-r-4', 'border-primary');
+                this.classList.remove('text-on-surface-variant');
+            });
+        });
+    </script>
+</div>
+<!-- ============================= -->
+<!-- MOBILE LAYOUT (<=767px) — unchanged from homepageMobile.html -->
+<!-- ============================= -->
+<div class="layout-mobile">
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 dark:bg-surface/80 backdrop-blur-[40px] border-b border-white/10 flex justify-between items-center px-gutter h-20">
+<div class="flex items-center gap-2 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-primary text-headline-md">movie</span>
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary tracking-tight">RoPhim</span>
+</div>
+<button class="text-on-surface-variant hover:opacity-80 transition-opacity active:scale-95">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</header>
+<main class="pb-32">
+<!-- Hero Section -->
+<section class="relative w-full h-[751px] overflow-hidden">
+<div class="absolute inset-0 w-full h-full bg-cover bg-center" data-alt="A cinematic, high-contrast portrait-oriented movie poster for a sci-fi epic. The central figure is a mysterious traveler standing on a desolate obsidian planet under a giant, glowing golden nebula. The lighting is dramatic and moody, with deep blacks and vibrant cinematic gold accents. The visual style is ultra-premium, editorial, and highly detailed, reflecting a modern dark luxury aesthetic." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBK1dB82IqYCac0TFmDoyUp24zieDk4sdog4pxSUsEeIP87ixhJqnpHWHWXTQ82vSZPmyzWdkaFa7pIasA-0_Ah19kBkRMCy4sgU077wYhX_knhRg0pBDU6QSqFN71QURNpi3-grWihjdWOTi7Zq9UpqH0z3XSv2jnNzh1U8erfbpYJro35qpox5hvBPrPrIPqpWkv5h5lVM0C1n5Nfwh5Dpfwt3_560A0igz-_NoaU2NlzvE288YiGfSKP9uHRqiaCeXR_IyD0tP1Y')">
+</div>
+<div class="absolute inset-0 hero-gradient"></div>
+<div class="absolute bottom-0 left-0 w-full p-gutter flex flex-col items-center text-center space-y-6">
+<div class="space-y-2">
+<h1 class="font-headline-xl text-headline-xl text-primary drop-shadow-2xl">Bản Giao Hưởng Đen</h1>
+<div class="flex items-center justify-center gap-2 text-label-md font-label-md text-on-surface-variant">
+<span>Hành động</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span>Viễn tưởng</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span>2h 45m</span>
+</div>
+</div>
+<div class="flex items-center gap-4 w-full max-w-sm">
+<button class="flex-1 h-14 bg-primary text-on-primary font-bold rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+                        Xem Ngay
+                    </button>
+<button class="w-14 h-14 glass-panel-mobile border border-white/20 rounded-xl flex items-center justify-center active:scale-95 transition-transform">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Category Chips -->
+<nav class="px-gutter py-6 overflow-x-auto hide-scrollbar flex gap-3 whitespace-nowrap">
+<button class="px-5 py-2.5 rounded-full bg-primary text-on-primary font-label-md text-label-md">Tất cả</button>
+<button class="px-5 py-2.5 rounded-full bg-surface-container-high border border-white/5 text-on-surface-variant font-label-md text-label-md">Phim Lẻ</button>
+<button class="px-5 py-2.5 rounded-full bg-surface-container-high border border-white/5 text-on-surface-variant font-label-md text-label-md">Phim Bộ</button>
+<button class="px-5 py-2.5 rounded-full bg-surface-container-high border border-white/5 text-on-surface-variant font-label-md text-label-md">Hoạt Hình</button>
+<button class="px-5 py-2.5 rounded-full bg-surface-container-high border border-white/5 text-on-surface-variant font-label-md text-label-md">Kinh Dị</button>
+</nav>
+<!-- Tiếp tục xem (Continue Watching) -->
+<section class="space-y-4 mb-10">
+<div class="px-gutter flex justify-between items-center">
+<h2 class="font-headline-md text-headline-md">Tiếp tục xem</h2>
+<span class="text-primary font-label-md text-label-md">Tất cả</span>
+</div>
+<div class="flex gap-4 overflow-x-auto px-gutter hide-scrollbar">
+<!-- Card 1 -->
+<div class="min-w-[280px] group active:scale-95 transition-transform">
+<div class="relative aspect-video rounded-[20px] overflow-hidden card-inner-border mb-3">
+<img class="w-full h-full object-cover" data-alt="A wide cinematic landscape frame of a futuristic neon-lit Tokyo street at night during heavy rain. A lone figure under a transparent umbrella walks toward a glowing blue portal. The colors are dominated by deep obsidian, electric blue, and soft magenta highlights. Cinematic glassmorphism feel with intense depth." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDCQcZD-dOBrEp39C6uC95oxdksOKr-ABtBkhwG09c9lZbGEEggtigP3mrWBgZI47tyc0gzad5eYIuKGv5fLLEAKeAn3tmC6N099Uq4GnPfLc_IB3_MEqRiDN0ruGEZQrOtHRRaoWWxX0389BQ20_xBRPNRP-poVnJwqPH92o2TYJ7PZ_vRIK1xuM9NBS1NITjOHfrNHJWLYKP-ScDOq78D5H9K56_yNknUmljrOgQSNPQCyksESaUrrNZS0OXVwpQ_DYC0nD4oUw5u"/>
+<div class="absolute bottom-0 left-0 w-full h-1.5 bg-white/20">
+<div class="h-full bg-secondary-container w-[65%]"></div>
+</div>
+<div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40 backdrop-blur-sm">
+<span class="material-symbols-outlined text-white text-5xl">play_circle</span>
+</div>
+</div>
+<p class="font-label-md text-label-md truncate px-1">Người Nhân Bản: 2049</p>
+</div>
+<!-- Card 2 -->
+<div class="min-w-[280px] group active:scale-95 transition-transform">
+<div class="relative aspect-video rounded-[20px] overflow-hidden card-inner-border mb-3">
+<img class="w-full h-full object-cover" data-alt="A high-end cinematic shot of a luxury space station interior looking out into a swirling purple nebula. The interior features brushed metal surfaces, warm ambient orange lights, and glass partitions. The lighting is sophisticated, creating a sense of deep space isolation and premium sci-fi elegance." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA01Xl0_R65B8FubR4Q52vOi26anqLZiSKV_qX4BZEzCufVhjYrr52YJNqAbnqfEHI9q0cSS5HBto1v6Imp-8qnaaqq5mW0uvy5Eanhc6MyXv2kAuVAwA4LtUWSOp_wDWLjvQqCrIm6Jd1hrWSyR_MD5wQDIZDakDFQaiACf8fLIsRyY5wuDlMor45WXWAHkDKPhD8Z4wrchDZixF7klJ_Tqw6u7XrouAGIqcMNdH9A2RwjdXoeNHRcizSgDbKCNzEQ9uJPXfPiKJV9"/>
+<div class="absolute bottom-0 left-0 w-full h-1.5 bg-white/20">
+<div class="h-full bg-secondary-container w-[40%]"></div>
+</div>
+<div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40 backdrop-blur-sm">
+<span class="material-symbols-outlined text-white text-5xl">play_circle</span>
+</div>
+</div>
+<p class="font-label-md text-label-md truncate px-1">Kỳ Quan Không Gian</p>
+</div>
+</div>
+</section>
+<!-- Đang thịnh hành (Trending) -->
+<section class="space-y-4 mb-10">
+<div class="px-gutter flex justify-between items-center">
+<h2 class="font-headline-md text-headline-md">Đang thịnh hành</h2>
+<span class="text-primary font-label-md text-label-md">Xem thêm</span>
+</div>
+<div class="flex gap-4 overflow-x-auto px-gutter hide-scrollbar">
+<!-- Poster 1 -->
+<div class="min-w-[140px] space-y-2 active:scale-95 transition-transform">
+<div class="relative aspect-[2/3] rounded-[20px] overflow-hidden card-inner-border">
+<img class="w-full h-full object-cover" data-alt="A dramatic portrait poster of a Victorian detective standing in a foggy London street illuminated by a single gas lamp. The color palette is rich with deep charcoals, bronze golds, and misty greys. The composition is editorial and moody, capturing a high-end mystery thriller vibe." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCp07lzpcVdIxkHvWj2J1NUTRqJNpwY8ofRtgdj9H2_NBzUmgtBys5GUamAWn61KBEDciZ7xj5amvg8cnga1b878UcsV8xeJHRlnQ5CVBNiQY2jgmQF-1wpYeeeQ35ARrJZaW-9XDEFTRX95y56dmqOqr1tBRTxiHCrai7FU_db7XFsPKEpNfn8jf8-BYI4DxtUfCcZeo19zFom6RcYogGzfgRfbMXGRb0S9AI2fRNgmyow7KKvFQsyKDIaLvncsynonfwwknHaK7gb"/>
+<div class="absolute top-2 right-2 px-2 py-1 glass-panel-mobile border border-white/10 rounded-md">
+<span class="text-[10px] font-bold text-primary">4K HDR</span>
+</div>
+</div>
+</div>
+<!-- Poster 2 -->
+<div class="min-w-[140px] space-y-2 active:scale-95 transition-transform">
+<div class="relative aspect-[2/3] rounded-[20px] overflow-hidden card-inner-border">
+<img class="w-full h-full object-cover" data-alt="A high-intensity action movie poster featuring a sleek, silver sports car drifting through a futuristic city at sunset. The lighting is golden and orange, creating long shadows and high-octane energy. The visual style is clean, modern, and expensive, reflecting a luxury action franchise aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQ5e270mHIwVMu862b2kJWnZInNQK-lonmZkrHL8LYG7qQUJy033AFbj4EIvIzwKzaZM_2ZgxU-RoKaUk3_AwAVENIjwndawq4S1x2YHCh_T_IP35sLoSbmupSJ8cCrr2FnDGWvaQd2b6OgwwcYM0oXFHWDJRONAST-71cT8IIfDNVrOyOfj8ElbGuI0VcdOxykDpt-0vp-sUmPTMKUGLdpuwYYpR1WHN6i714KrP0UnhptvzYR9weElzdhYXf5XG0aopln5oEnF76"/>
+<div class="absolute top-2 right-2 px-2 py-1 glass-panel-mobile border border-white/10 rounded-md">
+<span class="text-[10px] font-bold text-primary">IMAX</span>
+</div>
+</div>
+</div>
+<!-- Poster 3 -->
+<div class="min-w-[140px] space-y-2 active:scale-95 transition-transform">
+<div class="relative aspect-[2/3] rounded-[20px] overflow-hidden card-inner-border">
+<img class="w-full h-full object-cover" data-alt="An ethereal fantasy movie poster showing a glowing ancient tree with blue bioluminescent leaves in a dark forest. A small, glowing spirit figure sits at its base. The atmosphere is magical and serene, using a palette of deep obsidian and vibrant electric blue with soft bokeh effects." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6R3c3wxdWdK9Cheenadbesb78h7ATkcBfozyFX88lqfVutClU_nsaXL7nti5F6rbP7vNdAyJLP5Zt_thN6c0_0aKOuYniRjGRz_JViM2v_ufomEcxKwaunHKQa9Xr8ZFrqto4wEa62ItOJLqwldwPZ9i-8KOXrUZvcmuEC6YvIsL9c9v39yweOoqFyiggsFwgQiKEvLYPwJFm3EJPmmwBkN3G_mwT2VGFiOaLJGW92t6gvzuWrFFcxxSu9yaHC-FiCzAMTWSSNrOM"/>
+<div class="absolute top-2 right-2 px-2 py-1 glass-panel-mobile border border-white/10 rounded-md">
+<span class="text-[10px] font-bold text-primary">4K</span>
+</div>
+</div>
+</div>
+<!-- Poster 4 -->
+<div class="min-w-[140px] space-y-2 active:scale-95 transition-transform">
+<div class="relative aspect-[2/3] rounded-[20px] overflow-hidden card-inner-border">
+<img class="w-full h-full object-cover" data-alt="A gritty crime drama poster showing a silhouette of a man looking over a dark harbor at dawn. The sky is a pale, cold blue with grey clouds. The mood is heavy and introspective, using high-end cinematic grain and deep shadows to create a sophisticated, serious atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBX9zWKQTNdQdA6A9GckKTuCG-0BfrZnVLjOa64DL17frkYXTP_5lRDdjB8LcC2gfUzEIEmYq16pAYb4UGNfVRpsZY3OAMLWOeunIM1Fwt2wqLBZDaiPWRP_HvCztxz1zc_nKta0E5jDyNM6qogmMBKRS-aImjdJkpxqaMmZII7NsoBlLNz3FKzWtkkO5a16VDN2ZrKo88A2epfGn2yPaxnUcdYhiFmRmbWs4VSJNQwtNIYeAxpWCn77RaI2zO9Xhp2c-roPKc6Dfaq"/>
+<div class="absolute top-2 right-2 px-2 py-1 glass-panel-mobile border border-white/10 rounded-md">
+<span class="text-[10px] font-bold text-primary">HDR</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Personalized Recommendations -->
+<section class="px-gutter space-y-6">
+<h2 class="font-headline-md text-headline-md">Dành riêng cho bạn</h2>
+<div class="grid grid-cols-1 gap-4">
+<div class="glass-panel-mobile border border-white/5 rounded-[24px] p-4 flex gap-4 items-center group active:scale-[0.98] transition-all">
+<div class="w-24 h-24 rounded-2xl overflow-hidden flex-shrink-0 card-inner-border">
+<img class="w-full h-full object-cover" data-alt="A close-up shot of a gourmet futuristic cocktail with swirling cosmic fluids inside a minimalist glass. The setting is a high-end obsidian bar. Sharp lighting, vibrant colors, and cinematic luxury atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5sxeyKCQlP5DlofnMhcs4_DzmJMJ610W8Y6oEoUhdiwvCf7LbFEd7ie5q6g9Tg3t-T0-cv1rSDsWuP6yrQHAigweffw18plnNUvpkMPkEvP4bUr5qqEmYUYFODIHgyEGeeLDJoJ28OO6aSdHtBGJt6EjKf0DDUYRfhaAmv5vyPm6gQtVAZvREfG_hiPeveo6I7YuDnqpSsrG-uh6OlX1nkPAqEm7SftVgTka2_0LMdusJE1hC_Nf1f0USPCvyXUd8pzKY9fTN4oy-"/>
+</div>
+<div class="flex-1 space-y-1">
+<span class="text-[10px] font-bold text-primary tracking-widest uppercase">Dành cho cuối tuần</span>
+<h3 class="font-headline-md text-[18px]">Cuộc Vây Hãm Cuối Cùng</h3>
+<p class="text-on-surface-variant text-label-md line-clamp-1">Dựa trên những bộ phim bạn đã xem</p>
+<div class="flex items-center gap-3 pt-1">
+<div class="flex items-center text-primary text-[12px] font-bold">
+<span class="material-symbols-outlined text-[14px] mr-1" style="font-variation-settings: 'FILL' 1;">star</span>
+                                9.4
+                            </div>
+<div class="w-1 h-1 rounded-full bg-outline-variant"></div>
+<span class="text-[12px] text-on-surface-variant">Thành công rực rỡ</span>
+</div>
+</div>
+<button class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+<span class="material-symbols-outlined">play_arrow</span>
+</button>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2 pb-safe bg-surface-container/80 dark:bg-surface-container/80 backdrop-blur-[40px] border-t border-white/10 rounded-t-xl shadow-xl">
+<a class="flex flex-col items-center justify-center bg-primary-container/20 text-primary rounded-xl p-2 active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-md text-label-md">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:text-primary transition-colors active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined">search</span>
+<span class="font-label-md text-label-md">Search</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:text-primary transition-colors active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined">bookmark</span>
+<span class="font-label-md text-label-md">My List</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:text-primary transition-colors active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-md text-label-md">Profile</span>
+</a>
+</nav>
+<script>
+        // Micro-interactions for scrolling
+        const header = document.querySelector('.layout-mobile header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                header.classList.add('bg-surface/95');
+                header.classList.remove('bg-surface/80');
+            } else {
+                header.classList.add('bg-surface/80');
+                header.classList.remove('bg-surface/95');
+            }
+        });
+
+        // Add haptic-like vibration on button clicks (if supported)
+        document.querySelectorAll('.layout-mobile button, .layout-mobile a').forEach(el => {
+            el.addEventListener('click', () => {
+                if (window.navigator.vibrate) {
+                    window.navigator.vibrate(10);
+                }
+            });
+        });
+    </script>
+</div>
+</body></html>

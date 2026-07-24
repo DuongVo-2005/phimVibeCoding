@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>RoPhim - Actor Profile</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<style>
+        body {
+            font-family: 'Geist', sans-serif;
+            background-color: #0A0A0A;
+            color: #e5e2e1;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .glass-nav {
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+        }
+        .hero-gradient {
+            background: linear-gradient(to top, #0A0A0A 0%, rgba(10, 10, 10, 0.8) 20%, rgba(10, 10, 10, 0) 100%);
+        }
+        .actor-mask {
+            mask-image: linear-gradient(to right, black 50%, transparent 100%);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .movie-card:hover .overlay {
+            opacity: 1;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .glass-panel {
+            background: rgba(25, 25, 25, 0.6);
+            backdrop-filter: blur(32px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .hero-gradient-mobile {
+            background: linear-gradient(to top, #0A0A0A 0%, rgba(10, 10, 10, 0.8) 40%, transparent 100%);
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Responsive layout switch: .layout-mobile is the untouched Mobile design,
+           .layout-desktop is the untouched Desktop design (its own sm:/md:/lg: classes
+           already adapt it across the 768-1023 tablet range and 1024+ desktop range). */
+        .layout-desktop {
+            display: none;
+        }
+        .layout-mobile {
+            display: block;
+            min-height: max(884px, 100dvh);
+        }
+        @media (min-width: 768px) {
+            .layout-desktop {
+                display: block;
+            }
+            .layout-mobile {
+                display: none;
+            }
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-lowest": "#0e0e0e",
+                        "secondary-container": "#4b8eff",
+                        "surface-container": "#201f1f",
+                        "tertiary-container": "#76c5ff",
+                        "inverse-on-surface": "#313030",
+                        "surface-tint": "#efc11c",
+                        "on-secondary": "#002e69",
+                        "on-secondary-container": "#00285c",
+                        "outline-variant": "#4e4633",
+                        "inverse-primary": "#745b00",
+                        "on-primary": "#3d2f00",
+                        "inverse-surface": "#e5e2e1",
+                        "tertiary-fixed": "#cae6ff",
+                        "primary-fixed-dim": "#efc11c",
+                        "surface-container-low": "#1c1b1b",
+                        "on-primary-fixed-variant": "#574400",
+                        "on-error": "#690005",
+                        "on-tertiary": "#00344f",
+                        "surface-bright": "#3a3939",
+                        "on-tertiary-container": "#005179",
+                        "on-tertiary-fixed-variant": "#004b70",
+                        "secondary-fixed": "#d8e2ff",
+                        "surface-dim": "#131313",
+                        "on-secondary-fixed": "#001a41",
+                        "tertiary": "#b7deff",
+                        "surface-variant": "#353534",
+                        "outline": "#9a9079",
+                        "surface-container-highest": "#353534",
+                        "surface-container-high": "#2a2a2a",
+                        "primary-container": "#e5b80b",
+                        "primary-fixed": "#ffe089",
+                        "background": "#131313",
+                        "on-tertiary-fixed": "#001e30",
+                        "on-secondary-fixed-variant": "#004493",
+                        "on-primary-container": "#5e4a00",
+                        "on-error-container": "#ffdad6",
+                        "error": "#ffb4ab",
+                        "on-primary-fixed": "#241a00",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "error-container": "#93000a",
+                        "primary": "#ffd552",
+                        "surface": "#131313",
+                        "on-surface": "#e5e2e1",
+                        "secondary": "#adc6ff",
+                        "on-surface-variant": "#d1c5ac",
+                        "tertiary-fixed-dim": "#8dcdff",
+                        "on-background": "#e5e2e1"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "sm": "12px",
+                        "container-max": "1440px",
+                        "base": "8px",
+                        "xl": "80px",
+                        "gutter": "24px",
+                        "md": "24px",
+                        "lg": "48px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Geist"],
+                        "headline-lg-mobile": ["Geist"],
+                        "headline-md": ["Geist"],
+                        "label-md": ["Geist"],
+                        "headline-lg": ["Geist"],
+                        "body-md": ["Geist"],
+                        "display-lg": ["Geist"],
+                        "headline-xl": ["Geist"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "34px", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "display-lg": ["64px", {"lineHeight": "72px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.01em", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface overflow-x-hidden">
+<!-- ============================= -->
+<!-- DESKTOP / TABLET LAYOUT (>=768px) — unchanged from actorprofile.html -->
+<!-- ============================= -->
+<div class="layout-desktop">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-white/10 px-gutter py-base flex justify-between items-center">
+<div class="flex items-center gap-lg">
+<span class="text-headline-md font-headline-xl font-bold text-on-surface cursor-pointer">RoPhim</span>
+<div class="hidden md:flex items-center gap-md">
+<a class="text-on-surface/70 hover:text-on-surface transition-colors text-label-md font-label-md" href="#">Chủ Đề</a>
+<a class="text-on-surface/70 hover:text-on-surface transition-colors text-label-md font-label-md" href="#">Thể loại</a>
+<a class="text-on-surface/70 hover:text-on-surface transition-colors text-label-md font-label-md" href="#">Phim Lẻ</a>
+<a class="text-on-surface/70 hover:text-on-surface transition-colors text-label-md font-label-md" href="#">Phim Bộ</a>
+<a class="text-on-surface/70 hover:text-on-surface transition-colors text-label-md font-label-md" href="#">Xem Chung</a>
+<a class="text-on-surface/70 hover:text-on-surface transition-colors text-label-md font-label-md" href="#">Quốc gia</a>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<div class="relative hidden sm:block">
+<input class="bg-white/5 border border-white/10 rounded-full px-md py-2 text-label-md w-64 focus:outline-none focus:border-primary/50 transition-all" placeholder="Tìm kiếm phim, diễn viên..." type="text"/>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-on-surface/50">search</span>
+</div>
+<button class="material-symbols-outlined text-on-surface/70 hover:text-on-surface transition-colors">notifications</button>
+<button class="bg-primary text-on-primary px-gutter py-2 rounded-full text-label-md font-bold scale-95 active:scale-90 transition-transform">Thành viên</button>
+<div class="w-10 h-10 rounded-full bg-cover bg-center cursor-pointer border border-white/10" data-alt="A sophisticated professional portrait of a modern user with soft lighting, set against a dark, minimalist background. The style is high-end and editorial, reflecting a luxury cinematic platform aesthetic. The colors are muted charcoal and warm gold accents." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDCuaoBVynqxZJMQ8klCPhxW7G1E5fGcrno5K6mPi7YXaUAKfWKfGduw_x1CRz5TZccRp248xa12YJj4GIi7HqmgWYONImvhVIwZcnTs6I5AILsUl6JuldTWygySFvsLQ7xkaNhYr3CnzTPVDJEqyTl0xU3uwdpdYTuXEQJ92hRggVC2QVuSIzk3qQfAdLxuVbSe7bhE9G-wl3GEarNbIlKKDWV97qrxvIQWHoe04NalgWgMVCTqmNpbF5Oacoxr0b60Cw5d3JdNLjn')"></div>
+</div>
+</nav>
+<!-- Hero Section with Actor Image -->
+<header class="relative w-full h-[870px] flex items-end overflow-hidden">
+<div class="absolute inset-0 z-0">
+<div class="w-full h-full bg-cover bg-top actor-mask" data-alt="A breathtaking, high-fidelity editorial portrait of a world-famous actor, captured in cinematic dramatic lighting. The actor features a contemplative expression. The background is a soft, deep charcoal void, allowing the sharp details of the face and textured clothing to pop. The lighting is gold-toned and soft, matching a premium streaming service aesthetic." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD4hkA4AgEXvBpMuOj3lGlWUd2fWQuA7vJMkuCwO5IEpJjceqdqM8uqWunA_wLOrVwbHwpxwTIE68wS-hF489jHiiauQkeLDCu8ToKpsxejuU9-36Sze3KeUyC2mfnHQVsLKG24A7UvKol7akunSWJ1LfL0LNW4O27OEJffTxbzUDXiXD67eS_rLVSEogIto0K5ZWTE9rqXM11yfMG5Knj3N6vxFFjNFu22lP6DgJZdtOJH6VHg9y9dMCoj7dIprXCJtr1o3dP-Nsk8')"></div>
+<div class="absolute inset-0 hero-gradient"></div>
+</div>
+<div class="relative z-10 px-gutter pb-xl w-full max-w-container-max mx-auto">
+<div class="flex flex-col gap-xs">
+<span class="text-primary font-bold text-label-md tracking-widest uppercase">DIỄN VIÊN CHÍNH</span>
+<h1 class="text-display-lg font-display-lg text-on-surface">Timothy Chalamet</h1>
+<div class="flex items-center gap-md mt-sm">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-body-lg font-body-lg">9.8 Phổ biến</span>
+</div>
+<div class="h-4 w-px bg-white/20"></div>
+<span class="text-body-lg font-body-lg text-on-surface/70">28 Tuổi • New York, Hoa Kỳ</span>
+<div class="h-4 w-px bg-white/20"></div>
+<button class="flex items-center gap-xs text-primary hover:underline transition-all">
+<span class="material-symbols-outlined">share</span>
+<span class="text-label-md font-label-md">Chia sẻ</span>
+</button>
+</div>
+</div>
+</div>
+</header>
+<main class="max-w-container-max mx-auto px-gutter grid grid-cols-1 md:grid-cols-12 gap-xl py-xl">
+<!-- Left Column: Bio & Filmography -->
+<div class="md:col-span-8 flex flex-col gap-xl">
+<!-- Biography -->
+<section>
+<h2 class="text-headline-lg font-headline-lg mb-md text-primary">Tiểu Sử</h2>
+<div class="bg-surface-container-low p-lg rounded-xl border border-white/5 relative group overflow-hidden">
+
+<p class="text-body-lg font-body-lg text-on-surface-variant leading-relaxed">
+                        Timothée Hal Chalamet là một nam diễn viên người Mỹ. Anh bắt đầu sự nghiệp diễn xuất của mình trong các bộ phim ngắn và quảng cáo, trước khi xuất hiện trong loạt phim truyền hình Homeland. Anh có màn ra mắt điện ảnh trong bộ phim hài kịch Men, Women &amp; Children và xuất hiện trong bộ phim khoa học viễn tưởng Interstellar của Christopher Nolan. Chalamet bắt đầu nổi tiếng toàn cầu với vai chính Elio Perlman trong bộ phim chính kịch lãng mạn Call Me by Your Name, vai diễn đã mang về cho anh một đề cử Giải Oscar cho Nam diễn viên chính xuất sắc nhất.
+                    </p>
+<button class="mt-md text-primary font-bold hover:underline">Đọc thêm</button>
+</div>
+</section>
+<!-- Known For Gallery -->
+<section>
+<div class="flex justify-between items-end mb-md">
+<h2 class="text-headline-lg font-headline-lg text-on-surface">Tác phẩm nổi bật</h2>
+<a class="text-primary text-label-md font-label-md hover:underline" href="#">Tất cả phim</a>
+</div>
+<div class="flex gap-md overflow-x-auto no-scrollbar pb-md">
+<!-- Movie Cards -->
+<div class="min-w-[200px] aspect-[2/3] relative rounded-xl overflow-hidden group cursor-pointer transition-transform duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(255,213,82,0.2)]">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="Official cinematic poster for the movie Dune Part Two. The visual features an orange and gold desert landscape with futuristic structures and intense shadows. Dramatic, high-contrast lighting captures the epic scale of the film." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA4Ro76HnnS9P358g0rgTgv9yKrn9B3TaN7DDMGbgV93zKcmRsVnibTk7dEC0WrFIMX7TdNQIGiSuFcvIet287CnDpxZdG3c_nP-1UrEfvLDWiy-ee7EOaWRZm1nVJHakw4EqyiU_UrwwJtwSJ8bxE9CkbR22AyjMqz1lDtNW5dLwqyPlvR-UcwWSUsk9aNA1cRjn9bL3Gc8OBSo28DP1ARbTzwBI0GAM3T8Gjo-Uwiy9ibnrLgj8r50Ojv49hYCEmEmed8U0z3VaMu')"></div>
+<div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-md backdrop-blur-sm">
+<h3 class="text-label-md font-bold">Dune: Part Two</h3>
+<p class="text-xs text-on-surface/70">2024 • Sci-Fi</p>
+</div>
+</div>
+<div class="min-w-[200px] aspect-[2/3] relative rounded-xl overflow-hidden group cursor-pointer transition-transform duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(255,213,82,0.2)]">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="Cinematic movie poster for Wonka, featuring vibrant purple and magenta tones. The imagery shows a whimsical, chocolate-themed world with sparkling gold details and a sense of magical wonder." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDGVvJZMuPt71yhQLQG2ULj0iQJHc9UAZTU2lGOJPlWMNmzJcGFvDQOI0s90Md6VmCrxLSRmSmEkzSvmGPApvn16_TovctHVte0Kl9F5wNgsWq6HNqhl-FKnOSL8VRviCiWk1IAzJkyC8rtVLXcZ025BkLxASm061LJtQreW7TQtWzB809Gr2TzMU9ba9sshHQ23jYfgfauD3EugqY4CKQeY5J3KZjWUlXg3RFt4MAMILVDkO25BhgD670TpR0xNUlHLzrirdGVOoPi')"></div>
+<div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-md backdrop-blur-sm">
+<h3 class="text-label-md font-bold">Wonka</h3>
+<p class="text-xs text-on-surface/70">2023 • Musical</p>
+</div>
+</div>
+<div class="min-w-[200px] aspect-[2/3] relative rounded-xl overflow-hidden group cursor-pointer transition-transform duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(255,213,82,0.2)]">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="Movie poster for Call Me By Your Name, featuring a soft blue Italian summer sky and lush greenery. The mood is nostalgic, romantic, and hazy with gentle golden hour lighting." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBPaonEAPmy6fZwQZP9TNYkDpPKejJtE6TSCGsdwZDy5JhyVmGwthuaYI16eB7AuzxZCBjK5-8I-L5BB6cwVPgo-jKSRVFtVlg6o1jzKbDWEVdJWMP87fp4aHuN0gytm05SsGZR50ch0pNxbhjSD41jwzj04_QFYek02LDE8tAVmp4Xxd3_GhVN39-9Wenk23PPQ1V0xGX9Fqx_JRt8i89ZAy1Z2JK9sUsmu_PKZYSDrYRlBX3sx2t8YJmwLLTRtTRgTaFDgQvsjwye')"></div>
+<div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-md backdrop-blur-sm">
+<h3 class="text-label-md font-bold">Call Me by Your Name</h3>
+<p class="text-xs text-on-surface/70">2017 • Romance</p>
+</div>
+</div>
+<div class="min-w-[200px] aspect-[2/3] relative rounded-xl overflow-hidden group cursor-pointer transition-transform duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(255,213,82,0.2)]">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="Cinematic poster for the movie Interstellar. A dark, cold space scene featuring a glowing wormhole and high-contrast star fields. The color palette is dominated by deep blues and bright whites." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBhcnqwqdT-N45sqvZUf0pnqyWnL0DRmNxzNoqL1sETpWfByyRJtyXD-d3AM6sGkko0hnvBUlZeA4mhD-BsSOpaqFhgA2NAzZ1THMN5qNQcYgEe9gWt6Xa-ZEiGDq0rfdYgiSvghe71BV0TbMmuhNEw-nQO82pPScZVZInMg2ujIoQh-CXb_0QFHpyiWEEQuR9e9j0c7C_RDdRuM3Gq6NhoKA9MOBciQ56n7PuM7zoZuOX1lGrs3TINOE86LTmWcUhRF4RHA0xbxQQI')"></div>
+<div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-md backdrop-blur-sm">
+<h3 class="text-label-md font-bold">Interstellar</h3>
+<p class="text-xs text-on-surface/70">2014 • Sci-Fi</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Awards Section -->
+<section>
+<h2 class="text-headline-lg font-headline-lg mb-md text-on-surface">Giải thưởng &amp; Đề cử</h2>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+<div class="bg-surface-container p-md rounded-xl flex items-center gap-md border border-white/5">
+<div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">military_tech</span>
+</div>
+<div>
+<h4 class="text-label-md font-bold">Đề cử Oscar</h4>
+<p class="text-body-md text-on-surface/60">Nam chính xuất sắc nhất (2018)</p>
+</div>
+</div>
+<div class="bg-surface-container p-md rounded-xl flex items-center gap-md border border-white/5">
+<div class="w-12 h-12 rounded-full bg-secondary-container/10 flex items-center justify-center text-secondary-container">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">trophy</span>
+</div>
+<div>
+<h4 class="text-label-md font-bold">Giải Quả Cầu Vàng</h4>
+<p class="text-body-md text-on-surface/60">3 đề cử diễn xuất</p>
+</div>
+</div>
+<div class="bg-surface-container p-md rounded-xl flex items-center gap-md border border-white/5">
+<div class="w-12 h-12 rounded-full bg-tertiary-container/10 flex items-center justify-center text-tertiary-container">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+</div>
+<div>
+<h4 class="text-label-md font-bold">BAFTA Awards</h4>
+<p class="text-body-md text-on-surface/60">2 đề cử Ngôi sao đang nổi</p>
+</div>
+</div>
+<div class="bg-surface-container p-md rounded-xl flex items-center gap-md border border-white/5">
+<div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star_half</span>
+</div>
+<div>
+<h4 class="text-label-md font-bold">Critics' Choice</h4>
+<p class="text-body-md text-on-surface/60">Chiến thắng Nam diễn viên chính</p>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column: Personal Details & Sidebar Info -->
+<aside class="md:col-span-4 flex flex-col gap-lg">
+<div class="sticky top-28 flex flex-col gap-lg">
+<div class="bg-surface-container-high p-lg rounded-2xl border border-white/10">
+<h3 class="text-headline-md font-headline-md mb-md text-on-surface">Thông tin chi tiết</h3>
+<div class="flex flex-col gap-md">
+<div class="flex flex-col">
+<span class="text-label-md text-on-surface/50">Ngày sinh</span>
+<span class="text-body-md font-bold">27 tháng 12, 1995</span>
+</div>
+<div class="h-px bg-white/10"></div>
+<div class="flex flex-col">
+<span class="text-label-md text-on-surface/50">Nơi sinh</span>
+<span class="text-body-md font-bold">Hell's Kitchen, Manhattan, New York</span>
+</div>
+<div class="h-px bg-white/10"></div>
+<div class="flex flex-col">
+<span class="text-label-md text-on-surface/50">Nghề nghiệp</span>
+<span class="text-body-md font-bold">Diễn viên, Người mẫu</span>
+</div>
+<div class="h-px bg-white/10"></div>
+<div class="flex flex-col">
+<span class="text-label-md text-on-surface/50">Chiều cao</span>
+<span class="text-body-md font-bold">1.78 m</span>
+</div>
+</div>
+<button class="w-full mt-lg bg-white/5 hover:bg-white/10 py-md rounded-xl text-label-md font-bold transition-all border border-white/10">Theo dõi diễn viên</button>
+</div>
+<div class="bg-surface-container-low p-md rounded-2xl border border-white/5">
+<h3 class="text-label-md font-bold mb-md uppercase tracking-wider text-on-surface/50">Mạng xã hội</h3>
+<div class="flex gap-md">
+<button class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center hover:bg-primary hover:text-on-primary transition-all">
+<span class="material-symbols-outlined">public</span>
+</button>
+<button class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center hover:bg-primary hover:text-on-primary transition-all">
+<span class="material-symbols-outlined">groups</span>
+</button>
+<button class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center hover:bg-primary hover:text-on-primary transition-all">
+<span class="material-symbols-outlined">alternate_email</span>
+</button>
+</div>
+</div>
+<!-- Ad/Promotion Bento Style -->
+<div class="relative h-48 rounded-2xl overflow-hidden group cursor-pointer">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="A luxurious lifestyle image of a high-end cinema room with plush velvet seating, warm ambient cove lighting, and a massive screen. The atmosphere is cozy, exclusive, and representative of a premium cinematic experience." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD68e95tGxVNQRC5LdLmy2QNMT6ObHXuWoPjTr5DLTgUKuGxun4jfRJQBaKA_MWLTSMFZ7LVeTUbnBUEIPPJW1yu-9Y2p7zvI6OhPNWcyWcgJIu4xA42uBHtFMf0mPel-7DUnkP0xo6-GQpOc68QQ_4LWIWRIDPAenCzVftjNMqMrYLHnotP3yks-O5UxMsRz6sMvom5EjB-yUa4RoKCwrlOtzaHKYMf8SxgcalNzlCMkQIs7DD9sTWt-Swdp3jFNrO7rIaNJaZKToZ')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-black to-transparent"></div>
+<div class="absolute bottom-4 left-4 right-4">
+<p class="text-xs text-primary font-bold uppercase mb-1">Đặc quyền Premium</p>
+<h4 class="text-label-md font-bold">Xem mọi phim của Timothy 4K</h4>
+</div>
+</div>
+</div>
+</aside>
+</main>
+<!-- Footer -->
+<footer class="w-full bg-surface-container-low border-t border-outline-variant/30 py-lg px-gutter text-center flex flex-col items-center gap-md mt-xl">
+<span class="text-headline-lg font-bold text-on-surface">RoPhim</span>
+<div class="flex flex-wrap justify-center gap-md">
+<a class="text-on-surface-variant hover:text-on-surface text-label-md font-label-md transition-colors" href="#">Hỏi-Đáp</a>
+<a class="text-on-surface-variant hover:text-on-surface text-label-md font-label-md transition-colors" href="#">Chính sách bảo mật</a>
+<a class="text-on-surface-variant hover:text-on-surface text-label-md font-label-md transition-colors" href="#">Điều khoản sử dụng</a>
+<a class="text-on-surface-variant hover:text-on-surface text-label-md font-label-md transition-colors" href="#">Giới thiệu</a>
+<a class="text-on-surface-variant hover:text-on-surface text-label-md font-label-md transition-colors" href="#">Liên hệ</a>
+</div>
+<p class="text-body-md font-body-md text-on-surface-variant/70 max-w-2xl">© 2026 RoPhim. Bản quyền thuộc về RoPhim. Nền tảng xem phim trực tuyến hàng đầu với trải nghiệm điện ảnh sang trọng.</p>
+</footer>
+<!-- Interactive script for card hover and effects -->
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const navbar = document.querySelector('.layout-desktop nav');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    navbar.classList.add('shadow-xl');
+                    navbar.style.backgroundColor = 'rgba(19, 19, 19, 0.95)';
+                } else {
+                    navbar.classList.remove('shadow-xl');
+                    navbar.style.backgroundColor = 'rgba(19, 19, 19, 0.8)';
+                }
+            });
+
+            // Smooth parallax effect for hero
+            window.addEventListener('scroll', () => {
+                const scroll = window.scrollY;
+                const heroImage = document.querySelector('.layout-desktop .actor-mask');
+                if (heroImage) {
+                    heroImage.style.transform = `translateY(${scroll * 0.4}px)`;
+                    heroImage.style.opacity = 1 - (scroll / 800);
+                }
+            });
+
+            // Card hover glow effect
+            const cards = document.querySelectorAll('.layout-desktop .movie-card');
+            cards.forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    card.style.setProperty('--mouse-x', `${x}px`);
+                    card.style.setProperty('--mouse-y', `${y}px`);
+                });
+            });
+        });
+    </script>
+</div>
+<!-- ============================= -->
+<!-- MOBILE LAYOUT (<=767px) — unchanged from actorprofileMobile.html -->
+<!-- ============================= -->
+<div class="layout-mobile">
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 dark:bg-surface/80 backdrop-blur-[40px] border-b border-white/10 flex justify-between items-center px-gutter h-20">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-headline-md transition-transform active:scale-95" data-icon="arrow_back">arrow_back</span>
+</div>
+<div class="font-headline-md text-headline-md font-bold text-primary dark:text-primary tracking-tight">RoPhim</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant hover:opacity-80 transition-opacity" data-icon="share">share</span>
+</div>
+</header>
+<main class="pb-32">
+<!-- Hero Section: Portrait -->
+<section class="relative w-full h-[618px] overflow-hidden">
+<div class="absolute inset-0 w-full h-full bg-cover bg-center" data-alt="A cinematic, professional high-fashion portrait of actor Timothy Chalamet, featuring dramatic chiaroscuro lighting that highlights his facial features against a deep, moody obsidian background. The visual style is premium and editorial, utilizing a rich palette of deep charcoals and warm cinematic gold highlights. The atmosphere is sophisticated and exclusive, mimicking a high-end streaming platform's hero imagery." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCmRvpJxhQ-7kH1QuJAYelz2yiLmFkemGSpCroJMQDyd5KXtoTEO9RJDwXjrc71cfJLrFXE0Vm4v8cvvB1H9C9KIIwQy8onrIydwlS-_I-DpbOHx316DQfX5XfuUoUJhKylZUeP7EPf7hqfA1JvgH7aaOVZQzlSzOTmICsYJTv67uOax9I2FbhP41qCIYv0GaS7gNSktHacWxQ5O869qUXD4VqeWEvL5F5Rcx7W6PIWRMuYxpUJuXcARGhUA9xmq5IbwVjNGMjKxBfP')"></div>
+<div class="absolute inset-0 hero-gradient-mobile"></div>
+<!-- Floating Name & Bio Overlay -->
+<div class="absolute bottom-0 left-0 w-full px-gutter pb-8 flex flex-col gap-2">
+<span class="text-primary font-label-md text-label-md tracking-widest uppercase">Actor / Diễn viên</span>
+<h1 class="font-headline-xl text-headline-xl text-white leading-none">Timothy Chalamet</h1>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-md line-clamp-2">
+                    Nam diễn viên người Mỹ tài năng được biết đến qua các vai diễn đầy chiều sâu trong Dune, Wonka và Call Me by Your Name.
+                </p>
+<div class="flex gap-4 mt-4">
+<button class="bg-primary-container text-on-primary-container px-6 py-3 rounded-xl font-label-md text-label-md flex items-center gap-2 active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="play_arrow" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+                        Xem Trailer
+                    </button>
+<button class="bg-white/10 backdrop-blur-md border border-white/10 text-white px-6 py-3 rounded-xl font-label-md text-label-md flex items-center gap-2 active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+                        Theo dõi
+                    </button>
+</div>
+</div>
+</section>
+<!-- Details Section: Accordion Style -->
+<section class="px-gutter mt-lg">
+<div class="flex items-center justify-between mb-4">
+<h2 class="font-headline-md text-headline-md text-white">Thông tin chi tiết</h2>
+</div>
+<div class="space-y-3">
+<details class="group glass-panel rounded-2xl overflow-hidden" open="">
+<summary class="flex justify-between items-center p-4 cursor-pointer list-none">
+<span class="font-label-md text-label-md text-primary">Tiểu sử &amp; Sự nghiệp</span>
+<span class="material-symbols-outlined transition-transform group-open:rotate-180" data-icon="expand_more">expand_more</span>
+</summary>
+<div class="p-4 pt-0 text-on-surface-variant font-body-md text-body-md leading-relaxed border-t border-white/5">
+                        Timothy Hal Chalamet là một nam diễn viên người Mỹ. Anh đã nhận được nhiều giải thưởng khác nhau trong suốt sự nghiệp của mình, bao gồm các đề cử cho Giải Oscar, ba Giải Quả cầu vàng và ba Giải thưởng Điện ảnh của Viện Hàn lâm Anh. Anh bắt đầu sự nghiệp của mình với tư cách là một diễn viên nhí trong các chương trình truyền hình.
+                    </div>
+</details>
+<div class="grid grid-cols-2 gap-3">
+<div class="glass-panel p-4 rounded-2xl">
+<div class="text-on-surface-variant font-label-md text-xs mb-1 opacity-60 uppercase">Ngày sinh</div>
+<div class="text-white font-label-md text-label-md">27/12/1995</div>
+</div>
+<div class="glass-panel p-4 rounded-2xl">
+<div class="text-on-surface-variant font-label-md text-xs mb-1 opacity-60 uppercase">Nơi sinh</div>
+<div class="text-white font-label-md text-label-md">New York, Mỹ</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Featured Works Carousel -->
+<section class="mt-xl">
+<div class="px-gutter flex items-center justify-between mb-6">
+<h2 class="font-headline-md text-headline-md text-white">Tác phẩm nổi bật</h2>
+<span class="text-primary font-label-md text-label-md">Tất cả</span>
+</div>
+<div class="flex overflow-x-auto gap-4 px-gutter pb-4 hide-scrollbar snap-x">
+<!-- Movie Card 1 -->
+<div class="flex-none w-40 snap-start">
+<div class="relative aspect-[2/3] rounded-[20px] overflow-hidden group transition-transform active:scale-95">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="Official cinematic movie poster for Dune Part Two, featuring Paul Atreides in a desert landscape with intense orange and deep brown tones. High-contrast lighting and premium texture, emphasizing the epic scale of the production." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBgjYFCgi6To0t57AIhDd9Bm4cPTRFv4Dc7_yucoREx9Ib02OW4wyF2VxE6O2QDv8ztQ9XheJN3PCL0SQX2bG9VaaQreI1veHAhB84re95nPJUy7maX4F2s0MTrwadqKPe-pWzU7K-Iip_ghoz4vPCzKnCmTztGkEevFjG7xUinIXHhF0ARZIiWcL-9iLNss4EwWz8G9cZRxjWFin0iX91OIPCpPBOKeG0B7GC74OkSROjeTL6lqtOpjdQHk-pNaPyunBRFbdXhWez3')"></div>
+<div class="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors"></div>
+<div class="absolute top-2 right-2 glass-panel px-2 py-1 rounded-md text-[10px] font-bold text-primary">8.6</div>
+</div>
+<div class="mt-3">
+<div class="text-white font-label-md text-label-md truncate">Dune: Part Two</div>
+<div class="text-on-surface-variant text-xs opacity-60">2024 • Sci-Fi</div>
+</div>
+</div>
+<!-- Movie Card 2 -->
+<div class="flex-none w-40 snap-start">
+<div class="relative aspect-[2/3] rounded-[20px] overflow-hidden group transition-transform active:scale-95">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="Vibrant and whimsical movie poster for Wonka, showing the title character in a colorful, magical chocolate factory setting. Soft, warm lighting and a high-end fantasy aesthetic with rich purples and golds." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD4tFHMHkQlukTAhmSGn5eXuZgym-0jT8S5kaSoWnWtTtOopcBZq8VC_f8u7_yt8WsU0ZOgjnv-bRGuOjp97-KJclwelv3LlgXZTQW_EALXAiuzAm-SAK17zdoXZvJdFNllS0Oh9vtf8A3xpgaVXNZOdppLhRx-8TFhaFpoHGi8FROgdL0heKH3eZ_jENvRoDG_x8Y5gUsfiUz_2FJ2y1AnUjvTdBkNKRGTLRpcAfa53mVrRSxtZw8KQDZrJW6enjUUqe8cmwXkevAd')"></div>
+<div class="absolute top-2 right-2 glass-panel px-2 py-1 rounded-md text-[10px] font-bold text-primary">7.0</div>
+</div>
+<div class="mt-3">
+<div class="text-white font-label-md text-label-md truncate">Wonka</div>
+<div class="text-on-surface-variant text-xs opacity-60">2023 • Fantasy</div>
+</div>
+</div>
+<!-- Movie Card 3 -->
+<div class="flex-none w-40 snap-start">
+<div class="relative aspect-[2/3] rounded-[20px] overflow-hidden group transition-transform active:scale-95">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="A classic, moody movie poster for Bones and All, featuring a soft-focus romantic but dark atmosphere. Editorial lighting with a cinematic color grade of deep reds and muted earth tones." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBFzuf6RBYSjm1iUGs-Svv35Mue1xQHi9lgvl_OY0Poln9GItbQ_rxSrZtbmisAdC5TR8kByjyCIj-grFM2twDQUJ9LSqo4scTBzAfYYvukXMI-aQn6GPq8ckBKJlWY77XACrqFOjlsxw4sBY7-f04I7LDsg1Jlj-RVA3Q9SqsVHw1_hLzM6D7X6b5N2lkjazwlVoMlDQegYF4eimdjMu-hQnv9YqQCLQIPjxqCJ_YAr6Me7A4XVOC1TAmqEaDgZGgLserBKCy8qVuU')"></div>
+<div class="absolute top-2 right-2 glass-panel px-2 py-1 rounded-md text-[10px] font-bold text-primary">6.8</div>
+</div>
+<div class="mt-3">
+<div class="text-white font-label-md text-label-md truncate">Bones and All</div>
+<div class="text-on-surface-variant text-xs opacity-60">2022 • Horror</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Awards Section -->
+<section class="px-gutter mt-xl">
+<div class="flex items-center justify-between mb-6">
+<h2 class="font-headline-md text-headline-md text-white">Giải thưởng &amp; Đề cử</h2>
+</div>
+<div class="space-y-4">
+<!-- Award Card 1 -->
+<div class="glass-panel p-4 rounded-2xl flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-primary-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="emoji_events">emoji_events</span>
+</div>
+<div class="flex-1">
+<div class="text-white font-label-md text-label-md">Academy Awards (Oscars)</div>
+<div class="text-on-surface-variant text-xs opacity-60">Đề cử: Nam diễn viên chính xuất sắc nhất (2018)</div>
+</div>
+</div>
+<!-- Award Card 2 -->
+<div class="glass-panel p-4 rounded-2xl flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-secondary-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary text-2xl" data-icon="military_tech">military_tech</span>
+</div>
+<div class="flex-1">
+<div class="text-white font-label-md text-label-md">Golden Globe Awards</div>
+<div class="text-on-surface-variant text-xs opacity-60">3 Đề cử (2018, 2019, 2024)</div>
+</div>
+</div>
+<!-- Award Card 3 -->
+<div class="glass-panel p-4 rounded-2xl flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-tertiary-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-tertiary text-2xl" data-icon="star">star</span>
+</div>
+<div class="flex-1">
+<div class="text-white font-label-md text-label-md">BAFTA Awards</div>
+<div class="text-on-surface-variant text-xs opacity-60">3 Đề cử - Rising Star Award</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2 pb-safe bg-surface-container/80 dark:bg-surface-container/80 backdrop-blur-[40px] border-t border-white/10 rounded-t-xl shadow-xl">
+<div class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:text-primary transition-colors active:scale-90 duration-200">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label-md text-[10px]">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:text-primary transition-colors active:scale-90 duration-200">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+<span class="font-label-md text-[10px]">Search</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:text-primary transition-colors active:scale-90 duration-200">
+<span class="material-symbols-outlined" data-icon="bookmark">bookmark</span>
+<span class="font-label-md text-[10px]">My List</span>
+</div>
+<!-- Profile is Active as we are viewing an Actor's Profile / User Context -->
+<div class="flex flex-col items-center justify-center bg-primary-container/20 text-primary rounded-xl p-2 active:scale-90 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="person" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-label-md text-[10px]">Profile</span>
+</div>
+</nav>
+<script>
+        // Simple Interaction logic for micro-effects
+        document.querySelectorAll('.layout-mobile .active\\:scale-95').forEach(button => {
+            button.addEventListener('touchstart', () => {
+                button.style.transform = 'scale(0.95)';
+            });
+            button.addEventListener('touchend', () => {
+                button.style.transform = 'scale(1)';
+            });
+        });
+
+        // Sticky header opacity change on scroll
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('.layout-mobile header');
+            if (window.scrollY > 50) {
+                header.classList.add('bg-surface/95');
+                header.classList.remove('bg-surface/80');
+            } else {
+                header.classList.add('bg-surface/80');
+                header.classList.remove('bg-surface/95');
+            }
+        });
+    </script>
+</div>
+</body></html>

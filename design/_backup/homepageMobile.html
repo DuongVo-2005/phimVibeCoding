@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>RoPhim - Cinematic Experience</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-bright": "#3a3939",
+                    "primary-fixed": "#ffe089",
+                    "on-primary-fixed-variant": "#574400",
+                    "on-error": "#690005",
+                    "surface-container-low": "#1c1b1b",
+                    "tertiary": "#b7deff",
+                    "on-background": "#e5e2e1",
+                    "primary-fixed-dim": "#efc11c",
+                    "error": "#ffb4ab",
+                    "on-secondary-container": "#00285c",
+                    "secondary-container": "#4b8eff",
+                    "secondary": "#adc6ff",
+                    "on-surface-variant": "#d1c5ac",
+                    "secondary-fixed": "#d8e2ff",
+                    "on-secondary-fixed": "#001a41",
+                    "tertiary-container": "#76c5ff",
+                    "surface-container-high": "#2a2a2a",
+                    "on-tertiary-container": "#005179",
+                    "outline": "#9a9079",
+                    "surface-container-highest": "#353534",
+                    "inverse-on-surface": "#313030",
+                    "on-tertiary-fixed-variant": "#004b70",
+                    "on-primary-fixed": "#241a00",
+                    "surface-container": "#201f1f",
+                    "surface": "#131313",
+                    "outline-variant": "#4e4633",
+                    "on-secondary-fixed-variant": "#004493",
+                    "surface-container-lowest": "#0e0e0e",
+                    "surface-tint": "#efc11c",
+                    "background": "#131313",
+                    "secondary-fixed-dim": "#adc6ff",
+                    "error-container": "#93000a",
+                    "on-primary": "#3d2f00",
+                    "primary-container": "#e5b80b",
+                    "on-tertiary-fixed": "#001e30",
+                    "on-secondary": "#002e69",
+                    "on-tertiary": "#00344f",
+                    "primary": "#ffd552",
+                    "inverse-surface": "#e5e2e1",
+                    "surface-variant": "#353534",
+                    "surface-dim": "#131313",
+                    "tertiary-fixed-dim": "#8dcdff",
+                    "on-primary-container": "#5e4a00",
+                    "inverse-primary": "#745b00",
+                    "on-error-container": "#ffdad6",
+                    "tertiary-fixed": "#cae6ff",
+                    "on-surface": "#e5e2e1"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "24px",
+                    "xs": "4px",
+                    "xl": "80px",
+                    "lg": "48px",
+                    "sm": "12px",
+                    "base": "8px",
+                    "md": "24px",
+                    "container-max": "1440px"
+            },
+            "fontFamily": {
+                    "label-md": ["Geist"],
+                    "display-lg": ["Geist"],
+                    "headline-md": ["Geist"],
+                    "headline-lg-mobile": ["Geist"],
+                    "headline-lg": ["Geist"],
+                    "headline-xl": ["Geist"],
+                    "body-md": ["Geist"],
+                    "body-lg": ["Geist"]
+            },
+            "fontSize": {
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "display-lg": ["64px", {"lineHeight": "72px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "34px", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                    "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #0A0A0A;
+            font-family: 'Geist', sans-serif;
+            color: #e5e2e1;
+            overflow-x: hidden;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            user-select: none;
+        }
+        .glass-panel {
+            background: rgba(26, 26, 26, 0.4);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .hero-gradient {
+            background: linear-gradient(0deg, #0A0A0A 0%, rgba(10,10,10,0.8) 20%, rgba(10,10,10,0) 50%, rgba(10,10,10,0.4) 100%);
+        }
+        .card-inner-border {
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface">
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 dark:bg-surface/80 backdrop-blur-[40px] border-b border-white/10 flex justify-between items-center px-gutter h-20">
+<div class="flex items-center gap-2 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-primary text-headline-md">movie</span>
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary tracking-tight">RoPhim</span>
+</div>
+<button class="text-on-surface-variant hover:opacity-80 transition-opacity active:scale-95">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</header>
+<main class="pb-32">
+<!-- Hero Section -->
+<section class="relative w-full h-[751px] overflow-hidden">
+<div class="absolute inset-0 w-full h-full bg-cover bg-center" data-alt="A cinematic, high-contrast portrait-oriented movie poster for a sci-fi epic. The central figure is a mysterious traveler standing on a desolate obsidian planet under a giant, glowing golden nebula. The lighting is dramatic and moody, with deep blacks and vibrant cinematic gold accents. The visual style is ultra-premium, editorial, and highly detailed, reflecting a modern dark luxury aesthetic." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBK1dB82IqYCac0TFmDoyUp24zieDk4sdog4pxSUsEeIP87ixhJqnpHWHWXTQ82vSZPmyzWdkaFa7pIasA-0_Ah19kBkRMCy4sgU077wYhX_knhRg0pBDU6QSqFN71QURNpi3-grWihjdWOTi7Zq9UpqH0z3XSv2jnNzh1U8erfbpYJro35qpox5hvBPrPrIPqpWkv5h5lVM0C1n5Nfwh5Dpfwt3_560A0igz-_NoaU2NlzvE288YiGfSKP9uHRqiaCeXR_IyD0tP1Y')">
+</div>
+<div class="absolute inset-0 hero-gradient"></div>
+<div class="absolute bottom-0 left-0 w-full p-gutter flex flex-col items-center text-center space-y-6">
+<div class="space-y-2">
+<h1 class="font-headline-xl text-headline-xl text-primary drop-shadow-2xl">Bản Giao Hưởng Đen</h1>
+<div class="flex items-center justify-center gap-2 text-label-md font-label-md text-on-surface-variant">
+<span>Hành động</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span>Viễn tưởng</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span>2h 45m</span>
+</div>
+</div>
+<div class="flex items-center gap-4 w-full max-w-sm">
+<button class="flex-1 h-14 bg-primary text-on-primary font-bold rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+                        Xem Ngay
+                    </button>
+<button class="w-14 h-14 glass-panel border border-white/20 rounded-xl flex items-center justify-center active:scale-95 transition-transform">
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Category Chips -->
+<nav class="px-gutter py-6 overflow-x-auto hide-scrollbar flex gap-3 whitespace-nowrap">
+<button class="px-5 py-2.5 rounded-full bg-primary text-on-primary font-label-md text-label-md">Tất cả</button>
+<button class="px-5 py-2.5 rounded-full bg-surface-container-high border border-white/5 text-on-surface-variant font-label-md text-label-md">Phim Lẻ</button>
+<button class="px-5 py-2.5 rounded-full bg-surface-container-high border border-white/5 text-on-surface-variant font-label-md text-label-md">Phim Bộ</button>
+<button class="px-5 py-2.5 rounded-full bg-surface-container-high border border-white/5 text-on-surface-variant font-label-md text-label-md">Hoạt Hình</button>
+<button class="px-5 py-2.5 rounded-full bg-surface-container-high border border-white/5 text-on-surface-variant font-label-md text-label-md">Kinh Dị</button>
+</nav>
+<!-- Tiếp tục xem (Continue Watching) -->
+<section class="space-y-4 mb-10">
+<div class="px-gutter flex justify-between items-center">
+<h2 class="font-headline-md text-headline-md">Tiếp tục xem</h2>
+<span class="text-primary font-label-md text-label-md">Tất cả</span>
+</div>
+<div class="flex gap-4 overflow-x-auto px-gutter hide-scrollbar">
+<!-- Card 1 -->
+<div class="min-w-[280px] group active:scale-95 transition-transform">
+<div class="relative aspect-video rounded-[20px] overflow-hidden card-inner-border mb-3">
+<img class="w-full h-full object-cover" data-alt="A wide cinematic landscape frame of a futuristic neon-lit Tokyo street at night during heavy rain. A lone figure under a transparent umbrella walks toward a glowing blue portal. The colors are dominated by deep obsidian, electric blue, and soft magenta highlights. Cinematic glassmorphism feel with intense depth." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDCQcZD-dOBrEp39C6uC95oxdksOKr-ABtBkhwG09c9lZbGEEggtigP3mrWBgZI47tyc0gzad5eYIuKGv5fLLEAKeAn3tmC6N099Uq4GnPfLc_IB3_MEqRiDN0ruGEZQrOtHRRaoWWxX0389BQ20_xBRPNRP-poVnJwqPH92o2TYJ7PZ_vRIK1xuM9NBS1NITjOHfrNHJWLYKP-ScDOq78D5H9K56_yNknUmljrOgQSNPQCyksESaUrrNZS0OXVwpQ_DYC0nD4oUw5u"/>
+<div class="absolute bottom-0 left-0 w-full h-1.5 bg-white/20">
+<div class="h-full bg-secondary-container w-[65%]"></div>
+</div>
+<div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40 backdrop-blur-sm">
+<span class="material-symbols-outlined text-white text-5xl">play_circle</span>
+</div>
+</div>
+<p class="font-label-md text-label-md truncate px-1">Người Nhân Bản: 2049</p>
+</div>
+<!-- Card 2 -->
+<div class="min-w-[280px] group active:scale-95 transition-transform">
+<div class="relative aspect-video rounded-[20px] overflow-hidden card-inner-border mb-3">
+<img class="w-full h-full object-cover" data-alt="A high-end cinematic shot of a luxury space station interior looking out into a swirling purple nebula. The interior features brushed metal surfaces, warm ambient orange lights, and glass partitions. The lighting is sophisticated, creating a sense of deep space isolation and premium sci-fi elegance." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA01Xl0_R65B8FubR4Q52vOi26anqLZiSKV_qX4BZEzCufVhjYrr52YJNqAbnqfEHI9q0cSS5HBto1v6Imp-8qnaaqq5mW0uvy5Eanhc6MyXv2kAuVAwA4LtUWSOp_wDWLjvQqCrIm6Jd1hrWSyR_MD5wQDIZDakDFQaiACf8fLIsRyY5wuDlMor45WXWAHkDKPhD8Z4wrchDZixF7klJ_Tqw6u7XrouAGIqcMNdH9A2RwjdXoeNHRcizSgDbKCNzEQ9uJPXfPiKJV9"/>
+<div class="absolute bottom-0 left-0 w-full h-1.5 bg-white/20">
+<div class="h-full bg-secondary-container w-[40%]"></div>
+</div>
+<div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40 backdrop-blur-sm">
+<span class="material-symbols-outlined text-white text-5xl">play_circle</span>
+</div>
+</div>
+<p class="font-label-md text-label-md truncate px-1">Kỳ Quan Không Gian</p>
+</div>
+</div>
+</section>
+<!-- Đang thịnh hành (Trending) -->
+<section class="space-y-4 mb-10">
+<div class="px-gutter flex justify-between items-center">
+<h2 class="font-headline-md text-headline-md">Đang thịnh hành</h2>
+<span class="text-primary font-label-md text-label-md">Xem thêm</span>
+</div>
+<div class="flex gap-4 overflow-x-auto px-gutter hide-scrollbar">
+<!-- Poster 1 -->
+<div class="min-w-[140px] space-y-2 active:scale-95 transition-transform">
+<div class="relative aspect-[2/3] rounded-[20px] overflow-hidden card-inner-border">
+<img class="w-full h-full object-cover" data-alt="A dramatic portrait poster of a Victorian detective standing in a foggy London street illuminated by a single gas lamp. The color palette is rich with deep charcoals, bronze golds, and misty greys. The composition is editorial and moody, capturing a high-end mystery thriller vibe." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCp07lzpcVdIxkHvWj2J1NUTRqJNpwY8ofRtgdj9H2_NBzUmgtBys5GUamAWn61KBEDciZ7xj5amvg8cnga1b878UcsV8xeJHRlnQ5CVBNiQY2jgmQF-1wpYeeeQ35ARrJZaW-9XDEFTRX95y56dmqOqr1tBRTxiHCrai7FU_db7XFsPKEpNfn8jf8-BYI4DxtUfCcZeo19zFom6RcYogGzfgRfbMXGRb0S9AI2fRNgmyow7KKvFQsyKDIaLvncsynonfwwknHaK7gb"/>
+<div class="absolute top-2 right-2 px-2 py-1 glass-panel border border-white/10 rounded-md">
+<span class="text-[10px] font-bold text-primary">4K HDR</span>
+</div>
+</div>
+</div>
+<!-- Poster 2 -->
+<div class="min-w-[140px] space-y-2 active:scale-95 transition-transform">
+<div class="relative aspect-[2/3] rounded-[20px] overflow-hidden card-inner-border">
+<img class="w-full h-full object-cover" data-alt="A high-intensity action movie poster featuring a sleek, silver sports car drifting through a futuristic city at sunset. The lighting is golden and orange, creating long shadows and high-octane energy. The visual style is clean, modern, and expensive, reflecting a luxury action franchise aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQ5e270mHIwVMu862b2kJWnZInNQK-lonmZkrHL8LYG7qQUJy033AFbj4EIvIzwKzaZM_2ZgxU-RoKaUk3_AwAVENIjwndawq4S1x2YHCh_T_IP35sLoSbmupSJ8cCrr2FnDGWvaQd2b6OgwwcYM0oXFHWDJRONAST-71cT8IIfDNVrOyOfj8ElbGuI0VcdOxykDpt-0vp-sUmPTMKUGLdpuwYYpR1WHN6i714KrP0UnhptvzYR9weElzdhYXf5XG0aopln5oEnF76"/>
+<div class="absolute top-2 right-2 px-2 py-1 glass-panel border border-white/10 rounded-md">
+<span class="text-[10px] font-bold text-primary">IMAX</span>
+</div>
+</div>
+</div>
+<!-- Poster 3 -->
+<div class="min-w-[140px] space-y-2 active:scale-95 transition-transform">
+<div class="relative aspect-[2/3] rounded-[20px] overflow-hidden card-inner-border">
+<img class="w-full h-full object-cover" data-alt="An ethereal fantasy movie poster showing a glowing ancient tree with blue bioluminescent leaves in a dark forest. A small, glowing spirit figure sits at its base. The atmosphere is magical and serene, using a palette of deep obsidian and vibrant electric blue with soft bokeh effects." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6R3c3wxdWdK9Cheenadbesb78h7ATkcBfozyFX88lqfVutClU_nsaXL7nti5F6rbP7vNdAyJLP5Zt_thN6c0_0aKOuYniRjGRz_JViM2v_ufomEcxKwaunHKQa9Xr8ZFrqto4wEa62ItOJLqwldwPZ9i-8KOXrUZvcmuEC6YvIsL9c9v39yweOoqFyiggsFwgQiKEvLYPwJFm3EJPmmwBkN3G_mwT2VGFiOaLJGW92t6gvzuWrFFcxxSu9yaHC-FiCzAMTWSSNrOM"/>
+<div class="absolute top-2 right-2 px-2 py-1 glass-panel border border-white/10 rounded-md">
+<span class="text-[10px] font-bold text-primary">4K</span>
+</div>
+</div>
+</div>
+<!-- Poster 4 -->
+<div class="min-w-[140px] space-y-2 active:scale-95 transition-transform">
+<div class="relative aspect-[2/3] rounded-[20px] overflow-hidden card-inner-border">
+<img class="w-full h-full object-cover" data-alt="A gritty crime drama poster showing a silhouette of a man looking over a dark harbor at dawn. The sky is a pale, cold blue with grey clouds. The mood is heavy and introspective, using high-end cinematic grain and deep shadows to create a sophisticated, serious atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBX9zWKQTNdQdA6A9GckKTuCG-0BfrZnVLjOa64DL17frkYXTP_5lRDdjB8LcC2gfUzEIEmYq16pAYb4UGNfVRpsZY3OAMLWOeunIM1Fwt2wqLBZDaiPWRP_HvCztxz1zc_nKta0E5jDyNM6qogmMBKRS-aImjdJkpxqaMmZII7NsoBlLNz3FKzWtkkO5a16VDN2ZrKo88A2epfGn2yPaxnUcdYhiFmRmbWs4VSJNQwtNIYeAxpWCn77RaI2zO9Xhp2c-roPKc6Dfaq"/>
+<div class="absolute top-2 right-2 px-2 py-1 glass-panel border border-white/10 rounded-md">
+<span class="text-[10px] font-bold text-primary">HDR</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Personalized Recommendations -->
+<section class="px-gutter space-y-6">
+<h2 class="font-headline-md text-headline-md">Dành riêng cho bạn</h2>
+<div class="grid grid-cols-1 gap-4">
+<div class="glass-panel border border-white/5 rounded-[24px] p-4 flex gap-4 items-center group active:scale-[0.98] transition-all">
+<div class="w-24 h-24 rounded-2xl overflow-hidden flex-shrink-0 card-inner-border">
+<img class="w-full h-full object-cover" data-alt="A close-up shot of a gourmet futuristic cocktail with swirling cosmic fluids inside a minimalist glass. The setting is a high-end obsidian bar. Sharp lighting, vibrant colors, and cinematic luxury atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5sxeyKCQlP5DlofnMhcs4_DzmJMJ610W8Y6oEoUhdiwvCf7LbFEd7ie5q6g9Tg3t-T0-cv1rSDsWuP6yrQHAigweffw18plnNUvpkMPkEvP4bUr5qqEmYUYFODIHgyEGeeLDJoJ28OO6aSdHtBGJt6EjKf0DDUYRfhaAmv5vyPm6gQtVAZvREfG_hiPeveo6I7YuDnqpSsrG-uh6OlX1nkPAqEm7SftVgTka2_0LMdusJE1hC_Nf1f0USPCvyXUd8pzKY9fTN4oy-"/>
+</div>
+<div class="flex-1 space-y-1">
+<span class="text-[10px] font-bold text-primary tracking-widest uppercase">Dành cho cuối tuần</span>
+<h3 class="font-headline-md text-[18px]">Cuộc Vây Hãm Cuối Cùng</h3>
+<p class="text-on-surface-variant text-label-md line-clamp-1">Dựa trên những bộ phim bạn đã xem</p>
+<div class="flex items-center gap-3 pt-1">
+<div class="flex items-center text-primary text-[12px] font-bold">
+<span class="material-symbols-outlined text-[14px] mr-1" style="font-variation-settings: 'FILL' 1;">star</span>
+                                9.4
+                            </div>
+<div class="w-1 h-1 rounded-full bg-outline-variant"></div>
+<span class="text-[12px] text-on-surface-variant">Thành công rực rỡ</span>
+</div>
+</div>
+<button class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+<span class="material-symbols-outlined">play_arrow</span>
+</button>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2 pb-safe bg-surface-container/80 dark:bg-surface-container/80 backdrop-blur-[40px] border-t border-white/10 rounded-t-xl shadow-xl">
+<a class="flex flex-col items-center justify-center bg-primary-container/20 text-primary rounded-xl p-2 active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-md text-label-md">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:text-primary transition-colors active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined">search</span>
+<span class="font-label-md text-label-md">Search</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:text-primary transition-colors active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined">bookmark</span>
+<span class="font-label-md text-label-md">My List</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:text-primary transition-colors active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-md text-label-md">Profile</span>
+</a>
+</nav>
+<script>
+        // Micro-interactions for scrolling
+        const header = document.querySelector('header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                header.classList.add('bg-surface/95');
+                header.classList.remove('bg-surface/80');
+            } else {
+                header.classList.add('bg-surface/80');
+                header.classList.remove('bg-surface/95');
+            }
+        });
+
+        // Add haptic-like vibration on button clicks (if supported)
+        document.querySelectorAll('button, a').forEach(el => {
+            el.addEventListener('click', () => {
+                if (window.navigator.vibrate) {
+                    window.navigator.vibrate(10);
+                }
+            });
+        });
+    </script>
+</body></html>

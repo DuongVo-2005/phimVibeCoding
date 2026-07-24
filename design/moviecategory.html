@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>RoPhim - Khám Phá Điện Ảnh</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<style>
+        body {
+            font-family: 'Geist', sans-serif;
+            background-color: #131313;
+            color: #e5e2e1;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .glass-panel {
+            background: rgba(32, 31, 31, 0.7);
+            backdrop-filter: blur(32px);
+            -webkit-backdrop-filter: blur(32px);
+        }
+        .movie-card:hover .card-overlay {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #4e4633;
+            border-radius: 10px;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .glass-effect { backdrop-filter: blur(40px); background-color: rgba(20, 20, 20, 0.7); }
+        .poster-shadow { box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5); }
+        .bottom-sheet { transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .bottom-sheet.open { transform: translateY(0); }
+        .overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        .overlay.open { opacity: 1; pointer-events: auto; }
+
+        /* Responsive layout switch: .layout-mobile is the untouched Mobile design,
+           .layout-desktop is the untouched Desktop design (its own sm:/md:/lg: classes
+           already adapt it across the 768-1023 tablet range and 1024+ desktop range). */
+        .layout-desktop {
+            display: none;
+        }
+        .layout-mobile {
+            display: block;
+            min-height: max(884px, 100dvh);
+        }
+        @media (min-width: 768px) {
+            .layout-desktop {
+                display: block;
+            }
+            .layout-mobile {
+                display: none;
+            }
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-lowest": "#0e0e0e",
+                        "secondary-container": "#4b8eff",
+                        "surface-container": "#201f1f",
+                        "tertiary-container": "#76c5ff",
+                        "inverse-on-surface": "#313030",
+                        "surface-tint": "#efc11c",
+                        "on-secondary": "#002e69",
+                        "on-secondary-container": "#00285c",
+                        "outline-variant": "#4e4633",
+                        "inverse-primary": "#745b00",
+                        "on-primary": "#3d2f00",
+                        "inverse-surface": "#e5e2e1",
+                        "tertiary-fixed": "#cae6ff",
+                        "primary-fixed-dim": "#efc11c",
+                        "surface-container-low": "#1c1b1b",
+                        "on-primary-fixed-variant": "#574400",
+                        "on-error": "#690005",
+                        "on-tertiary": "#00344f",
+                        "surface-bright": "#3a3939",
+                        "on-tertiary-container": "#005179",
+                        "on-tertiary-fixed-variant": "#004b70",
+                        "secondary-fixed": "#d8e2ff",
+                        "surface-dim": "#131313",
+                        "on-secondary-fixed": "#001a41",
+                        "tertiary": "#b7deff",
+                        "surface-variant": "#353534",
+                        "outline": "#9a9079",
+                        "surface-container-highest": "#353534",
+                        "surface-container-high": "#2a2a2a",
+                        "primary-container": "#e5b80b",
+                        "primary-fixed": "#ffe089",
+                        "background": "#131313",
+                        "on-tertiary-fixed": "#001e30",
+                        "on-secondary-fixed-variant": "#004493",
+                        "on-primary-container": "#5e4a00",
+                        "on-error-container": "#ffdad6",
+                        "error": "#ffb4ab",
+                        "on-primary-fixed": "#241a00",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "error-container": "#93000a",
+                        "primary": "#ffd552",
+                        "surface": "#131313",
+                        "on-surface": "#e5e2e1",
+                        "secondary": "#adc6ff",
+                        "on-surface-variant": "#d1c5ac",
+                        "tertiary-fixed-dim": "#8dcdff",
+                        "on-background": "#e5e2e1"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "20px",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "sm": "12px",
+                        "container-max": "1440px",
+                        "base": "8px",
+                        "xl": "80px",
+                        "gutter": "24px",
+                        "md": "24px",
+                        "lg": "48px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Geist"],
+                        "headline-lg-mobile": ["Geist"],
+                        "headline-md": ["Geist"],
+                        "label-md": ["Geist"],
+                        "headline-lg": ["Geist"],
+                        "body-md": ["Geist"],
+                        "display-lg": ["Geist"],
+                        "headline-xl": ["Geist"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "34px", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "display-lg": ["64px", {"lineHeight": "72px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.01em", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-surface text-on-surface custom-scrollbar selection:bg-primary/30 min-h-screen">
+<!-- ============================= -->
+<!-- DESKTOP / TABLET LAYOUT (>=768px) — unchanged from moviecategory.html -->
+<!-- ============================= -->
+<div class="layout-desktop">
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-white/10 shadow-xl px-gutter py-base flex justify-between items-center h-20">
+<div class="flex items-center gap-lg">
+<span class="text-headline-md font-headline-xl font-bold text-on-surface">RoPhim</span>
+<nav class="hidden md:flex items-center gap-md">
+<a class="text-on-surface-variant hover:text-on-surface transition-colors font-label-md text-label-md" href="#">Chủ Đề</a>
+<a class="text-primary font-bold font-label-md text-label-md" href="#">Thể loại</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors font-label-md text-label-md" href="#">Phim Lẻ</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors font-label-md text-label-md" href="#">Phim Bộ</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors font-label-md text-label-md" href="#">Xem Chung</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors font-label-md text-label-md" href="#">Quốc gia</a>
+</nav>
+</div>
+<div class="flex items-center gap-md">
+<button class="p-base hover:bg-white/5 rounded-full transition-all duration-300">
+<span class="material-symbols-outlined text-primary">notifications</span>
+</button>
+<button class="px-md py-xs bg-primary text-on-primary font-label-md text-label-md rounded-full hover:scale-95 active:scale-90 transition-transform">
+                Thành viên
+            </button>
+<div class="w-10 h-10 rounded-full bg-surface-container-high border border-outline-variant overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A premium close-up studio portrait of a young person with stylized lighting in shades of gold and deep charcoal, reflecting the high-end cinematic branding of the RoPhim platform. The composition is sleek and minimal, using a soft depth-of-field effect that isolates the subject against a dark, elegant background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdw5silrPBHpPCLCHUxcRrTxYCI5xJUf9FKE7rEw4uNe3SRHRWumCvW-FFbinE03O5KTw3tzQx85-ZZS7Q_-ECXbcv2DXyq3GiwUNUdC8OETf187LAqsDVQrPK2Hwr_Tm6ke8lLkA-6xqJWufYz5UD-1OxB9DJbVBGCQzyn674U_KaLw0GueqLBKA0TC3virIWD_L36yEh3fdrOCfGMydieLYu9OWFidKa312fo7mnjHomctXGNmUlnJN4y88AJsC6nSie5lSnXA_T"/>
+</div>
+</div>
+</header>
+<main class="pt-24 min-h-screen px-gutter flex gap-lg">
+<!-- Premium Sidebar Filter -->
+<aside class="hidden lg:flex flex-col gap-lg w-72 shrink-0 h-[calc(100vh-120px)] sticky top-24 overflow-y-auto pr-base custom-scrollbar">
+<div>
+<h3 class="text-label-md font-label-md text-primary mb-md flex items-center gap-xs uppercase tracking-widest">
+<span class="material-symbols-outlined text-sm">filter_list</span> Bộ lọc phim
+                </h3>
+<!-- Genre Filter -->
+<div class="mb-lg">
+<p class="text-body-md font-label-md text-on-surface-variant mb-base">Thể loại</p>
+<div class="flex flex-wrap gap-xs">
+<span class="px-sm py-1 bg-primary text-on-primary rounded-lg text-label-md cursor-pointer hover:opacity-90">Hành Động</span>
+<span class="px-sm py-1 bg-surface-container-high text-on-surface-variant rounded-lg text-label-md cursor-pointer hover:text-on-surface transition-colors">Kinh Dị</span>
+<span class="px-sm py-1 bg-surface-container-high text-on-surface-variant rounded-lg text-label-md cursor-pointer hover:text-on-surface transition-colors">Tình Cảm</span>
+<span class="px-sm py-1 bg-surface-container-high text-on-surface-variant rounded-lg text-label-md cursor-pointer hover:text-on-surface transition-colors">Viễn Tưởng</span>
+<span class="px-sm py-1 bg-surface-container-high text-on-surface-variant rounded-lg text-label-md cursor-pointer hover:text-on-surface transition-colors">Hoạt Hình</span>
+<span class="px-sm py-1 bg-surface-container-high text-on-surface-variant rounded-lg text-label-md cursor-pointer hover:text-on-surface transition-colors">Hài Hước</span>
+</div>
+</div>
+<!-- Country Filter -->
+<div class="mb-lg">
+<p class="text-body-md font-label-md text-on-surface-variant mb-base">Quốc gia</p>
+<select class="w-full bg-surface-container-high border-none text-on-surface text-label-md rounded-xl p-md focus:ring-1 focus:ring-primary">
+<option>Tất cả quốc gia</option>
+<option>Hoa Kỳ</option>
+<option>Hàn Quốc</option>
+<option>Nhật Bản</option>
+<option>Việt Nam</option>
+</select>
+</div>
+<!-- Year Filter -->
+<div class="mb-lg">
+<p class="text-body-md font-label-md text-on-surface-variant mb-base">Năm phát hành</p>
+<div class="grid grid-cols-2 gap-sm">
+<input class="bg-surface-container-high border-none text-on-surface text-label-md rounded-xl p-md focus:ring-1 focus:ring-primary placeholder:text-on-surface-variant/50" placeholder="Từ" type="number"/>
+<input class="bg-surface-container-high border-none text-on-surface text-label-md rounded-xl p-md focus:ring-1 focus:ring-primary placeholder:text-on-surface-variant/50" placeholder="Đến" type="number"/>
+</div>
+</div>
+<!-- Sort Filter -->
+<div class="mb-lg">
+<p class="text-body-md font-label-md text-on-surface-variant mb-base">Sắp xếp theo</p>
+<div class="flex flex-col gap-xs">
+<label class="flex items-center gap-sm p-sm bg-primary/10 border border-primary/20 rounded-xl cursor-pointer">
+<input checked="" class="text-primary bg-transparent border-outline focus:ring-0" name="sort" type="radio"/>
+<span class="text-label-md text-primary">Mới nhất</span>
+</label>
+<label class="flex items-center gap-sm p-sm hover:bg-white/5 rounded-xl cursor-pointer transition-colors">
+<input class="text-primary bg-transparent border-outline focus:ring-0" name="sort" type="radio"/>
+<span class="text-label-md text-on-surface-variant">Xem nhiều nhất</span>
+</label>
+<label class="flex items-center gap-sm p-sm hover:bg-white/5 rounded-xl cursor-pointer transition-colors">
+<input class="text-primary bg-transparent border-outline focus:ring-0" name="sort" type="radio"/>
+<span class="text-label-md text-on-surface-variant">Đánh giá cao nhất</span>
+</label>
+</div>
+</div>
+</div>
+<!-- Side Nav Tabs (Integration from JSON) -->
+<div class="mt-auto pt-lg border-t border-white/5 flex flex-col gap-sm">
+<a class="flex items-center gap-sm p-sm text-on-surface-variant hover:text-on-surface hover:bg-white/5 rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined">favorite</span>
+<span class="text-label-md font-label-md">Yêu thích</span>
+</a>
+<a class="flex items-center gap-sm p-sm text-on-surface-variant hover:text-on-surface hover:bg-white/5 rounded-xl transition-all" href="#">
+<span class="material-symbols-outlined">bookmark</span>
+<span class="text-label-md font-label-md">Danh sách</span>
+</a>
+</div>
+</aside>
+<!-- Content Area -->
+<section class="flex-1">
+<!-- Header & Search -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-md mb-lg">
+<div>
+<h1 class="text-display-lg font-display-lg text-on-surface tracking-tight mb-xs">Phim Hành Động</h1>
+<p class="text-body-lg text-on-surface-variant max-w-2xl">Những tác phẩm điện ảnh kịch tính và bùng nổ nhất từ khắp nơi trên thế giới được chọn lọc cho bạn.</p>
+</div>
+<div class="relative w-full md:w-96 group">
+<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors">search</span>
+<input class="w-full bg-surface-container border-none py-md pl-14 pr-md rounded-full text-body-md focus:ring-1 focus:ring-primary shadow-lg placeholder:text-on-surface-variant/50" placeholder="Tìm kiếm phim, diễn viên..." type="text"/>
+</div>
+</div>
+<!-- Movie Grid -->
+<div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-md pb-xl">
+<!-- Movie Card 1 -->
+<div class="group relative aspect-[2/3] rounded-xl overflow-hidden cursor-pointer movie-card bg-surface-container-high transform hover:scale-[1.03] transition-all duration-500 shadow-xl">
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10 opacity-60"></div>
+<img class="w-full h-full object-cover" data-alt="A dramatic high-definition cinematic poster of an epic sci-fi action movie. The scene features a lone hero standing against a neon-drenched futuristic city skyline with rain falling. The lighting is dominated by deep blues and vibrant cinematic golds, matching the RoPhim luxury dark theme. Professional digital art style, high contrast, immersive atmospheric perspective." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCXvllO06KrypAXeQk65DHluCearRgd5cUGwmy47Nsbb2jxBJFXrnWrSzFzbpaR-x1bpw0ODHGbTs4x333GhUVRr2l4AnkkIpyRomV91CaHCPdu77nNUw5jzWOQVPu4EJL6CEX-F-oIg7sMPmuQU3x7VCyEZ7jycZnONa0lLG7bWRA7Zq7maiZ2Z4uQ1StZpV6kGen6qLinyxwUMhsvGGCYQIClwM9PjbUlDEQEjfZV3ZCtO0k964IfQjnkwmTxlat6S3sZ8rzvm13y"/>
+<div class="absolute top-md right-md z-20 px-sm py-1 bg-primary text-on-primary rounded-lg font-label-md text-xs shadow-lg">4K HDR</div>
+<!-- Hover Overlay -->
+<div class="absolute inset-0 z-30 flex flex-col justify-end p-md opacity-0 translate-y-4 transition-all duration-300 card-overlay glass-panel">
+<h4 class="text-headline-md font-headline-md text-white mb-xs">Chiến Binh Ánh Sáng</h4>
+<div class="flex items-center gap-base mb-sm">
+<span class="text-primary font-bold">8.9</span>
+<span class="text-on-surface-variant text-xs">• Hành Động, Viễn Tưởng</span>
+</div>
+<div class="flex gap-sm">
+<button class="flex-1 py-xs bg-white text-black rounded-lg font-label-md flex items-center justify-center gap-xs hover:bg-primary transition-colors">
+<span class="material-symbols-outlined text-base" style="font-variation-settings: 'FILL' 1;">play_arrow</span> Xem ngay
+                            </button>
+<button class="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center text-white hover:bg-white/20 transition-colors">
+<span class="material-symbols-outlined text-base">add</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Movie Card 2 -->
+<div class="group relative aspect-[2/3] rounded-xl overflow-hidden cursor-pointer movie-card bg-surface-container-high transform hover:scale-[1.03] transition-all duration-500 shadow-xl">
+<img class="w-full h-full object-cover" data-alt="A moody, high-end movie poster for a detective thriller set in a rainy noir London. A mysterious figure in a trench coat is silhouetted by misty street lamps. The color palette uses deep obsidian, smoky greys, and sharp gold highlights. Elegant typography and composition that emphasizes the premium cinematic nature of the platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAq1QZYAWc9DY3qa1hFJgmEbWguoTsrxfUD52OJen0Hm8rqpGmJJXFSHkTveEvvE-Pci0yjZ11NC1zReIBAk1B_TJ1FbfeCOneplKMnUCJsPU4i5Te16Qr4mVZG8-ZJdNK-G6jHlgT2QkK6r3HaDd_1hSJ1YHRRBCCh86cPH8_IYX2CM4g64c1PKGT27UZe-QExRq_wpd9OmOUmRsDslnEl-uW9v43lDjHaryPEkEp-kPuXNC8pp6XVfbyu5oN1kVohdXoPOmxJ4Zhn"/>
+<div class="absolute top-md right-md z-20 px-sm py-1 bg-white/20 backdrop-blur-md text-white rounded-lg font-label-md text-xs border border-white/20">FHD</div>
+<div class="absolute inset-0 z-30 flex flex-col justify-end p-md opacity-0 translate-y-4 transition-all duration-300 card-overlay glass-panel">
+<h4 class="text-headline-md font-headline-md text-white mb-xs">Mật Mã Đen</h4>
+<div class="flex items-center gap-base mb-sm">
+<span class="text-primary font-bold">8.4</span>
+<span class="text-on-surface-variant text-xs">• Hình Sự, Kịch Tính</span>
+</div>
+<button class="w-full py-xs bg-white text-black rounded-lg font-label-md flex items-center justify-center gap-xs">
+<span class="material-symbols-outlined text-base" style="font-variation-settings: 'FILL' 1;">play_arrow</span> Xem ngay
+                        </button>
+</div>
+</div>
+<!-- Repeat Movie Cards for Grid look -->
+<div class="group relative aspect-[2/3] rounded-xl overflow-hidden cursor-pointer movie-card bg-surface-container-high transform hover:scale-[1.03] transition-all duration-500 shadow-xl">
+<img class="w-full h-full object-cover" data-alt="Breathtaking wide-angle landscape for a cinematic adventure film. Epic mountains covered in golden sunlight, with a vast valley below. The artistic style is reminiscent of high-end epic fantasy films like Lord of the Rings. Rich warm tones, cinematic lighting, and a feeling of immense scale, presented with luxury digital photography quality." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDt2hgWadG1BdGXzgd--a5x2IuVgyzYdD87PGPJdq99psdbsnxaOC3YXxogWtVIAJtKaYiu0W0tAtWSNN1o5rKnO-z1p52vVBUJjqyAeREFfODPRlb3Rbw8vpio3WIBzhVwgQ55g3VLiBS7FYtj0iCz3dl1shZcWakfUB_X5ydmO1NjCUduab6rPuuD8qAwgDXS_JqhQ3SShJciiImuyIQClby78UZFBvg6c9_6qES8jrlf0YW4W19y-7tSiaux7606RIM19vI84VeV"/>
+<div class="absolute inset-0 z-30 flex flex-col justify-end p-md opacity-0 translate-y-4 transition-all duration-300 card-overlay glass-panel">
+<h4 class="text-headline-md font-headline-md text-white mb-xs">Thung Lũng Bất Tận</h4>
+<div class="flex items-center gap-base mb-sm">
+<span class="text-primary font-bold">9.2</span>
+<span class="text-on-surface-variant text-xs">• Phiêu Lưu, Kỳ Ảo</span>
+</div>
+<button class="w-full py-xs bg-white text-black rounded-lg font-label-md">Xem ngay</button>
+</div>
+</div>
+<div class="group relative aspect-[2/3] rounded-xl overflow-hidden cursor-pointer movie-card bg-surface-container-high transform hover:scale-[1.03] transition-all duration-500 shadow-xl">
+<img class="w-full h-full object-cover" data-alt="A high-intensity action movie scene poster showing a high-speed car chase on a coastal highway at sunset. Vibrant oranges and deep purples in the sky reflecting off polished automotive surfaces. High motion blur, dynamic composition, and ultra-realistic digital art style that evokes a sense of speed and premium entertainment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYq2EpHITmhXWEuJnAB48QL1cPpcSlniO_lBTNNRW5RIS2lpOF9nO-3ZoTp683vMWXSjzORwlxDEn3Lu9y7ZrdFXhqEmGfSnzmiXXcGdcvQ520gKffsow5oJJ6SqoRkdHezJLRCFp-F_hczMAZvt7FuVZXM8fx_0dK3m-VZA5yZLdp0sDLqYqvDamU4Cu4OFbsOJQO40FNVSYUKnpu-SWzNuZPzFEy-bLlnm7TCD-DsC_08ek3cMqVUalQujpALhTCBVeyqIGkEja3"/>
+<div class="absolute inset-0 z-30 flex flex-col justify-end p-md opacity-0 translate-y-4 transition-all duration-300 card-overlay glass-panel">
+<h4 class="text-headline-md font-headline-md text-white mb-xs">Tốc Độ Cuối</h4>
+<div class="flex items-center gap-base mb-sm">
+<span class="text-primary font-bold">7.8</span>
+<span class="text-on-surface-variant text-xs">• Hành Động, Đua Xe</span>
+</div>
+<button class="w-full py-xs bg-white text-black rounded-lg font-label-md">Xem ngay</button>
+</div>
+</div>
+<div class="group relative aspect-[2/3] rounded-xl overflow-hidden cursor-pointer movie-card bg-surface-container-high transform hover:scale-[1.03] transition-all duration-500 shadow-xl">
+<img class="w-full h-full object-cover" data-alt="A stylized, neon-lit cyberpunk animation movie poster. Intricate details of a robotic hand reaching towards a holographic butterfly. The aesthetic features high-contrast purple, cyan, and cinematic gold lighting. Clean lines, futuristic atmosphere, and a visually stunning composition that emphasizes advanced digital animation quality." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDS0aJ7ubfVg0jmMxMwrZy2MWKimsNApUmH1uWsrboB_2r1nSJ9apISMiWOKRAUL2Sg2dE275itgcsP2TVn63AX02a73DcMV4R8nK_CrTf5wu6O1mf6LpLOqzpI_n9TlIPq_AreDBUE7UhtWR5bb2oD_iLPBidMlGduvEbPSlrcXZcOs2l-X6lksrMzprqxl4-u3WR2X6HVLzUpY9Bjc6wttpFaaQr7o2hejrVCy44IXiSe1l6KQL_L3-fBBXXacvAsUN660pr95tM3"/>
+<div class="absolute inset-0 z-30 flex flex-col justify-end p-md opacity-0 translate-y-4 transition-all duration-300 card-overlay glass-panel">
+<h4 class="text-headline-md font-headline-md text-white mb-xs">Hồn Robot</h4>
+<div class="flex items-center gap-base mb-sm">
+<span class="text-primary font-bold">8.1</span>
+<span class="text-on-surface-variant text-xs">• Hoạt Hình, Robot</span>
+</div>
+<button class="w-full py-xs bg-white text-black rounded-lg font-label-md">Xem ngay</button>
+</div>
+</div>
+<!-- Row 2 -->
+<div class="group relative aspect-[2/3] rounded-xl overflow-hidden cursor-pointer movie-card bg-surface-container-high transform hover:scale-[1.03] transition-all duration-500 shadow-xl">
+<img class="w-full h-full object-cover" data-alt="An atmospheric horror movie poster featuring a misty, ancient forest with a subtle, eerie glow coming from an old wooden cabin. Deep shadows, desaturated greens and charcoal blacks, with a hint of gold light from the cabin window. The mood is tense, mysterious, and high-quality editorial photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDCMozfcsW-2jJgayVMD3muAVJCV34C2JkeBm0lHm5pnrPkZnAN84yKGxr-liDD3UOb-Srsp9GmtdGqTwADO9C5HlgB3jlZ42GFzekT7z_5xK4AShWalCwCfbwIWqWPLN69XbaGUfgsCwrchC3FbWwlMaZRVg-EHKlb2yM922BRr72dK3KRrc7RYOObHytyuYe8maK_oeWIFWic2ukYIgB6SUKmhgRC3Hedk5Sme4jL1YRl5Mg4xR54Mt6XiuPeuPimo4RDMWT8aNps"/>
+<div class="absolute inset-0 z-30 flex flex-col justify-end p-md opacity-0 translate-y-4 transition-all duration-300 card-overlay glass-panel">
+<h4 class="text-headline-md font-headline-md text-white mb-xs">Tiếng Gọi Rừng Sâu</h4>
+<div class="flex items-center gap-base mb-sm">
+<span class="text-primary font-bold">7.5</span>
+<span class="text-on-surface-variant text-xs">• Kinh Dị, Huyền Bí</span>
+</div>
+<button class="w-full py-xs bg-white text-black rounded-lg font-label-md">Xem ngay</button>
+</div>
+</div>
+<div class="group relative aspect-[2/3] rounded-xl overflow-hidden cursor-pointer movie-card bg-surface-container-high transform hover:scale-[1.03] transition-all duration-500 shadow-xl">
+<img class="w-full h-full object-cover" data-alt="A lush romantic drama movie poster showcasing two people walking through a vibrant flower garden in the Mediterranean at twilight. Soft pastel sky, warm string lights, and a romantic, dreamy atmosphere. The lighting is gentle and flattering, using gold and lavender tones. Professional cinematic still aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9aFAeKQ0pRo4S_QLAPOfo-aW-O6WdHoSVNmIwU7epFUA87Tx0BuMf4m_wY2452bQUU3RKyNzma92FNs5v3CMUjQlJmpvVwbLf3NOZGPt9mFzQl9qx69hVjgD__6KawCE8cRbtvBWxK8_1OQlb4YlctrScQhgJEHFVTXmy_zrZnifi7l9mnwKTiJGTvtDzBS5aOv8D1DMoOob8M9eFFBU9ca97c6IJzwLRe0Xn1adYqgUizvFod1VSZtvYSum6z3a08a7rB1UUu1NA"/>
+<div class="absolute inset-0 z-30 flex flex-col justify-end p-md opacity-0 translate-y-4 transition-all duration-300 card-overlay glass-panel">
+<h4 class="text-headline-md font-headline-md text-white mb-xs">Mùa Yêu Đầu</h4>
+<div class="flex items-center gap-base mb-sm">
+<span class="text-primary font-bold">8.0</span>
+<span class="text-on-surface-variant text-xs">• Tình Cảm, Lãng Mạn</span>
+</div>
+<button class="w-full py-xs bg-white text-black rounded-lg font-label-md">Xem ngay</button>
+</div>
+</div>
+<div class="group relative aspect-[2/3] rounded-xl overflow-hidden cursor-pointer movie-card bg-surface-container-high transform hover:scale-[1.03] transition-all duration-500 shadow-xl">
+<img class="w-full h-full object-cover" data-alt="A sophisticated spy movie poster featuring high-end tech gadgets and a sleek modern skyscraper in Singapore. Cool blue lighting, metallic textures, and a minimalist design. The composition is sharp and professional, highlighting a global, high-stakes espionage theme with cinematic gold accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD4CGjyvlhlAvBia9IwOzs1Sjq8hyhkEnvtGElTIh5QXmAwz7JJCBkxERycBKDxvOytexwvBcxhrWbINZof7LclNIzuDPDO0cpKsgz9MYW2F4JkftaVCa-pbFkwJkOMWTibz4OJyib34ZHW6CJspHv6WVSzKN-H9ICk_yYEITFNovckYMQFs1SfdM5zC9WItViY2ZwQtJop_CF7gFavjkFg_iiADcZfLFdvYzDFX2iXNb7SFSn5aLlzk-vEGw33CpAa7TIStNjQIJjF"/>
+<div class="absolute inset-0 z-30 flex flex-col justify-end p-md opacity-0 translate-y-4 transition-all duration-300 card-overlay glass-panel">
+<h4 class="text-headline-md font-headline-md text-white mb-xs">Đột Kích Tầng Cao</h4>
+<div class="flex items-center gap-base mb-sm">
+<span class="text-primary font-bold">8.7</span>
+<span class="text-on-surface-variant text-xs">• Hành Động, Kịch Tính</span>
+</div>
+<button class="w-full py-xs bg-white text-black rounded-lg font-label-md">Xem ngay</button>
+</div>
+</div>
+<div class="group relative aspect-[2/3] rounded-xl overflow-hidden cursor-pointer movie-card bg-surface-container-high transform hover:scale-[1.03] transition-all duration-500 shadow-xl">
+<img class="w-full h-full object-cover" data-alt="A colorful and vibrant animated fantasy movie poster showing a magical underwater kingdom with glowing corals and exotic sea creatures. High-key lighting with a spectrum of turquoise, pink, and cinematic gold. The style is 3D high-end animation with incredible texture detail and a whimsical mood." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbrw18E0lohwhJWSLQx94NWXKCypqcSkNy3pmoCslyR1lN6B-sFwKiGEURnE8unkAuu-bbw6Y6U0dOmm57U9Xkfq1Oh5eUa9aRyjvVdcBjukO3FQoFyBV5GbRg-EiHs7KlHAkH5lkJZlzcjdaRJucQaUANPaTlaCzhifHFoBvJp5_ob4rVCvjg0vchcrLIh8buNlveNhHVMN89PKyDPqwemDUb81ubPRDRIxphAny0hpWd4yNZLWEgVAaw6R73MLsbjQ0iiKR6odzm"/>
+<div class="absolute inset-0 z-30 flex flex-col justify-end p-md opacity-0 translate-y-4 transition-all duration-300 card-overlay glass-panel">
+<h4 class="text-headline-md font-headline-md text-white mb-xs">Vương Quốc Dưới Biển</h4>
+<div class="flex items-center gap-base mb-sm">
+<span class="text-primary font-bold">9.0</span>
+<span class="text-on-surface-variant text-xs">• Hoạt Hình, Gia Đình</span>
+</div>
+<button class="w-full py-xs bg-white text-black rounded-lg font-label-md">Xem ngay</button>
+</div>
+</div>
+<div class="group relative aspect-[2/3] rounded-xl overflow-hidden cursor-pointer movie-card bg-surface-container-high transform hover:scale-[1.03] transition-all duration-500 shadow-xl">
+<img class="w-full h-full object-cover" data-alt="A gritty, historical epic movie poster depicting a medieval battlefield at dawn. Soldiers in detailed armor are silhouetted against a smoky, amber sky. The lighting is low-key and dramatic, focusing on the textures of metal and earth. A grand, cinematic scale that feels exclusive and high-production." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNE9LVtWGlMrASE9k9SwO_3BUGvyT1iOyGMI5iM4uOFC-S-nmpwA5XmwTvaSIb4PZ8Hj3nvHs_HvY7r23EF_Kj1CI-OWm0xx_whZUkBPxPp2zFGryCkFn7aw7_B33t2Clwj8JcK_blp2jKPngbEV3XjtKB_xZYLeakTElKZGZKGeL8kruVJlkHi3eo58jMOBKUg5kHVJDtRVrL6DvFsRoG1kul_aTBvwhKyycv063-dm713wEXN4ByAyLAnmMqRzp0HlcIlaKJ15o0"/>
+<div class="absolute inset-0 z-30 flex flex-col justify-end p-md opacity-0 translate-y-4 transition-all duration-300 card-overlay glass-panel">
+<h4 class="text-headline-md font-headline-md text-white mb-xs">Đế Chế Cuối Cùng</h4>
+<div class="flex items-center gap-base mb-sm">
+<span class="text-primary font-bold">8.3</span>
+<span class="text-on-surface-variant text-xs">• Lịch Sử, Hành Động</span>
+</div>
+<button class="w-full py-xs bg-white text-black rounded-lg font-label-md">Xem ngay</button>
+</div>
+</div>
+</div>
+<!-- Pagination -->
+<div class="flex justify-center items-center gap-md mb-xl">
+<button class="w-12 h-12 rounded-full border border-outline-variant flex items-center justify-center hover:bg-white/5 transition-colors">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<div class="flex gap-base">
+<button class="w-12 h-12 rounded-full bg-primary text-on-primary font-bold">1</button>
+<button class="w-12 h-12 rounded-full border border-outline-variant flex items-center justify-center hover:bg-white/5 transition-colors font-bold">2</button>
+<button class="w-12 h-12 rounded-full border border-outline-variant flex items-center justify-center hover:bg-white/5 transition-colors font-bold">3</button>
+<span class="flex items-center text-on-surface-variant">...</span>
+<button class="w-12 h-12 rounded-full border border-outline-variant flex items-center justify-center hover:bg-white/5 transition-colors font-bold">48</button>
+</div>
+<button class="w-12 h-12 rounded-full border border-outline-variant flex items-center justify-center hover:bg-white/5 transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-low border-t border-outline-variant/30 py-lg px-gutter text-center flex flex-col items-center gap-md">
+<span class="text-headline-lg font-bold text-on-surface">RoPhim</span>
+<div class="flex flex-wrap justify-center gap-md">
+<a class="text-on-surface-variant hover:text-primary transition-colors font-label-md text-label-md" href="#">Hỏi-Đáp</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-label-md text-label-md" href="#">Chính sách bảo mật</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-label-md text-label-md" href="#">Điều khoản sử dụng</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-label-md text-label-md" href="#">Giới thiệu</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-label-md text-label-md" href="#">Liên hệ</a>
+</div>
+<p class="text-body-md font-body-md text-on-surface-variant/70">© 2026 RoPhim. Bản quyền thuộc về RoPhim.</p>
+</footer>
+<!-- Mobile Bottom Navigation Shell -->
+<div class="md:hidden fixed bottom-0 left-0 w-full bg-surface/80 backdrop-blur-xl border-t border-white/10 px-gutter py-base flex justify-around items-center z-50">
+<button class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">grid_view</span>
+<span class="text-[10px] font-bold">Khám phá</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined">favorite</span>
+<span class="text-[10px]">Yêu thích</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined">bookmark</span>
+<span class="text-[10px]">Danh sách</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px]">Tài khoản</span>
+</button>
+</div>
+<script>
+        // Micro-interactions for movie cards
+        document.querySelectorAll('.layout-desktop .movie-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                const overlay = card.querySelector('.card-overlay');
+                if (overlay) {
+                    overlay.style.opacity = '1';
+                    overlay.style.transform = 'translateY(0)';
+                }
+            });
+            card.addEventListener('mouseleave', () => {
+                const overlay = card.querySelector('.card-overlay');
+                if (overlay) {
+                    overlay.style.opacity = '0';
+                    overlay.style.transform = 'translateY(16px)';
+                }
+            });
+        });
+
+        // Search bar focus effect
+        const searchInput = document.querySelector('.layout-desktop input[type="text"]');
+        searchInput.addEventListener('focus', () => {
+            searchInput.parentElement.classList.add('scale-[1.02]');
+        });
+        searchInput.addEventListener('blur', () => {
+            searchInput.parentElement.classList.remove('scale-[1.02]');
+        });
+    </script>
+</div>
+<!-- ============================= -->
+<!-- MOBILE LAYOUT (<=767px) — unchanged from moviecategoryMobile.html -->
+<!-- ============================= -->
+<div class="layout-mobile">
+<!-- Top Navigation Anchor (Shared Component) -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-[40px] border-b border-white/10 flex justify-between items-center px-gutter h-20">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-headline-md">movie</span>
+<h1 class="font-headline-md text-headline-md font-bold text-primary tracking-tight">RoPhim</h1>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant hover:opacity-80 transition-opacity active:scale-95 transition-transform">notifications</button>
+</header>
+<main class="pt-24 pb-28 px-4 max-w-md mx-auto">
+<!-- Search Bar -->
+<section class="mb-6">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors">search</span>
+<input class="w-full bg-surface-container border-none rounded-full pl-12 pr-4 py-3 text-body-md focus:ring-1 focus:ring-primary outline-none placeholder:text-on-surface-variant/50 transition-all" placeholder="Tìm kiếm phim, diễn viên..." type="text"/>
+</div>
+</section>
+<!-- Category Filter Chips -->
+<section class="mb-8 relative">
+<div class="flex items-center gap-3 overflow-x-auto no-scrollbar pb-2">
+<button class="flex items-center gap-1 bg-surface-container-high text-primary px-4 py-2 rounded-xl shrink-0 active:scale-95 transition-transform" onclick="openFilter()">
+<span class="material-symbols-outlined text-[18px]">tune</span>
+<span class="font-label-md text-label-md">Bộ lọc</span>
+</button>
+<div class="w-px h-6 bg-white/10 shrink-0"></div>
+<button class="bg-primary text-on-primary px-5 py-2 rounded-xl shrink-0 font-label-md text-label-md shadow-lg shadow-primary/20">Tất cả</button>
+<button class="bg-surface-container text-on-surface-variant px-5 py-2 rounded-xl shrink-0 font-label-md text-label-md hover:bg-surface-container-high transition-colors">Hành Động</button>
+<button class="bg-surface-container text-on-surface-variant px-5 py-2 rounded-xl shrink-0 font-label-md text-label-md hover:bg-surface-container-high transition-colors">Kinh Dị</button>
+<button class="bg-surface-container text-on-surface-variant px-5 py-2 rounded-xl shrink-0 font-label-md text-label-md hover:bg-surface-container-high transition-colors">Viễn Tưởng</button>
+<button class="bg-surface-container text-on-surface-variant px-5 py-2 rounded-xl shrink-0 font-label-md text-label-md hover:bg-surface-container-high transition-colors">Lãng Mạn</button>
+</div>
+</section>
+<!-- Movie Grid -->
+<section class="grid grid-cols-2 gap-x-4 gap-y-8">
+<!-- Movie Card 1 -->
+<div class="group">
+<div class="relative aspect-[2/3] rounded-[20px] overflow-hidden poster-shadow mb-3 bg-surface-container-low">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="A cinematic movie poster of a futuristic cyberpunk city at night with neon lights reflecting in rain-slicked streets. The visual style is hyper-detailed with a dark obsidian base and vibrant cinematic gold and secondary blue highlights. The mood is moody and high-end, evoking a sense of modern dark luxury and technological sophistication." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC73RAGUy_BjwSPvNMnCxumYEY_tPrdwD3pWsG6vQNYKbDcVT8QdjsQd-sdL8hbYVraRT1V4juK7taWfAmS6TLR-YAkrf5dmU2Dx1OOK5vjec34Raf65xM05PUfIO5ywo3WU4tgneSGbZMH8XSSInae4Uu_o94r0q1zU1KfJzLTceNUsIjkHP8myPXuCmCDYzK_rH-Tu8sUlZSFB_Jn0OYDGSIOTxY14aVTWQapQ1JCmJLvtj4tMnEUzBBgR7BCroudnxT9S_8flDrH')"></div>
+<div class="absolute top-3 right-3 bg-black/60 backdrop-blur-md px-2 py-1 rounded-lg flex items-center gap-1 border border-white/10">
+<span class="material-symbols-outlined text-primary text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-white text-[12px] font-bold">8.4</span>
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+<button class="w-full bg-primary text-on-primary py-2 rounded-xl font-label-md text-label-md active:scale-95 transition-transform">Xem ngay</button>
+</div>
+</div>
+<h3 class="font-label-md text-on-surface truncate px-1">Chiến Binh Ánh Sáng</h3>
+<p class="text-[12px] text-on-surface-variant px-1 mt-0.5">2024 • Viễn Tưởng</p>
+</div>
+<!-- Movie Card 2 -->
+<div class="group">
+<div class="relative aspect-[2/3] rounded-[20px] overflow-hidden poster-shadow mb-3 bg-surface-container-low">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="An atmospheric horror movie poster featuring a misty, ancient forest with a lone Victorian manor visible in the distance. The lighting is low-key with deep charcoal shadows and a soft ethereal glow from a pale moon. The aesthetic is sophisticated and editorial, using a minimal color palette of cool greys and deep blacks to create a premium cinematic feel." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBwLrA3lJSwZJiro1kGXYcVyzgaE341lJosqcyh0X5socjvkYzmROef2uCn8RT55gobKgyrvB7HjeGqx_8HOIRvd43mMeHNh5JlSutVEpvCvEo9K7Gy8h1kihOtyL-Q0tgeGalNsRbjrcERc1jTmUnpjV9uMLRVb-0z4Al3uBmoh_atCbuHGJANz6eBaq313aw8i2Kgps4Yxt3CbiwIW0ASSl-_stf6VrMohG_Pbb6H0cX-Fm9YsQDdUal_JL0zyvPDsGvdoqwewTjG')"></div>
+<div class="absolute top-3 right-3 bg-black/60 backdrop-blur-md px-2 py-1 rounded-lg flex items-center gap-1 border border-white/10">
+<span class="material-symbols-outlined text-primary text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-white text-[12px] font-bold">7.9</span>
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+<button class="w-full bg-primary text-on-primary py-2 rounded-xl font-label-md text-label-md active:scale-95 transition-transform">Xem ngay</button>
+</div>
+</div>
+<h3 class="font-label-md text-on-surface truncate px-1">Lâu Đài Ám Ảnh</h3>
+<p class="text-[12px] text-on-surface-variant px-1 mt-0.5">2023 • Kinh Dị</p>
+</div>
+<!-- Movie Card 3 -->
+<div class="group">
+<div class="relative aspect-[2/3] rounded-[20px] overflow-hidden poster-shadow mb-3 bg-surface-container-low">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="An epic action movie poster showing a high-speed car chase on a coastal highway at sunset. Warm golden hour lighting drenches the scene, highlighting high-end exotic cars. The visual style uses Cinematic Gold accents against a deep navy background. The composition is dynamic and expansive, reflecting a premium streaming service aesthetic." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDyyqMPeDI-vvKCF2bBx4LIQKFnX4aGsI4M9_HqZiUhMAmurTqDUQVpVLBPNqS7nN9iw8P7GgS2HkyMZwK63I4rqgK0fiA6iGq_J0BRV74HtysIPoYTiO_OlrgPldeyyjwOwEORbPw-Acx7pqxUqLus8FOjckusccTc2wqXeURhzoB7luePI4_wGPeqb4GkCY05un2cqHijK-dlifst9yciJBaImCfj2sHxKujaV_7z68vD1WOmYHfuoNnaiskrzP7Aku_qHhdrks2B')"></div>
+<div class="absolute top-3 right-3 bg-black/60 backdrop-blur-md px-2 py-1 rounded-lg flex items-center gap-1 border border-white/10">
+<span class="material-symbols-outlined text-primary text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-white text-[12px] font-bold">9.1</span>
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+<button class="w-full bg-primary text-on-primary py-2 rounded-xl font-label-md text-label-md active:scale-95 transition-transform">Xem ngay</button>
+</div>
+</div>
+<h3 class="font-label-md text-on-surface truncate px-1">Tốc Độ Tử Thần</h3>
+<p class="text-[12px] text-on-surface-variant px-1 mt-0.5">2024 • Hành Động</p>
+</div>
+<!-- Movie Card 4 -->
+<div class="group">
+<div class="relative aspect-[2/3] rounded-[20px] overflow-hidden poster-shadow mb-3 bg-surface-container-low">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="A romantic drama poster featuring two people standing on a rooftop overlooking a shimmering city skyline at twilight. The colors transition from deep purples to soft pinks and cinematic golds. The design features soft backdrop blurs and glassmorphic elements, emphasizing a sophisticated, modern dark luxury atmosphere consistent with high-end streaming platforms." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBa_dkQtNes-mgVSPCysxsWnQYpfqiXGKQ1sSI9LM9NResY1hAFjFesiDzX7t1vJkN49b67OfLZop_YQGdNFneYu9PokA9R8oGTSwmxp1flMafeNT_zy6X5zTP8MIRZQ3odbOfrIoPu20jhScpB06cvrHZAtl_4i8bv4pa6iKlOOFAGrSaQFFjKar5V0IGKicBJ4ydSz9ocMqbRJuIHwDSTYxS-JN2y5mqzpkfTVpJ_cS3rqAdm91QWXAfB65EKvowspB8KL83FF6GO')"></div>
+<div class="absolute top-3 right-3 bg-black/60 backdrop-blur-md px-2 py-1 rounded-lg flex items-center gap-1 border border-white/10">
+<span class="material-symbols-outlined text-primary text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-white text-[12px] font-bold">8.0</span>
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+<button class="w-full bg-primary text-on-primary py-2 rounded-xl font-label-md text-label-md active:scale-95 transition-transform">Xem ngay</button>
+</div>
+</div>
+<h3 class="font-label-md text-on-surface truncate px-1">Hẹn Ước Lúc Hoàng Hôn</h3>
+<p class="text-[12px] text-on-surface-variant px-1 mt-0.5">2023 • Lãng Mạn</p>
+</div>
+</section>
+</main>
+<!-- Filter Bottom Sheet Overlay -->
+<div class="overlay fixed inset-0 bg-black/60 backdrop-blur-sm z-[60]" id="filterOverlay" onclick="closeFilter()"></div>
+<!-- Filter Bottom Sheet Content -->
+<div class="bottom-sheet fixed bottom-0 left-0 w-full z-[70] bg-surface-container rounded-t-[32px] p-6 max-h-[751px] overflow-y-auto border-t border-white/10 shadow-2xl shadow-black/80" id="filterSheet">
+<div class="w-12 h-1.5 bg-on-surface-variant/20 rounded-full mx-auto mb-8"></div>
+<div class="flex items-center justify-between mb-8">
+<h2 class="font-headline-md text-headline-md text-on-surface">Bộ lọc phim</h2>
+<button class="material-symbols-outlined text-on-surface-variant" onclick="closeFilter()">close</button>
+</div>
+<!-- Section: Country -->
+<div class="mb-8">
+<label class="block font-label-md text-label-md text-on-surface-variant mb-4">Quốc gia</label>
+<div class="grid grid-cols-2 gap-3">
+<button class="bg-primary-container/20 text-primary border border-primary/30 py-3 rounded-xl font-label-md text-label-md">Hàn Quốc</button>
+<button class="bg-surface-container-high text-on-surface-variant py-3 rounded-xl font-label-md text-label-md border border-transparent">Mỹ (Hollywood)</button>
+<button class="bg-surface-container-high text-on-surface-variant py-3 rounded-xl font-label-md text-label-md border border-transparent">Nhật Bản</button>
+<button class="bg-surface-container-high text-on-surface-variant py-3 rounded-xl font-label-md text-label-md border border-transparent">Việt Nam</button>
+<button class="bg-surface-container-high text-on-surface-variant py-3 rounded-xl font-label-md text-label-md border border-transparent">Trung Quốc</button>
+<button class="bg-surface-container-high text-on-surface-variant py-3 rounded-xl font-label-md text-label-md border border-transparent">Thái Lan</button>
+</div>
+</div>
+<!-- Section: Year -->
+<div class="mb-8">
+<label class="block font-label-md text-label-md text-on-surface-variant mb-4">Năm phát hành</label>
+<div class="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+<button class="bg-primary text-on-primary px-6 py-2 rounded-xl shrink-0 font-label-md text-label-md">2024</button>
+<button class="bg-surface-container-high text-on-surface-variant px-6 py-2 rounded-xl shrink-0 font-label-md text-label-md">2023</button>
+<button class="bg-surface-container-high text-on-surface-variant px-6 py-2 rounded-xl shrink-0 font-label-md text-label-md">2022</button>
+<button class="bg-surface-container-high text-on-surface-variant px-6 py-2 rounded-xl shrink-0 font-label-md text-label-md">2021</button>
+<button class="bg-surface-container-high text-on-surface-variant px-6 py-2 rounded-xl shrink-0 font-label-md text-label-md">2020</button>
+<button class="bg-surface-container-high text-on-surface-variant px-6 py-2 rounded-xl shrink-0 font-label-md text-label-md">Cũ hơn</button>
+</div>
+</div>
+<div class="flex gap-4 pt-4 border-t border-white/5">
+<button class="flex-1 bg-surface-container-highest text-on-surface py-4 rounded-2xl font-label-md text-label-md active:scale-95 transition-transform" onclick="closeFilter()">Thiết lập lại</button>
+<button class="flex-1 bg-primary text-on-primary py-4 rounded-2xl font-label-md text-label-md shadow-lg shadow-primary/20 active:scale-95 transition-transform" onclick="closeFilter()">Áp dụng</button>
+</div>
+</div>
+<!-- Bottom Navigation Anchor (Shared Component) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 bg-surface-container/80 backdrop-blur-[40px] border-t border-white/10 flex justify-around items-center px-4 py-2 pb-safe shadow-xl rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:text-primary transition-colors active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-md text-label-md">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary-container/20 text-primary rounded-xl p-2 active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined">search</span>
+<span class="font-label-md text-label-md">Search</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:text-primary transition-colors active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined">bookmark</span>
+<span class="font-label-md text-label-md">My List</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:text-primary transition-colors active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-md text-label-md">Profile</span>
+</a>
+</nav>
+<script>
+        function openFilter() {
+            document.getElementById('filterSheet').classList.add('open');
+            document.getElementById('filterOverlay').classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeFilter() {
+            document.getElementById('filterSheet').classList.remove('open');
+            document.getElementById('filterOverlay').classList.remove('open');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Search Bar micro-interaction
+        const searchInputMobile = document.querySelector('.layout-mobile input[type="text"]');
+        searchInputMobile.addEventListener('focus', () => {
+            searchInputMobile.parentElement.classList.add('ring-1', 'ring-primary');
+        });
+        searchInputMobile.addEventListener('blur', () => {
+            searchInputMobile.parentElement.classList.remove('ring-1', 'ring-primary');
+        });
+    </script>
+</div>
+</body></html>

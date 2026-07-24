@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>RoPhim - Watching Movie</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-lowest": "#0e0e0e",
+                        "secondary-container": "#4b8eff",
+                        "surface-container": "#201f1f",
+                        "tertiary-container": "#76c5ff",
+                        "inverse-on-surface": "#313030",
+                        "surface-tint": "#efc11c",
+                        "on-secondary": "#002e69",
+                        "on-secondary-container": "#00285c",
+                        "outline-variant": "#4e4633",
+                        "inverse-primary": "#745b00",
+                        "on-primary": "#3d2f00",
+                        "inverse-surface": "#e5e2e1",
+                        "tertiary-fixed": "#cae6ff",
+                        "primary-fixed-dim": "#efc11c",
+                        "surface-container-low": "#1c1b1b",
+                        "on-primary-fixed-variant": "#574400",
+                        "on-error": "#690005",
+                        "on-tertiary": "#00344f",
+                        "surface-bright": "#3a3939",
+                        "on-tertiary-container": "#005179",
+                        "on-tertiary-fixed-variant": "#004b70",
+                        "secondary-fixed": "#d8e2ff",
+                        "surface-dim": "#131313",
+                        "on-secondary-fixed": "#001a41",
+                        "tertiary": "#b7deff",
+                        "surface-variant": "#353534",
+                        "outline": "#9a9079",
+                        "surface-container-highest": "#353534",
+                        "surface-container-high": "#2a2a2a",
+                        "primary-container": "#e5b80b",
+                        "primary-fixed": "#ffe089",
+                        "background": "#131313",
+                        "on-tertiary-fixed": "#001e30",
+                        "on-secondary-fixed-variant": "#004493",
+                        "on-primary-container": "#5e4a00",
+                        "on-error-container": "#ffdad6",
+                        "error": "#ffb4ab",
+                        "on-primary-fixed": "#241a00",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "error-container": "#93000a",
+                        "primary": "#ffd552",
+                        "surface": "#131313",
+                        "on-surface": "#e5e2e1",
+                        "secondary": "#adc6ff",
+                        "on-surface-variant": "#d1c5ac",
+                        "tertiary-fixed-dim": "#8dcdff",
+                        "on-background": "#e5e2e1"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "sm": "12px",
+                        "container-max": "1440px",
+                        "base": "8px",
+                        "xl": "80px",
+                        "gutter": "24px",
+                        "md": "24px",
+                        "lg": "48px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Geist"],
+                        "headline-lg-mobile": ["Geist"],
+                        "headline-md": ["Geist"],
+                        "label-md": ["Geist"],
+                        "headline-lg": ["Geist"],
+                        "body-md": ["Geist"],
+                        "display-lg": ["Geist"],
+                        "headline-xl": ["Geist"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "34px", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "display-lg": ["64px", {"lineHeight": "72px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.01em", "fontWeight": "700"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .glass {
+            background: rgba(25, 25, 25, 0.6);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .movie-card-hover:hover .card-overlay {
+            opacity: 1;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #ffd552;
+            border-radius: 10px;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .glass-mobile {
+            backdrop-filter: blur(40px);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .active-tab {
+            position: relative;
+            color: #ffd552;
+        }
+        .active-tab::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: #ffd552;
+            border-radius: 4px;
+            box-shadow: 0 0 12px rgba(255, 213, 82, 0.5);
+        }
+
+        /* Responsive layout switch: .layout-mobile is the untouched Mobile design,
+           .layout-desktop is the untouched Desktop design (its own sm:/md:/lg: classes
+           already adapt it across the 768-1023 tablet range and 1024+ desktop range). */
+        .layout-desktop {
+            display: none;
+            font-family: 'Geist', sans-serif;
+            background-color: #0A0A0A;
+            color: #e5e2e1;
+            overflow-x: hidden;
+        }
+        .layout-mobile {
+            display: block;
+            font-family: 'Geist', sans-serif;
+            background-color: #0A0A0A;
+            -webkit-tap-highlight-color: transparent;
+            min-height: max(884px, 100dvh);
+        }
+        @media (min-width: 768px) {
+            .layout-desktop {
+                display: block;
+            }
+            .layout-mobile {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface">
+<!-- ============================= -->
+<!-- DESKTOP / TABLET LAYOUT (>=768px) — unchanged from watchmovie.html -->
+<!-- ============================= -->
+<div class="layout-desktop">
+<!-- Top Navigation Bar (Shared Component) -->
+<nav class="fixed top-0 w-full flex justify-between items-center px-gutter py-base bg-surface/80 dark:bg-surface/80 backdrop-blur-xl z-50 border-b border-white/10 shadow-xl">
+<div class="flex items-center gap-lg">
+<span class="text-headline-md font-headline-xl font-bold text-on-surface dark:text-on-surface">RoPhim</span>
+<div class="hidden md:flex gap-md">
+<a class="text-on-surface/70 hover:text-on-surface transition-colors text-label-md font-label-md" href="#">Chủ Đề</a>
+<a class="text-on-surface/70 hover:text-on-surface transition-colors text-label-md font-label-md" href="#">Thể loại</a>
+<a class="text-on-surface/70 hover:text-on-surface transition-colors text-label-md font-label-md" href="#">Phim Lẻ</a>
+<a class="text-on-surface/70 hover:text-on-surface transition-colors text-label-md font-label-md" href="#">Phim Bộ</a>
+<a class="text-on-surface/70 hover:text-on-surface transition-colors text-label-md font-label-md" href="#">Xem Chung</a>
+<a class="text-on-surface/70 hover:text-on-surface transition-colors text-label-md font-label-md" href="#">Quốc gia</a>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<div class="relative hidden lg:block">
+<input class="bg-surface-variant/50 border-none rounded-full px-base py-xs text-body-md w-64 focus:ring-1 focus:ring-primary" placeholder="Tìm kiếm phim..." type="text"/>
+<span class="material-symbols-outlined absolute right-3 top-2 text-on-surface-variant">search</span>
+</div>
+<button class="text-on-surface/70 hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="bg-primary text-on-primary px-gutter py-xs rounded-full font-label-md text-label-md scale-95 active:scale-90 transition-transform">Thành viên</button>
+<div class="w-10 h-10 rounded-full overflow-hidden border border-white/10">
+<img class="w-full h-full object-cover" data-alt="A professional close-up studio portrait of a young adult user with warm lighting, against a dark minimalist background. The style is high-end editorial photography with shallow depth of field, reflecting the premium streaming service's aesthetic. Deep obsidian and gold tones are present in the lighting accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCiqm72GDG1thkhhsRUp_uG1VHAFwMM1SdJL5uSIKs02EqwUh_LcKpgYt_j8fbUp6U_K_tIQ75s6bsRWPzPD0lJB0EY83g4vg08m2bEJLJy-61GkUoxW17p8HjMZhQ06QqBcFUqBIbxTfENJ_OfuXzwKJHOX-uEQv0LUtK-dA_l2oMUIDNGfX2S3rAVB5pjdlGUL0cd0rbQdr9ipN5mH0DT9juwrQVxGaWUzQIIADroVJyuVIdEpTBLe_gCTGCeo3InDPUhuNvLZFX0"/>
+</div>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="pt-[80px] min-h-screen">
+<div class="max-w-[1920px] mx-auto px-gutter py-md">
+<!-- Video & Playlist Grid -->
+<div class="grid grid-cols-12 gap-gutter lg:h-[716px]">
+<!-- Premium Video Player (70%) -->
+<div class="col-span-12 lg:col-span-9 relative group rounded-[20px] overflow-hidden bg-black shadow-2xl">
+<div class="absolute inset-0 z-0">
+<img class="w-full h-full object-cover opacity-90" data-alt="A cinematic high-definition still from an epic sci-fi movie featuring a futuristic neon city under a starry sky. The lighting is dominated by deep blues and vibrant cinematic gold, with soft atmospheric fog and lens flares. The image is crisp, detailed, and creates a sense of immense scale and premium production quality." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8i5UFxM-7fORj76W1g1dhxsiXPc5SJcWa79K9FfaDZR3ICQAh2QyNSGfd9smfpT7nMiJFZtv9ygbkr01OiYfp4Y5aAJfR9_W3N3DZvQ2LLVA6tCa32HqsII2K2-N45cRinJiKv8z9X7GSOjcJFHA4lGuBcl5pqhK2BTtPP9N-Qt5odugnYbH1z7BHXybQcWr1nu7eVFThCaLjH3LhjT1ObNVIQ7GCUgvGqGEPJD30rp4rKDJgBGNdHc2-PcwyuA3IuS6xwPJpzc8j"/>
+<!-- Play Overlay Gradient -->
+<div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60"></div>
+</div>
+<!-- Centered Play Button -->
+<div class="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+<div class="w-24 h-24 rounded-full glass flex items-center justify-center transition-all duration-500 group-hover:scale-110 group-hover:bg-primary/20">
+<span class="material-symbols-outlined text-primary text-[48px]" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</div>
+</div>
+<!-- Bottom Controls -->
+<div class="absolute bottom-0 left-0 w-full p-md z-20 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+<div class="glass rounded-xl p-base flex flex-col gap-xs">
+<!-- Progress Bar -->
+<div class="relative w-full h-1 bg-white/10 rounded-full cursor-pointer group/progress">
+<div class="absolute top-0 left-0 h-full w-1/3 bg-primary rounded-full"></div>
+<div class="absolute top-1/2 left-1/3 -translate-y-1/2 w-3 h-3 bg-primary rounded-full shadow-lg scale-0 group-hover/progress:scale-100 transition-transform"></div>
+</div>
+<!-- Control Icons -->
+<div class="flex items-center justify-between mt-xs">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors">play_arrow</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors">skip_next</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors">volume_up</span>
+<span class="text-label-md font-label-md">24:12 / 1:45:00</span>
+</div>
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors">settings</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors">closed_caption</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-colors">fullscreen</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Episode Selector Sidebar -->
+<div class="col-span-12 lg:col-span-3 flex flex-col gap-sm overflow-hidden h-full">
+<div class="flex justify-between items-center mb-xs">
+<h3 class="text-headline-md font-headline-md text-primary">Danh sách tập</h3>
+<span class="text-label-md font-label-md text-on-surface-variant">42 Tập</span>
+</div>
+<div class="flex-grow overflow-y-auto custom-scrollbar pr-xs space-y-sm">
+<!-- Episode Items -->
+<div class="flex gap-sm p-base glass rounded-xl border-l-4 border-primary bg-primary/5 cursor-pointer">
+<div class="w-24 aspect-video rounded-lg overflow-hidden flex-shrink-0 relative">
+<img class="w-full h-full object-cover" data-alt="A small cinematic thumbnail showing a mysterious character in a dark cloak standing in a dimly lit alleyway. The scene is illuminated by a single warm orange streetlamp, creating high contrast shadows and a moody, suspenseful atmosphere consistent with a dark luxury thriller." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCyZsATyKgih15xY0wZMHcdKyIYLPJC_Le0WUeyoiyb3W3Ed8IVyt1gGGkShegja7Pd1aTh2cPUDmGppgVXcO3kxKI6d301voZ02tm2jrR1BwAuBNjFnkdr6LFtDGusoElnpBfBIttrNCN1SWP3o6XgISrr4wnRoH_VRmjp1Si_995bkFRPQjbBCAJQcQgKypWzSgSH25a3sEVaRE9EKohm0ND0AvYkXpYm_nQkZukqxgKeyYpvm7tt0jvmMSeVmoj6wt0q92yazqNp"/>
+<div class="absolute inset-0 flex items-center justify-center bg-black/40">
+<span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</div>
+</div>
+<div class="flex flex-col justify-center overflow-hidden">
+<span class="text-label-md font-label-md text-primary truncate">Tập 1: Sự Khởi Đầu</span>
+<span class="text-[12px] text-on-surface-variant">Đã xem • 45 phút</span>
+</div>
+</div>
+<!-- Repeated Episodes -->
+<div class="flex gap-sm p-base glass rounded-xl hover:bg-white/5 cursor-pointer transition-colors">
+<div class="w-24 aspect-video rounded-lg overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="A cinematic thumbnail of a high-speed car chase at night through a futuristic city. Streaks of neon light and motion blur dominate the frame, with rich blues and purples accented by white headlight flares. High-end digital art style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAgNSyPRkb_0L4A-Bq9OTGvQLol9YJ8FTRvBIzczOT7ItuNq8AiR3cWq1Dl6sW7CFBQWOUbVSLe9AVsLQcjCR8YpOG9aI0EHp35F_rk4leR1oHumK918a00SUBKPO7MHKXP90C6z1d0S1nVeMQlNHktsYd1PKHxg09kzTG3mSo67oY8aAOuRI0plpXUaEzMnObim5qgccRT95N9hz8LVcXfdj9FIG_5WW66n_CEYI_OTW2g10q6C__6dCG3iswygnTXxUgwY3Olyng7"/>
+</div>
+<div class="flex flex-col justify-center overflow-hidden">
+<span class="text-label-md font-label-md text-on-surface truncate">Tập 2: Bóng Ma Quá Khứ</span>
+<span class="text-[12px] text-on-surface-variant">Chưa xem • 42 phút</span>
+</div>
+</div>
+<div class="flex gap-sm p-base glass rounded-xl hover:bg-white/5 cursor-pointer transition-colors">
+<div class="w-24 aspect-video rounded-lg overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="A wide cinematic shot of a lone explorer walking across a glowing crystalline desert under a massive alien moon. The lighting is ethereal and soft, using a palette of muted silvers and deep obsidian blacks. Highly immersive and professional." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBRNMOYY0RhRrM7lZB4EwrjnxDthlgB0WfXTl9KzUS_Y0tGjnYtxM49gf_qkP4TwOmu2QPTcCl-coCYG_m3Iq_Hz5a8r0DaCb6VfCGNCufvefcQ1zNurPen8cYzuZxnLgsKbiNAXLx9UGeqznoe-ZfXJ2Iy92v93ZwGnEMdcMRb_jwy9877ptUoYhIJ1jm0hOZmZVTlFNzYa2kgVeFdgBub0huqyp2sX3K1TtiTcDWg-JOFjdhS51EY5HCdOUgcTpM8bHjsHkJPJWKN"/>
+</div>
+<div class="flex flex-col justify-center overflow-hidden">
+<span class="text-label-md font-label-md text-on-surface truncate">Tập 3: Kẻ Phản Bội</span>
+<span class="text-[12px] text-on-surface-variant">Chưa xem • 50 phút</span>
+</div>
+</div>
+<div class="flex gap-sm p-base glass rounded-xl hover:bg-white/5 cursor-pointer transition-colors">
+<div class="w-24 aspect-video rounded-lg overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="A close-up of a high-tech control panel with glowing red and amber indicators in a darkened cockpit. The style is polished sci-fi, with intricate details and a sense of imminent tension. Dark obsidian tones with vibrant accent lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAu1swHt48JV2g0T6IAbUPveHV9eqRhN-SQaItV-zItnSjOmZOFsgTsdkpSxL4oabnspnW5UB2uzHphsPByaEdtOyDZgnh7HZV1wBfzXFT2D7KjGW8nrXVP3pcA02l277NaZ2WX2oUT6Mr9h5TfoQf7riWzrVpI7-N1D-hCrsszSvm50Tnx7UVNxE-uF1Sps_5cShER9nYzVV0mf6jZ7QGGN8Fl_cLSNw-HFzCh9G7gAC1gZuX7P7T15hwbLLuyVD6IS5ZA3yf2DJrR"/>
+</div>
+<div class="flex flex-col justify-center overflow-hidden">
+<span class="text-label-md font-label-md text-on-surface truncate">Tập 4: Trận Chiến Cuối</span>
+<span class="text-[12px] text-on-surface-variant">Chưa xem • 48 phút</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Movie Information & Comments -->
+<div class="grid grid-cols-12 gap-gutter mt-lg">
+<!-- Info Section -->
+<div class="col-span-12 lg:col-span-8 flex flex-col gap-lg">
+<section class="glass p-lg rounded-[20px]">
+<div class="flex justify-between items-start mb-base">
+<div>
+<h1 class="text-headline-xl font-headline-xl text-on-surface">Kẻ Truy Tìm Di Sản</h1>
+<div class="flex items-center gap-md mt-xs">
+<span class="text-primary font-bold">2026</span>
+<span class="px-xs py-0.5 bg-surface-container-highest rounded text-[12px] font-bold">4K UHD</span>
+<span class="px-xs py-0.5 bg-surface-container-highest rounded text-[12px] font-bold">HDR10+</span>
+<span class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-label-md">9.2</span>
+</span>
+</div>
+</div>
+<div class="flex gap-sm">
+<button class="w-12 h-12 rounded-full glass flex items-center justify-center hover:text-primary transition-colors">
+<span class="material-symbols-outlined">add</span>
+</button>
+<button class="w-12 h-12 rounded-full glass flex items-center justify-center hover:text-primary transition-colors">
+<span class="material-symbols-outlined">share</span>
+</button>
+</div>
+</div>
+<p class="text-body-lg font-body-lg text-on-surface-variant leading-relaxed max-w-3xl">
+                            Trong một tương lai xa xôi, một thợ săn tiền thưởng vô tình phát hiện ra một bí mật cổ xưa có thể thay đổi vận mệnh của cả thiên hà. Hành trình đưa anh qua những hành tinh hoang tàn và những thành phố neon lộng lẫy, nơi ranh giới giữa người và máy trở nên mờ nhạt.
+                        </p>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-md mt-lg pt-lg border-t border-white/10">
+<div>
+<span class="block text-label-md text-on-surface-variant mb-1">Đạo diễn</span>
+<span class="text-body-md font-bold">Christopher Nolan</span>
+</div>
+<div>
+<span class="block text-label-md text-on-surface-variant mb-1">Diễn viên</span>
+<span class="text-body-md font-bold">Leonardo DiCaprio, Tom Hardy</span>
+</div>
+<div>
+<span class="block text-label-md text-on-surface-variant mb-1">Thể loại</span>
+<span class="text-body-md font-bold">Sci-Fi, Hành Động</span>
+</div>
+<div>
+<span class="block text-label-md text-on-surface-variant mb-1">Thời lượng</span>
+<span class="text-body-md font-bold">145 Phút</span>
+</div>
+</div>
+</section>
+<!-- Comments Section -->
+<section class="glass p-lg rounded-[20px]">
+<h3 class="text-headline-md font-headline-md mb-lg">Bình luận (1,240)</h3>
+<div class="flex gap-md mb-xl">
+<div class="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="A close-up studio portrait of a young male user with a friendly expression, wearing premium casual attire. Lighting is soft and cinematic with subtle golden hues, set against a dark grey textured background, maintaining the luxury dark mode brand identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMIFFj9zppgkD45LZAWxxhHE5joVc5Zeq-uDUPqcywRQqAiZFdd22vfErDe663VuFsPWoEnaPQ3oNEaUWWDi0WQCbMKirEY_jLuu-okWeiXdBmZzGddQC1yW9m_aq1n0DGEryV3KruHhDh7tXnQWXUq0SmaTtmQDVbn4Vateh7wrlzzle5GyiAFm8DNjeLMSds2Eb9MaVpowBGkvAdPJfCFPdKPyYcMgfHZ5oHJ_F52FiZqxSHgatGhTgkKchUUZeHepv7igw6J_Pi"/>
+</div>
+<div class="flex-grow">
+<textarea class="w-full bg-surface-container-highest/30 border-none rounded-xl p-md text-body-md focus:ring-1 focus:ring-primary h-24 transition-all" placeholder="Chia sẻ cảm nghĩ của bạn..."></textarea>
+<div class="flex justify-end mt-sm">
+<button class="bg-primary text-on-primary px-lg py-xs rounded-full font-label-md text-label-md">Gửi</button>
+</div>
+</div>
+</div>
+<!-- Comment Items -->
+<div class="space-y-lg">
+<div class="flex gap-md">
+<div class="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="A portrait of a young woman with creative styling, featuring warm atmospheric lighting that samples a movie's color palette. The background is a soft blur of dark cinematic tones. Professional photography style for a premium streaming platform user profile." src="https://lh3.googleusercontent.com/aida-public/AB6AXuASDbBn40D9g044cH_whuBLYoebPEQETPB4tWS6GWe4vAjFF_EzESJ8PXql4UwgfVbSB2R9neT0j9pu_JcTqTvigD4gsx4X09UzeqRqgJ217Jhlqj03Mw5_uvS51f40uMNE06F-tY33MV2QB_E267rPxsjPUehGRHYT8lsLFQV8xJVpxZOHsfNn9ADf1vgw1UQoihXv4y22L7CVi1fQV24cnryafEMPQCdkx18zxjJBRO6ZCiPV114uZw340sT05wIHb-I4Q9SBGkCR"/>
+</div>
+<div>
+<div class="flex items-center gap-sm mb-1">
+<span class="text-label-md font-bold">Hoàng Nam</span>
+<span class="text-[12px] text-on-surface-variant">2 giờ trước</span>
+</div>
+<p class="text-body-md text-on-surface-variant">Phim quá tuyệt vời, kỹ xảo đỉnh cao nhất từ trước đến nay. Mong chờ tập tiếp theo!</p>
+<div class="flex gap-md mt-sm text-on-surface-variant">
+<button class="flex items-center gap-1 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">thumb_up</span>
+<span class="text-label-md">124</span>
+</button>
+<button class="text-label-md hover:text-primary transition-colors">Phản hồi</button>
+</div>
+</div>
+</div>
+<div class="flex gap-md">
+<div class="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="A high-end editorial portrait of a middle-aged man with sharp features, illuminated by soft blue and gold rim lighting against a deep obsidian background. This avatar represents a premium user of a sophisticated streaming service, reflecting modern dark luxury aesthetics." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBqndKDFa2IDpkYxxzUEbJLy50-kUhYal1bSr24iwzmHWByrUKMyeg12zE0IraRUkqFWKED7BIZpGH15Q-sHb_HOvAkvhF5ow8og0FhrnIpp5--ma3rMizvDFSx2YC2LbCHc14mjmdHL8vKI0gwg3XIekSdhyEOakaLkAHrgbLeyAhhemIbfLZgYNeYbuHPJhACC2EFOTSEFdOSYd2vvsI0tpBbD5x94zAxZpJKGKKzIR1CsJJizqkf8GHUyxwztPo3h7VWg1AdkAJt"/>
+</div>
+<div>
+<div class="flex items-center gap-sm mb-1">
+<span class="text-label-md font-bold">Thanh Trúc</span>
+<span class="text-[12px] text-on-surface-variant">5 giờ trước</span>
+</div>
+<p class="text-body-md text-on-surface-variant">Cốt truyện có chiều sâu, dàn diễn viên thực sự xuất sắc. Nhạc phim cũng rất ấn tượng.</p>
+<div class="flex gap-md mt-sm text-on-surface-variant">
+<button class="flex items-center gap-1 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">thumb_up</span>
+<span class="text-label-md">86</span>
+</button>
+<button class="text-label-md hover:text-primary transition-colors">Phản hồi</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Recommended Sidebar -->
+<div class="col-span-12 lg:col-span-4 flex flex-col gap-md">
+<h3 class="text-headline-md font-headline-md text-on-surface">Đề xuất cho bạn</h3>
+<div class="flex flex-col gap-md">
+<!-- Recommended Card 1 -->
+<div class="group relative aspect-[16/9] rounded-xl overflow-hidden glass cursor-pointer scale-100 hover:scale-[1.02] transition-all duration-300">
+<img class="w-full h-full object-cover" data-alt="A cinematic movie poster still for a high-stakes espionage thriller, showing a shadowy figure walking through a rain-slicked neon street in Tokyo. Deep teal and magenta lighting, high contrast, ultra-detailed textures. Premium dark luxury aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5GBnUaTC5qk-jlefNI6T-Lkhq7F6-fki7gzFzQ1tq1yd0kThPeVpD-L2WjFtoZrX0eRPzcGY_i9qUa_9V9r7rl2QPcrwTY5bwUZyWxAFvTdrN7ZEFkrlodWXKvhEzfx0pzCShT2iLhidlWtgEFpqjCgaO0ZI2fUB1e2gma8H1bmNj6DH2FoM-5LH_Yy_uoIjYWEGlKRIioA8c2lzO6bsn9JVYUeDcvJRbG8i_aUOFhEHf55uYLsrQNOBgy778ev4bgk9QUFy0YPb8"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80"></div>
+<div class="absolute bottom-0 left-0 p-md">
+<span class="block text-label-md text-primary font-bold mb-1">HÀNH ĐỘNG</span>
+<h4 class="text-headline-md font-headline-md">Mật Vụ Bóng Đêm</h4>
+</div>
+</div>
+<!-- Recommended Card 2 -->
+<div class="group relative aspect-[16/9] rounded-xl overflow-hidden glass cursor-pointer scale-100 hover:scale-[1.02] transition-all duration-300">
+<img class="w-full h-full object-cover" data-alt="A breathtaking cinematic shot of an intricate mechanical heart floating in a vast white chamber with soft, diffused lighting. The design is a mix of gold and silver filigree. Elegant, sophisticated sci-fi aesthetic with a sense of wonder and mystery." src="https://lh3.googleusercontent.com/aida-public/AB6AXuABctvw69-XIBaAY5kdkehnUm52tLDJvHRZ1o_MHCksz7B4eQSKlmamTZvxXFwz1CFy3s-9TKOsm-BoBkuKMvNI98DSKj_dlpaS1mzJl7upjQyKoxr4EWnxwJ5oCzxPDloAbwtDTImskLG95TGRuQCcmexKe3ZdJ_mnze0OcZor1lef17fwiL8ylb0Ef7EsrmHPAm6g8HyeF08G1t1Zb0UysbaQp9wzjQedKITh7Ye1JVd-azmkOBTk0cp2IGO9KnDwaMbvJ5T8tKRx"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80"></div>
+<div class="absolute bottom-0 left-0 p-md">
+<span class="block text-label-md text-primary font-bold mb-1">TÂM LÝ</span>
+<h4 class="text-headline-md font-headline-md">Ký Ức Đánh Mất</h4>
+</div>
+</div>
+<!-- Recommended Card 3 -->
+<div class="group relative aspect-[16/9] rounded-xl overflow-hidden glass cursor-pointer scale-100 hover:scale-[1.02] transition-all duration-300">
+<img class="w-full h-full object-cover" data-alt="A dramatic cinematic scene of a medieval castle perched on a floating island above a sea of clouds at sunset. Rich golden hour lighting, deep orange and purple skies, epic fantasy style with realistic high-end rendering." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCim2KOTpqqrtw-6SWQSXqv_ecJZhHku97zDoy90cN6W1oxeOrMrL-HF8c4jiUMn4lW3hvXGpwkiOrziN_dk-TIcOAtcHNwJQH44_0Ri8YDkfoaxnxY5J4OrZiayQl3NR0WKweP7RNqbqzI-5p5xFJB_Pe18FVkyPXAkA4mYflGi4hcHV8erM-8zeiw8vGIElsVE27tMGHSDeAeDFfiqYDo8o1Usxcsdo5Ec9K0PQxQOIDYITleL7GDuSo7id9P99ICjretyilG9sQS"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80"></div>
+<div class="absolute bottom-0 left-0 p-md">
+<span class="block text-label-md text-primary font-bold mb-1">PHANTASY</span>
+<h4 class="text-headline-md font-headline-md">Đế Chế Bay</h4>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Recommended Horizontal Scroll -->
+<section class="mt-xl pb-xl">
+<div class="flex justify-between items-end mb-lg">
+<h2 class="text-headline-lg font-headline-lg">Phim liên quan</h2>
+<button class="text-primary font-bold hover:underline">Xem tất cả</button>
+</div>
+<div class="flex gap-gutter overflow-x-auto pb-md custom-scrollbar -mx-gutter px-gutter">
+<!-- Movie Card -->
+<div class="flex-shrink-0 w-48 group cursor-pointer">
+<div class="aspect-[2/3] rounded-[20px] overflow-hidden relative mb-base shadow-lg transition-transform duration-300 group-hover:scale-105 group-hover:shadow-[0_0_20px_rgba(255,213,82,0.2)]">
+<img class="w-full h-full object-cover" data-alt="A minimalist movie poster art for a psychological thriller. A single bright red door stands in the middle of a vast, foggy black and white landscape. Cinematic composition, high grain, mysterious mood. Premium editorial quality." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_0Xf40iE8IKDaSS4R7U0hFZqxl948zT9IbFNz3d-WGwFI1CJTp2r4Qc1Ade1YqiDtP4kB81fEj71suoSJ8J2eKoFAnbc5Gy-PX6iIalKIDap68qP-oO7rpkABmTaeZcRJTqsTLCtnkYc0LxSI5__aHmtRYeM2MuRlR6WMW_kH7ZqlwRHhlMMIcpiS9obljhRtMKEvesdIpRm6tfgbdF7aoLr9zzKcnkRANWyhHln0rqO29OE7awtaKn72Qf-lyUwWRsnjSXajIIY3"/>
+<div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-base backdrop-blur-sm">
+<button class="bg-primary text-on-primary w-full py-xs rounded-lg font-bold text-sm mb-xs">Xem ngay</button>
+<button class="glass w-full py-xs rounded-lg font-bold text-sm">Thêm vào DS</button>
+</div>
+</div>
+<h4 class="text-body-md font-bold truncate">Cánh Cửa Thứ 7</h4>
+<span class="text-label-md text-on-surface-variant">Hành Động • 2025</span>
+</div>
+<!-- Repeat Card for visual flow -->
+<div class="flex-shrink-0 w-48 group cursor-pointer">
+<div class="aspect-[2/3] rounded-[20px] overflow-hidden relative mb-base shadow-lg transition-transform duration-300 group-hover:scale-105">
+<img class="w-full h-full object-cover" data-alt="A cinematic movie poster showing a futuristic astronaut silhouette against a massive, colorful nebula in deep space. Vibrant purples, pinks, and gold accents. High resolution, high contrast, stunning interstellar landscape." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5Wtg1PuIyqU4nOYGg_hU19xt3RfXVPSlzwCSEisPFc0XhOepZUkAUcBkokoha7xwt2OUjqTGRfwOIfB-SSl5Ja_Xmg5jRDo4Hqwpjb1M3DaSj3HiSGgH8ax3rrZGuYka1RE4pLfXNOofgFxvyB7cDtjKLJEhTeE86kB_zz8aOxMoePF1SRitOPF9w28qdZoENRzw6V7Fym3WkpbyTwdLoTUkhLqWDz3Pbie180-pZjS2dxMZB3mXLQr-OjMCj10k9WaWYX9hZt6ss"/>
+<div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-base backdrop-blur-sm">
+<button class="bg-primary text-on-primary w-full py-xs rounded-lg font-bold text-sm mb-xs">Xem ngay</button>
+</div>
+</div>
+<h4 class="text-body-md font-bold truncate">Hành Tinh Lẻ Loi</h4>
+<span class="text-label-md text-on-surface-variant">Sci-Fi • 2026</span>
+</div>
+<div class="flex-shrink-0 w-48 group cursor-pointer">
+<div class="aspect-[2/3] rounded-[20px] overflow-hidden relative mb-base shadow-lg transition-transform duration-300 group-hover:scale-105">
+<img class="w-full h-full object-cover" data-alt="A moody cinematic movie poster of a vintage jazz club in the 1950s. A lone saxophone player is illuminated by a smoky spotlight. Warm amber tones, rich shadows, noir aesthetic. Sophisticated and artistic composition." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDR0fWaJBlIxxt281OkOQQ6q1guLNytVwh_qWZKha26LBoY9G8kOE_dxFTfmxXE5ovMF7c0r3fLdxM0hYqWPLagTRp6g5x-jDueNhhawS0dBlAnvwnVaYC4hcFSgBRceElZd9rEDbkg32NqDpvDSxoOv6ahL-OmRcm1D8CWMzBV7_dQSAoUbQT---RV77TJU4nGOcZxC_lT-0bpjyEsElQRbG9XwJ_nC8QsSVdFKRF-RLjIFZMA6dpFClk0ZmvxhiwlDVhZEKv5ieS7"/>
+<div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-base backdrop-blur-sm">
+<button class="bg-primary text-on-primary w-full py-xs rounded-lg font-bold text-sm mb-xs">Xem ngay</button>
+</div>
+</div>
+<h4 class="text-body-md font-bold truncate">Nhịp Điệu Đêm</h4>
+<span class="text-label-md text-on-surface-variant">Âm Nhạc • 2024</span>
+</div>
+<div class="flex-shrink-0 w-48 group cursor-pointer">
+<div class="aspect-[2/3] rounded-[20px] overflow-hidden relative mb-base shadow-lg transition-transform duration-300 group-hover:scale-105">
+<img class="w-full h-full object-cover" data-alt="A dramatic cinematic poster of a frozen tundra with an ancient lighthouse beaming a strong light into a snowstorm. Cold blue and white palette with a single intense warm light source. Epic and desolate mood, ultra-sharp detail." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCv9CkFnFF5GTqkAF_Jx8oLmuk6DWs0rHV1vNxH8I2ITxatwFD_tVQI1LYkIn_9krrGHh6urvRbySQE7OBEY2VoySNHrqr7ZduA0W-VqEaLl78SNpDBk6KN45ndvskdoLSOEzfw4PIs2XcW50dTZc_HwDsJdwAKa8sBG1gLejke0oAfBxGVUVjdGoqFj7Us3p4xDCeVSlpZ6v0WnjFHapcXQ2XiB9ANegsCvtCsJ9zFyhgRavppTBjwSKIBKe8d_PHCCL1OzYfZXpq9"/>
+<div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-base backdrop-blur-sm">
+<button class="bg-primary text-on-primary w-full py-xs rounded-lg font-bold text-sm mb-xs">Xem ngay</button>
+</div>
+</div>
+<h4 class="text-body-md font-bold truncate">Ngọn Đăng Băng</h4>
+<span class="text-label-md text-on-surface-variant">Kinh Dị • 2025</span>
+</div>
+<div class="flex-shrink-0 w-48 group cursor-pointer">
+<div class="aspect-[2/3] rounded-[20px] overflow-hidden relative mb-base shadow-lg transition-transform duration-300 group-hover:scale-105">
+<img class="w-full h-full object-cover" data-alt="A cinematic movie poster of a bustling cyberpunk market street filled with glowing holographic advertisements and rainy streets reflecting neon signs. High complexity, vibrant color palette of pink, cyan, and gold. Immersive world-building." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJAjNY9aD7NhmHEJxPTTPueQEDPqUe0JhAPIPeGbU95blIkshdiUYFP56YWKSZMs39m3Nf-d0TH8BOE02b3_yEovFcWW2YY3cZgCFv4a6lCI05QzSIvLiK85pQYLjU3oKsQ06Fh0HlwtCR0ahLrn98ZgYVCywQj-NqHq7sM5NILz_HJKH7YM-i6D4buDEQexwhzCsDfEFaqvavzwBvWDfZMF8URYqC5UuTn8ChPgy8He8TJq3uCsxY4UuguDx7GjHzUlVihJV1nsLC"/>
+<div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-base backdrop-blur-sm">
+<button class="bg-primary text-on-primary w-full py-xs rounded-lg font-bold text-sm mb-xs">Xem ngay</button>
+</div>
+</div>
+<h4 class="text-body-md font-bold truncate">Thành Phố Không Ngủ</h4>
+<span class="text-label-md text-on-surface-variant">Viễn Tưởng • 2026</span>
+</div>
+<div class="flex-shrink-0 w-48 group cursor-pointer">
+<div class="aspect-[2/3] rounded-[20px] overflow-hidden relative mb-base shadow-lg transition-transform duration-300 group-hover:scale-105">
+<img class="w-full h-full object-cover" data-alt="A minimalist and elegant cinematic poster for a romantic drama. Two silhouettes face each other against a massive, floor-to-ceiling window overlooking a quiet, rainy garden. Soft natural lighting, deep greens and greys. High-end artistic style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAijURHIsroNP0rQx6_aYZAxXAloIpcLxPg4xXBzHDF4cF7k3320rwFys-wisjTPVgXZ3VxKTONvdkhHr6hqpL0kyC41PqXh7_BGk-SVFIUN0Cd23ppvimYGv_cZLC_fWllf9--DJdimQZOYgWi-LM9vg9neuYgBAzdPr2VoCD-pVMLAJ7KZnZpUYpBfhj03cwYOdzFVJpVZ9wYrK8WiUqMU4_-DZBXuQ_6YA8c3DTusQKd1BlTfYCHb4QMpegQ3GI7V__xZsHUcHSm"/>
+<div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-base backdrop-blur-sm">
+<button class="bg-primary text-on-primary w-full py-xs rounded-lg font-bold text-sm mb-xs">Xem ngay</button>
+</div>
+</div>
+<h4 class="text-body-md font-bold truncate">Lời Chưa Nói</h4>
+<span class="text-label-md text-on-surface-variant">Lãng Mạn • 2025</span>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Footer (Shared Component) -->
+<footer class="w-full flex flex-col items-center justify-center gap-md px-gutter text-center bg-surface-container-low dark:bg-surface-container-low full-width py-lg border-t border-outline-variant/30">
+<span class="text-headline-lg font-bold text-on-surface">RoPhim</span>
+<div class="flex flex-wrap justify-center gap-lg">
+<a class="text-on-surface-variant hover:text-on-surface transition-colors text-label-md font-label-md" href="#">Hỏi-Đáp</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors text-label-md font-label-md" href="#">Chính sách bảo mật</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors text-label-md font-label-md" href="#">Điều khoản sử dụng</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors text-label-md font-label-md" href="#">Giới thiệu</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors text-label-md font-label-md" href="#">Liên hệ</a>
+</div>
+<p class="text-body-md font-body-md text-on-surface-variant opacity-80 mt-base">© 2026 RoPhim. Bản quyền thuộc về RoPhim.</p>
+<div class="flex gap-md mt-sm">
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-all">public</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-all">video_library</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-primary transition-all">movie</span>
+</div>
+</footer>
+<script>
+        // Micro-interactions for video player
+        const player = document.querySelector('.group');
+        player.addEventListener('mousemove', (e) => {
+            const { left, top, width, height } = player.getBoundingClientRect();
+            const x = (e.clientX - left) / width;
+            const y = (e.clientY - top) / height;
+
+            // Suble parallax movement for play button glow can be added here
+        });
+
+        // Toggle episode selection
+        document.querySelectorAll('.glass.cursor-pointer').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.border-primary').forEach(el => {
+                    el.classList.remove('border-l-4', 'border-primary', 'bg-primary/5');
+                    el.querySelector('span:first-of-type').classList.remove('text-primary');
+                    el.querySelector('span:first-of-type').classList.add('text-on-surface');
+                });
+                this.classList.add('border-l-4', 'border-primary', 'bg-primary/5');
+                const title = this.querySelector('span:first-of-type');
+                title.classList.remove('text-on-surface');
+                title.classList.add('text-primary');
+            });
+        });
+    </script>
+</div>
+<!-- ============================= -->
+<!-- MOBILE LAYOUT (<=767px) — unchanged from watchmovieMobile.html -->
+<!-- ============================= -->
+<div class="layout-mobile">
+<!-- Top AppBar (Fixed) -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-[40px] flex justify-between items-center px-gutter h-16 border-b border-white/10">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-icon="movie">movie</span>
+<h1 class="font-headline-md text-headline-md font-bold text-primary tracking-tight">RoPhim</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-on-surface-variant hover:opacity-80 transition-opacity active:scale-95 transition-transform" data-icon="search">search</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:opacity-80 transition-opacity active:scale-95 transition-transform" data-icon="notifications">notifications</button>
+</div>
+</header>
+<main class="pt-16 pb-24">
+<!-- Video Player Section (16:9) -->
+<section class="relative w-full aspect-video bg-black overflow-hidden group">
+<div class="absolute inset-0 z-0">
+<img class="w-full h-full object-cover opacity-60" data-alt="A high-definition cinematic still from a luxury streaming movie titled Kẻ Truy Tìm Di Sản. The shot features a dramatic action sequence with golden embers flying through a dark obsidian environment, perfectly matching a premium cinematic dark aesthetic. The lighting is moody and directional, highlighting textures of leather and ancient stone. The atmosphere is intense and exclusive, with a deep color palette of shadows and warm metallic highlights." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8KkaK3EtCIsczDyoDX08tP9B_McLAKw_PNI0alqUJXkyuGwAui8QHD-3j2FuKKqHsRIbU_9LxmhAjQC_eB2s9E2RVNPfNDYuzWFcjYlWZLzjDOhU4uAuEoMtRSaBaC0CA0te91n0HF97s-6ikPhzKu_VDXpY2A1bFtdCllhW74V03HibzM3iV-CVW6lovakJhdUKaC900WoJX7p7ChGRxzKS3OCHPheFMdfdVsKNJTve5vgnd7z0OO958PFy28IejMycb2L4-rcmT"/>
+</div>
+<!-- Video Overlay Controls -->
+<div class="absolute inset-0 z-10 flex flex-col justify-between p-4 bg-gradient-to-t from-black/80 via-transparent to-black/40">
+<div class="flex justify-between items-start">
+<button class="p-2 glass-mobile rounded-full active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-white" data-icon="arrow_back">arrow_back</span>
+</button>
+<div class="flex gap-3">
+<button class="p-2 glass-mobile rounded-full"><span class="material-symbols-outlined text-white" data-icon="settings">settings</span></button>
+<button class="p-2 glass-mobile rounded-full"><span class="material-symbols-outlined text-white" data-icon="cast">cast</span></button>
+</div>
+</div>
+<div class="flex flex-col items-center justify-center">
+<button class="w-16 h-16 rounded-full glass-mobile flex items-center justify-center active:scale-90 transition-transform bg-white/20">
+<span class="material-symbols-outlined text-white text-4xl" data-icon="play_arrow" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+</div>
+<div class="space-y-3">
+<div class="w-full h-1 bg-white/20 rounded-full relative overflow-hidden">
+<div class="absolute left-0 top-0 h-full w-1/3 bg-primary rounded-full"></div>
+</div>
+<div class="flex justify-between items-center text-[12px] font-label-md text-white/80">
+<span>12:45 / 45:00</span>
+<div class="flex gap-4">
+<span class="material-symbols-outlined" data-icon="closed_caption">closed_caption</span>
+<span class="material-symbols-outlined" data-icon="fullscreen">fullscreen</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Movie Info -->
+<section class="px-gutter pt-6">
+<div class="flex justify-between items-start gap-4">
+<div class="space-y-1">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Kẻ Truy Tìm Di Sản</h2>
+<div class="flex items-center gap-3 text-on-surface-variant text-[14px]">
+<span class="text-primary font-bold">9.2 Rating</span>
+<span>•</span>
+<span>2024</span>
+<span>•</span>
+<span class="bg-surface-container px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-widest">4K HDR</span>
+</div>
+</div>
+<div class="flex flex-col items-center gap-1">
+<button class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary active:scale-90 transition-transform">
+<span class="material-symbols-outlined" data-icon="bookmark">bookmark</span>
+</button>
+<span class="text-[10px] text-on-surface-variant">Lưu lại</span>
+</div>
+</div>
+<p class="mt-4 text-on-surface-variant font-body-md text-body-md line-clamp-2 opacity-80">
+                Hành trình nghẹt thở của một chuyên gia giải mã cổ tự trong cuộc đua với các tổ chức ngầm để tìm ra kho báu di sản ngàn năm bị lãng quên tại trung tâm Đông Nam Á.
+            </p>
+</section>
+<!-- Tabs Section -->
+<section class="mt-8 border-b border-white/5">
+<div class="flex px-gutter gap-8 overflow-x-auto no-scrollbar">
+<button class="pb-2 text-label-md font-label-md active-tab whitespace-nowrap">Danh sách tập</button>
+<button class="pb-2 text-label-md font-label-md text-on-surface-variant whitespace-nowrap">Bình luận (1.2k)</button>
+<button class="pb-2 text-label-md font-label-md text-on-surface-variant whitespace-nowrap">Thông tin thêm</button>
+</div>
+</section>
+<!-- Episodes List -->
+<section class="mt-6 px-gutter">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-label-md font-bold text-on-surface">Mùa 1</h3>
+<span class="text-xs text-on-surface-variant">12 Tập</span>
+</div>
+<div class="space-y-4">
+<!-- Active Episode -->
+<div class="flex gap-4 p-2 bg-primary-container/10 border border-primary/20 rounded-xl">
+<div class="relative w-32 aspect-video rounded-lg overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="A cinematic thumbnail for a thriller movie episode. The scene shows a close-up of a high-tech digital tablet showing an ancient map, glowing in a dark room. Deep blue and cinematic gold lighting. The image is crisp, modern, and high-end, representing a top-tier streaming service aesthetic like Apple TV or HBO Max." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDCRIFFALe6OhiExP0BxD6MO7CEe4ZXIaw61-gwHVhw-ORDl6jU0Uo1ZUllFX71LsJ56a_p-UklXQPCjDa4TJmL1rlpjXwuwVb0ho945ywaDsGTRxVo2-Z2JoYfIPgDdtuouZcUFa73GByfYmUqwTgVG9xLesyiwF5QXyQsSF1S3Fwc7MZTqXiPFBZi8zC6O-6MZ_EnFubiQeG-KaBiijSg4HZtfb7cMOy1cLcfN12hveFiMiQHmpTpUe4ynUB-ItuWyy01Dylyv4v"/>
+<div class="absolute inset-0 flex items-center justify-center bg-black/40">
+<span class="material-symbols-outlined text-primary" data-icon="equalizer">equalizer</span>
+</div>
+</div>
+<div class="flex flex-col justify-center">
+<span class="text-primary text-[10px] font-bold uppercase tracking-wider">Đang xem</span>
+<h4 class="text-on-surface font-label-md text-[14px]">Tập 1: Bản đồ bí ẩn</h4>
+<span class="text-on-surface-variant text-[12px]">45 phút</span>
+</div>
+</div>
+<!-- Next Episodes -->
+<div class="flex gap-4 p-2 hover:bg-white/5 transition-colors rounded-xl group">
+<div class="relative w-32 aspect-video rounded-lg overflow-hidden shrink-0">
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" data-alt="A cinematic thumbnail for a drama series episode. The shot depicts a luxury car driving through a neon-lit futuristic city at night. Reflected lights on the windshield create a premium, moody atmosphere. High contrast, deep blacks, and vibrant cyan highlights. Sophisticated editorial photography style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_LC4WM-1CzxIJGJ1vBT3B1vLoeLjIb6U7chnws7Sg4zY853yQjscK4Khd7Ir0pVRRJK_-krM04CWkCFKUhrFHxayglZHcOSSB8-rwkGeABXIjwy5Hb-n4yWOBMZ-R2p557JZA8LbEPMYWsCZCG3xLkZtSEPfhK8UTugwGuOwRgNUiLQ4WUGW3Nu7lIag3FAzhcyJRmDxZ4oCkjQhr48qpecRmUWUPYThRgG_S13irrgMjcX1D1YZoq5QqG9WQRt7IsiIpaiNemZi1"/>
+<div class="absolute bottom-1 right-1 bg-black/80 px-1 rounded text-[10px] text-white">42:10</div>
+</div>
+<div class="flex flex-col justify-center">
+<h4 class="text-on-surface font-label-md text-[14px]">Tập 2: Cuộc rượt đuổi</h4>
+<span class="text-on-surface-variant text-[12px]">42 phút</span>
+</div>
+</div>
+<div class="flex gap-4 p-2 hover:bg-white/5 transition-colors rounded-xl group">
+<div class="relative w-32 aspect-video rounded-lg overflow-hidden shrink-0">
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" data-alt="A cinematic thumbnail for a thriller movie. A silhouette of a character standing in front of a giant, glowing ancient stone artifact inside a dark cavern. Soft golden volumetric lighting. Elegant, immersive, and high-quality visual style with a focus on atmosphere and mystery." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_XEm5lUferhOS3clt8-ASevByi_oTHVbbo9eFwlZ5Q19garxSmwx3tumboQqSzrDKIJe4qHai39ljwVBXGvwZO_gXUQFcteW-S64k1kKODVuC9YrZJZaEiy7BjuTz05PO_hY3n8ylnivr4yPjjgfDzh65sIFp5fHAnKAKADFp42veKg-u6HcueCIca9fR3ZZIRkDXCHC6A6Qs3t4BSVW7NYWzATXNH9imFhFZy8jQzcw9eJOpv-oIK3Aqd9AKlavy4uurFdCgd5hH"/>
+<div class="absolute bottom-1 right-1 bg-black/80 px-1 rounded text-[10px] text-white">48:05</div>
+</div>
+<div class="flex flex-col justify-center">
+<h4 class="text-on-surface font-label-md text-[14px]">Tập 3: Ngôi đền cổ</h4>
+<span class="text-on-surface-variant text-[12px]">48 phút</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Related Movies Carousel -->
+<section class="mt-12">
+<div class="px-gutter flex justify-between items-center mb-4">
+<h3 class="font-headline-md text-headline-md text-on-surface">Phim liên quan</h3>
+<button class="text-primary text-label-md font-label-md">Tất cả</button>
+</div>
+<div class="flex gap-4 overflow-x-auto px-gutter no-scrollbar">
+<!-- Movie Card 1 -->
+<div class="w-36 shrink-0 space-y-2">
+<div class="aspect-[2/3] rounded-xl overflow-hidden relative group">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A premium cinematic movie poster featuring a dark, moody thriller aesthetic. The subject is a mysterious character in a high-tech suit standing in a rainy alleyway. Neon signs in the background are blurred with a bokeh effect. The color palette is dominated by deep obsidian, charcoal, and vibrant electric blue accents. High-end, editorial film style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDc_qc0pSpn8uVgdkg4I4_XP-Rw517mQ1WUxBfO8DuRpYwxS1W-mlFoX8ezMV9Yp3sdqFMBQbQnubCoFwcYMOWQVw-JZSu9PmbVNHlT1fAa0qpOifIe8GHpBWYhVTfca6gTf6rmCCjRm19Err6E1gf3J7FfcvgBG9slyoUoAMIqt2CsQWYFbY9MiKPC_oV8OwU1O9KvCA39MU-u10SWrWtTwZ76qzhSA7p6JGLixFMuyNL5xcjWSpzJC5I7UyKQkwJh0Ery6JhAlzGT"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2">
+<span class="text-[10px] text-white font-bold bg-primary/20 px-2 py-0.5 rounded backdrop-blur-sm">8.8 IMDb</span>
+</div>
+</div>
+<h5 class="text-on-surface text-[14px] font-label-md line-clamp-1">Mật mã tử thần</h5>
+</div>
+<!-- Movie Card 2 -->
+<div class="w-36 shrink-0 space-y-2">
+<div class="aspect-[2/3] rounded-xl overflow-hidden relative group">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A luxurious movie poster for a sci-fi drama. The image shows a sleek, futuristic skyscraper reaching into a cosmic violet and dark grey sky. The art style is minimalist and high-end, using glassmorphism effects and soft glowing lights. Deep shadows and elegant lighting define the premium cinematic experience." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA_RxeXlUZvv9_qMIsskxI_bTGEQj1j04eb2U20awZbYpRVH10f6jSFg5eXId0fNtWMZtlxvWQW1L0lebh0fwBcPma2d9eX9yBLVW-KvmU74d2x2VQ965tBZRiHIOiJnIQnEKhn1Iu3DWqjhH0M4peslrY2D1xqYEoR3IEXqXkyZgzlC5p2T34Zu_Kp3fF8wSWtuDHr8fPwkY6TP4yIfC9HEeZHcMFP_rmFN5dGjegB6WDsQ9_RAZui6dweRVU6gH8EmV70CIRK5tNL"/>
+</div>
+<h5 class="text-on-surface text-[14px] font-label-md line-clamp-1">Thành phố ảo</h5>
+</div>
+<!-- Movie Card 3 -->
+<div class="w-36 shrink-0 space-y-2">
+<div class="aspect-[2/3] rounded-xl overflow-hidden relative group">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="An artistic cinematic poster for a suspense film. The composition features a lone figure walking across a vast, cracked salt flat under a blood-red moon. The aesthetic is stark, modern, and dramatic. Intense focus on negative space and atmosphere. Professional color grading with deep blacks and rich reds." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDVvjU7Boi0kK3O74-eLkoqfEgSvpYrdDpXG-f3R06oMGJH0AEsE3UmeU7eWKuIN7qzVoI-WIeHQ6Ji8Rih62OdWZKkKSn-v0pBMvWe02jlFjkiPvPk-b6IKtmtWWqc7B7ChyWKTIbv24zIMPWq_mS4ioTmaTzvv1GK8yme08ajB8Lwu_aHkP9cVbwr6oxNedmza8HlU4oNnHcoGczsstsP-ksKkBLE7QyFN6toc7URVflwZkD2Z3Rv6VWxcLQSMbw0usbSVz8Lng-"/>
+</div>
+<h5 class="text-on-surface text-[14px] font-label-md line-clamp-1">Vùng đất cấm</h5>
+</div>
+</div>
+</section>
+<!-- Comments Mini Section -->
+<section class="mt-12 px-gutter mb-12">
+<div class="glass-mobile p-4 rounded-xl space-y-4">
+<div class="flex justify-between items-center">
+<h3 class="text-label-md font-bold">Bình luận hàng đầu</h3>
+<button class="text-xs text-on-surface-variant">Xem tất cả</button>
+</div>
+<div class="flex gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-surface-variant text-sm" data-icon="person">person</span>
+</div>
+<div class="flex-1 space-y-1">
+<div class="flex justify-between">
+<span class="text-[12px] font-bold">Hoàng Nam</span>
+<span class="text-[10px] text-on-surface-variant">2 giờ trước</span>
+</div>
+<p class="text-[13px] text-on-surface-variant leading-relaxed">
+                            Phim quá cuốn luôn, tập 1 mà plot twist đã gắt thế này rồi! Hóng tập tiếp theo quá RoPhim ơi.
+                        </p>
+</div>
+</div>
+<div class="relative mt-4">
+<input class="w-full bg-surface-container-high border-none rounded-full px-4 py-2 text-sm focus:ring-1 focus:ring-primary placeholder-on-surface-variant/50" placeholder="Thêm bình luận..." type="text"/>
+<button class="absolute right-3 top-1/2 -translate-y-1/2 text-primary material-symbols-outlined" data-icon="send">send</button>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2 pb-safe bg-surface-container/80 backdrop-blur-[40px] rounded-t-xl border-t border-white/10 shadow-xl">
+<button class="flex flex-col items-center justify-center bg-primary-container/20 text-primary rounded-xl p-2 active:scale-90 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="home" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-md text-[10px] mt-1">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:text-primary transition-colors active:scale-90 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+<span class="font-label-md text-[10px] mt-1">Search</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:text-primary transition-colors active:scale-90 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="bookmark">bookmark</span>
+<span class="font-label-md text-[10px] mt-1">My List</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:text-primary transition-colors active:scale-90 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-md text-[10px] mt-1">Profile</span>
+</button>
+</nav>
+<script>
+        // Simple Micro-interactions
+        document.querySelectorAll('.layout-mobile button').forEach(btn => {
+            btn.addEventListener('touchstart', () => {
+                btn.classList.add('scale-95');
+            });
+            btn.addEventListener('touchend', () => {
+                btn.classList.remove('scale-95');
+            });
+        });
+
+        // Tab Switching Logic (Visual only for this demo)
+        const tabs = document.querySelectorAll('.layout-mobile .font-label-md.whitespace-nowrap');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => {
+                    t.classList.remove('active-tab');
+                    t.classList.add('text-on-surface-variant');
+                });
+                tab.classList.add('active-tab');
+                tab.classList.remove('text-on-surface-variant');
+            });
+        });
+    </script>
+</div>
+</body></html>

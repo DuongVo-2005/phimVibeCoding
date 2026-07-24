@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:docs.google.com)",
+      "WebFetch(domain:doc-14-58-sheets.googleusercontent.com)",
+      "Bash(node \"C:\\\\Users\\\\THAI DUONG\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\f--BE-phim-vibe-coding\\\\7cb008d0-0870-4d6a-8c4c-331745e43304\\\\scratchpad\\\\merge_config.js\" actorprofile.html actorprofileMobile.html)",
+      "Bash(awk '/<script id=\"tailwind-config\">/,/<\\\\/script>/' moviedentail.html)",
+      "Bash(node \"C:\\\\Users\\\\THAI DUONG\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\f--BE-phim-vibe-coding\\\\7cb008d0-0870-4d6a-8c4c-331745e43304\\\\scratchpad\\\\merge_config.js\" moviecategory.html moviecategoryMobile.html)",
+      "Bash(node \"C:\\\\Users\\\\THAI DUONG\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\f--BE-phim-vibe-coding\\\\7cb008d0-0870-4d6a-8c4c-331745e43304\\\\scratchpad\\\\merge_config.js\" homepage.html homepageMobile.html)",
+      "Bash(node \"C:\\\\Users\\\\THAI DUONG\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\f--BE-phim-vibe-coding\\\\7cb008d0-0870-4d6a-8c4c-331745e43304\\\\scratchpad\\\\merge_config.js\" userdasboard.html userdasboardMobile.html)"
+    ]
+  }
+}
