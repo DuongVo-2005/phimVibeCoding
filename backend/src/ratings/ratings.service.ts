@@ -26,10 +26,18 @@ export class RatingsService {
     return { average, count };
   }
 
+  // Ép kiểu tường minh sang ObjectId ở CẢ BA method bên dưới (upsertRating/getMyRating/
+  // removeRating) — đây là một bản sửa thống nhất cho cùng 1 bug, không phải 3 thay đổi độc lập:
+  // filter truyền chuỗi thô không được Mongoose tự cast sang ObjectId trong môi trường này (đã xác
+  // minh thực nghiệm với cả findOneAndUpdate({upsert:true}) lẫn findOne()/deleteOne()), nên field
+  // `film`/`user` từng bị lưu thành String thay vì ObjectId. Nếu chỉ sửa upsertRating (ghi) mà
+  // không sửa getMyRating/removeRating (đọc/xoá) theo cùng cách, dữ liệu ghi đúng (ObjectId) sẽ
+  // không còn khớp với filter đọc/xoá bằng chuỗi thô nữa — gây regression mới thay vì sửa bug cũ.
+
   async upsertRating(userId: string, filmId: string, dto: CreateRatingDto): Promise<RatingDocument> {
     const rating = await this.ratingModel
       .findOneAndUpdate(
-        { film: filmId, user: userId },
+        { film: new Types.ObjectId(filmId), user: new Types.ObjectId(userId) },
         { score: dto.score },
         { upsert: true, new: true, setDefaultsOnInsert: true },
       )
@@ -54,11 +62,15 @@ export class RatingsService {
   }
 
   async getMyRating(userId: string, filmId: string): Promise<RatingDocument | null> {
-    return this.ratingModel.findOne({ film: filmId, user: userId }).exec();
+    return this.ratingModel
+      .findOne({ film: new Types.ObjectId(filmId), user: new Types.ObjectId(userId) })
+      .exec();
   }
 
   async removeRating(userId: string, filmId: string): Promise<void> {
-    await this.ratingModel.deleteOne({ film: filmId, user: userId }).exec();
+    await this.ratingModel
+      .deleteOne({ film: new Types.ObjectId(filmId), user: new Types.ObjectId(userId) })
+      .exec();
     await this.recalculateFilmRating(filmId);
   }
 }
