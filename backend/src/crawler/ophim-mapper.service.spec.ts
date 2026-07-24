@@ -67,6 +67,9 @@ describe('OphimMapperService', () => {
       expect(result.directors).toEqual([dao1Id, dao2Id]);
       expect(result).not.toHaveProperty('country');
       expect(result).not.toHaveProperty('director');
+      // Field đổi tên types -> categories (Phase 4.5) — mapper không còn ghi ra key `types` cũ.
+      expect(result).toHaveProperty('categories');
+      expect(result).not.toHaveProperty('types');
     });
 
     it('không gọi service khi không có country/director từ ophim', async () => {

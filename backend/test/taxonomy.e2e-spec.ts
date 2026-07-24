@@ -148,7 +148,7 @@ describe('Taxonomy (Categories/Countries/Directors) (e2e)', () => {
       const film = await filmModel.create({
         slug: 'phim-test-hanh-dong',
         title: 'Phim Test',
-        types: [new Types.ObjectId(categoryId)],
+        categories: [new Types.ObjectId(categoryId)],
       });
 
       const blocked = await request(app.getHttpServer())

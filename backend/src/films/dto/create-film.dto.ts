@@ -1,7 +1,8 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Type as TransformType } from 'class-transformer';
+import { Transform, Type as TransformType } from 'class-transformer';
 import {
   IsArray,
+  IsBoolean,
   IsEnum,
   IsMongoId,
   IsNumber,
@@ -99,7 +100,7 @@ export class CreateFilmDto {
   @IsOptional()
   @IsArray()
   @IsMongoId({ each: true })
-  types?: string[];
+  categories?: string[];
 
   @ApiPropertyOptional({ type: [EpisodeServerDto] })
   @IsOptional()
@@ -112,4 +113,13 @@ export class CreateFilmDto {
   @IsOptional()
   @IsEnum(FilmStatus)
   status?: FilmStatus;
+
+  @ApiPropertyOptional({
+    default: true,
+    description: 'Ẩn/hiện phim trên các API công khai (mặc định true khi tạo mới)',
+  })
+  @IsOptional()
+  @Transform(({ value }) => (typeof value === 'boolean' ? value : value === 'true'))
+  @IsBoolean()
+  isPublished?: boolean;
 }

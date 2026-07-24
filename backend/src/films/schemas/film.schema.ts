@@ -90,10 +90,10 @@ export class Film {
   @Prop({ type: [Types.ObjectId], ref: 'Actor', default: [] })
   actors: Types.ObjectId[];
 
-  // ref trỏ sang model "Category" (đổi tên từ "Type" khi gộp types->categories) — field vẫn tên
-  // `types` ở phase này, việc đổi tên field sang `categories` thuộc Phase 4 (Films Core Update).
+  // Đổi tên field types -> categories (Phase 4.5 — API Stabilization), ref sang model "Category"
+  // (đổi tên từ "Type" ở Phase 3). Dữ liệu cũ được migrate qua migrate-films-categories-published.ts.
   @Prop({ type: [Types.ObjectId], ref: 'Category', default: [] })
-  types: Types.ObjectId[];
+  categories: Types.ObjectId[];
 
   @Prop({ type: [EpisodeServerSchema], default: [] })
   episodes: EpisodeServer[];
@@ -113,6 +113,12 @@ export class Film {
   @Prop({ default: false })
   isHot: boolean;
 
+  // Trạng thái ẩn/hiện mềm (Phase 4.5) — thay cho xoá cứng: phim ẩn (false) biến mất khỏi mọi API
+  // công khai nhưng vẫn giữ nguyên comment/rating/history/favorite/playlist đang tham chiếu tới nó.
+  // Chỉ Admin (qua GET /films?isPublished=) mới thấy được phim ẩn.
+  @Prop({ default: true })
+  isPublished: boolean;
+
   @Prop({ type: String, enum: FilmStatus, default: FilmStatus.COMPLETED })
   status: FilmStatus;
 
@@ -128,10 +134,11 @@ export const FilmSchema = SchemaFactory.createForClass(Film);
 
 FilmSchema.index({ view: -1 });
 FilmSchema.index({ ratingAvg: -1 });
-FilmSchema.index({ types: 1 });
+FilmSchema.index({ categories: 1 });
 FilmSchema.index({ category: 1 });
 FilmSchema.index({ countries: 1 });
 FilmSchema.index({ directors: 1 });
+FilmSchema.index({ isPublished: 1 });
 // language_override: field `language` của Film dùng để lưu ngôn ngữ lồng tiếng/phụ đề (vd: "Vietsub"),
 // không liên quan tới text search. Nếu không đổi field mặc định, MongoDB sẽ coi `language` là cờ
 // chọn ngôn ngữ stemming cho text index và lỗi với các giá trị như "Vietsub" (not a valid language).

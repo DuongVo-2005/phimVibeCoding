@@ -1,5 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsBoolean, IsEnum, IsOptional, IsString } from 'class-validator';
 import { FilmCategory, FilmStatus } from '../../common/constants';
 import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
 
@@ -9,7 +10,16 @@ export class QueryFilmDto extends PaginationQueryDto {
   @IsString()
   search?: string;
 
-  @ApiPropertyOptional({ description: 'Slug thể loại' })
+  @ApiPropertyOptional({ description: 'Slug thể loại (danh mục) — thay thế `type`' })
+  @IsOptional()
+  @IsString()
+  category?: string;
+
+  @ApiPropertyOptional({
+    description:
+      'DEPRECATED — dùng `category` thay thế. Giữ lại để tương thích ngược, cùng ý nghĩa (slug thể loại).',
+    deprecated: true,
+  })
   @IsOptional()
   @IsString()
   type?: string;
@@ -24,10 +34,13 @@ export class QueryFilmDto extends PaginationQueryDto {
   @IsString()
   director?: string;
 
-  @ApiPropertyOptional({ enum: FilmCategory })
+  @ApiPropertyOptional({
+    enum: FilmCategory,
+    description: 'Định dạng phim lẻ/phim bộ — trước đây là tham số `category` (đã đổi tên)',
+  })
   @IsOptional()
   @IsEnum(FilmCategory)
-  category?: FilmCategory;
+  format?: FilmCategory;
 
   @ApiPropertyOptional({ enum: FilmStatus })
   @IsOptional()
@@ -38,4 +51,13 @@ export class QueryFilmDto extends PaginationQueryDto {
   @IsOptional()
   @IsString()
   year?: string;
+
+  @ApiPropertyOptional({
+    description:
+      'Chỉ Admin mới dùng được — bỏ qua bộ lọc isPublished:true mặc định, hoặc lọc riêng phim ẩn (isPublished=false). Người dùng thường truyền vào sẽ bị từ chối (400).',
+  })
+  @IsOptional()
+  @Transform(({ value }) => (typeof value === 'boolean' ? value : value === 'true'))
+  @IsBoolean()
+  isPublished?: boolean;
 }

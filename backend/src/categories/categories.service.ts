@@ -73,7 +73,7 @@ export class CategoriesService {
       throw new NotFoundException('Không tìm thấy danh mục');
     }
 
-    const filmCount = await this.filmModel.countDocuments({ types: category._id }).exec();
+    const filmCount = await this.filmModel.countDocuments({ categories: category._id }).exec();
     if (filmCount > 0) {
       throw new ConflictException(`Không thể xoá — đang được sử dụng bởi ${filmCount} phim`);
     }

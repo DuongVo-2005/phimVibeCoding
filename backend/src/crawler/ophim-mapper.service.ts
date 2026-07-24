@@ -120,7 +120,7 @@ export class OphimMapperService {
       countries: countryIds,
       directors: directorIds,
       actors: actorIds,
-      types: typeIds,
+      categories: typeIds,
       episodes,
       status: this.mapStatus(movie.status),
       sourceSlug: movie.slug,
