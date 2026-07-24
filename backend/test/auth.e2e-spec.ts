@@ -65,6 +65,9 @@ describe('Auth (e2e)', () => {
     expect(res.body.success).toBe(true);
     expect(res.body.data.accessToken).toEqual(expect.any(String));
     expect(res.body.data.user.email).toBe(ACTIVE_USER.email);
+    // Phase 6.3: xác minh password (hash) không lộ ra response ở bất kỳ vị trí nào.
+    expect(res.body.data).not.toHaveProperty('password');
+    expect(res.body.data.user).not.toHaveProperty('password');
   });
 
   it('POST /api/v1/auth/register từ chối password ngắn hơn 8 ký tự', async () => {

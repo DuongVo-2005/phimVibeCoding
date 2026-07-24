@@ -61,7 +61,12 @@ export class UsersService {
       name: dto.name ?? '',
       roleIds,
     });
-    return user.save();
+    const saved = await user.save();
+
+    // `select: false` trên field password chỉ có tác dụng với query (find/findById...), không
+    // áp dụng cho document vừa tạo bằng `new Model()` — refetch qua findById để Mongoose tự loại
+    // các field nhạy cảm (password) khỏi kết quả trả về, thay vì tự xoá field thủ công.
+    return (await this.userModel.findById(saved._id).exec())!;
   }
 
   async findAll(query: QueryUserDto): Promise<PaginatedResponseDto<UserDocument>> {

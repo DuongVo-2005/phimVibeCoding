@@ -59,7 +59,10 @@ export class AuthService {
       throw new UnauthorizedException('Phiên đăng nhập không hợp lệ');
     }
 
-    const isMatch = await bcrypt.compare(refreshToken, user.refreshTokenHash);
+    const isMatch = await bcrypt.compare(
+      this.hashRefreshTokenForBcrypt(refreshToken),
+      user.refreshTokenHash,
+    );
     if (!isMatch) {
       throw new UnauthorizedException('Phiên đăng nhập không hợp lệ');
     }
@@ -120,7 +123,7 @@ export class AuthService {
       expiresIn: this.jwtConfig.refreshExpires,
     });
 
-    const refreshTokenHash = await bcrypt.hash(refreshToken, 10);
+    const refreshTokenHash = await bcrypt.hash(this.hashRefreshTokenForBcrypt(refreshToken), 10);
     await this.usersService.setRefreshTokenHash(user.id, refreshTokenHash);
 
     return {
@@ -133,5 +136,12 @@ export class AuthService {
         role: user.role,
       },
     };
+  }
+
+  // bcrypt chỉ đọc 72 byte đầu của input, trong khi mọi refresh token JWT phát cho cùng 1 user
+  // có ~150+ byte đầu giống hệt nhau (header + phần payload trước iat/exp) — băm trước bằng
+  // SHA-256 để bcrypt luôn nhận input có độ dài cố định, đảm bảo phân biệt đúng các token khác nhau.
+  private hashRefreshTokenForBcrypt(refreshToken: string): string {
+    return crypto.createHash('sha256').update(refreshToken).digest('hex');
   }
 }
