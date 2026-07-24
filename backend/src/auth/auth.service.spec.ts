@@ -110,3 +110,80 @@ describe('AuthService.login', () => {
     ).rejects.toThrow(UnauthorizedException);
   });
 });
+
+describe('AuthService.forgotPassword — bảo mật (Phase 6.1): không trả reset token cho client', () => {
+  let service: AuthService;
+  let usersService: {
+    findByEmailWithPassword: jest.Mock;
+    setResetPasswordToken: jest.Mock;
+  };
+  let configGetMock: jest.Mock;
+
+  const buildConfig = (nodeEnv: string) =>
+    jest.fn((key: string) => {
+      if (key === 'jwt') {
+        return {
+          accessSecret: 'test-access-secret',
+          accessExpires: '15m',
+          refreshSecret: 'test-refresh-secret',
+          refreshExpires: '7d',
+        };
+      }
+      if (key === 'app') {
+        return { nodeEnv, port: 3000, apiPrefix: 'api/v1', corsOrigin: '*' };
+      }
+      return undefined;
+    });
+
+  const setup = async (nodeEnv: string) => {
+    usersService = {
+      findByEmailWithPassword: jest.fn(),
+      setResetPasswordToken: jest.fn().mockResolvedValue(undefined),
+    };
+    configGetMock = buildConfig(nodeEnv);
+
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        AuthService,
+        { provide: UsersService, useValue: usersService },
+        JwtService,
+        { provide: ConfigService, useValue: { get: configGetMock } },
+      ],
+    }).compile();
+
+    service = module.get(AuthService);
+  };
+
+  it('response KHÔNG chứa field token, kể cả khi email tồn tại', async () => {
+    await setup('development');
+    usersService.findByEmailWithPassword.mockResolvedValue({ id: 'user-1' });
+
+    const result = await service.forgotPassword({ email: 'user@example.com' });
+
+    expect(result).not.toHaveProperty('token');
+    expect(Object.keys(result)).toEqual(['message']);
+  });
+
+  it('vẫn gọi setResetPasswordToken để lưu token ở server (chỉ không trả về client)', async () => {
+    await setup('development');
+    usersService.findByEmailWithPassword.mockResolvedValue({ id: 'user-1' });
+
+    await service.forgotPassword({ email: 'user@example.com' });
+
+    expect(usersService.setResetPasswordToken).toHaveBeenCalledWith(
+      'user-1',
+      expect.any(String),
+      expect.any(Date),
+    );
+  });
+
+  it('email không tồn tại -> vẫn trả message chung, không tiết lộ, không gọi setResetPasswordToken', async () => {
+    await setup('development');
+    usersService.findByEmailWithPassword.mockResolvedValue(null);
+
+    const result = await service.forgotPassword({ email: 'khong-ton-tai@example.com' });
+
+    expect(result).not.toHaveProperty('token');
+    expect(usersService.setResetPasswordToken).not.toHaveBeenCalled();
+  });
+});

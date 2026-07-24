@@ -13,11 +13,13 @@ export class FilmReportsService {
     @InjectModel(FilmReport.name) private readonly filmReportModel: Model<FilmReportDocument>,
   ) {}
 
-  create(dto: CreateFilmReportDto): Promise<FilmReportDocument> {
+  /** `userId` lấy từ JWT đã xác thực (nếu có) — KHÔNG bao giờ tin chuỗi client tự khai trong body,
+   * để tránh giả mạo danh tính trong audit trail kiểm duyệt (Phase 6.1). Anonymous -> null. */
+  create(dto: CreateFilmReportDto, userId: string | null): Promise<FilmReportDocument> {
     return this.filmReportModel.create({
       film: dto.film,
       reason: dto.reason,
-      user: dto.userId ?? null,
+      user: userId,
     });
   }
 

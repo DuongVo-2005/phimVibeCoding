@@ -7,6 +7,7 @@ import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { HttpExceptionFilter } from '../src/common/filters/http-exception.filter';
 import { TransformInterceptor } from '../src/common/interceptors/transform.interceptor';
+import { ParseObjectIdPipe } from '../src/common/pipes/parse-object-id.pipe';
 import { Permission, PermissionDocument } from '../src/permissions/schemas/permission.schema';
 import {
   RolePermission,
@@ -45,6 +46,7 @@ describe('RBAC (e2e)', () => {
     app = moduleFixture.createNestApplication();
     app.setGlobalPrefix('api/v1');
     app.useGlobalPipes(
+      new ParseObjectIdPipe(),
       new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
     );
     app.useGlobalFilters(new HttpExceptionFilter());

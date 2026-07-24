@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { AuthenticatedUser } from '../auth/interfaces/jwt-payload.interface';
 import { UserRole } from '../common/constants';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -50,7 +51,10 @@ export class CommentsController {
     return this.commentsService.findAllForModeration(query);
   }
 
+  // ttl tính bằng MILLISECONDS (yêu cầu của @nestjs/throttler v6 — xem seconds()/minutes() helper
+  // của package), KHÔNG phải giây.
   @ApiBearerAuth()
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @Post()
   create(@CurrentUser() user: AuthenticatedUser, @Body() dto: CreateCommentDto) {
     return this.commentsService.create(user.userId, dto);

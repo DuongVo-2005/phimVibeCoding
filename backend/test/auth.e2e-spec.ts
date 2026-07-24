@@ -7,6 +7,7 @@ import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { HttpExceptionFilter } from '../src/common/filters/http-exception.filter';
 import { TransformInterceptor } from '../src/common/interceptors/transform.interceptor';
+import { ParseObjectIdPipe } from '../src/common/pipes/parse-object-id.pipe';
 import { User, UserDocument } from '../src/users/schemas/user.schema';
 
 describe('Auth (e2e)', () => {
@@ -35,6 +36,7 @@ describe('Auth (e2e)', () => {
     app = moduleFixture.createNestApplication();
     app.setGlobalPrefix('api/v1');
     app.useGlobalPipes(
+      new ParseObjectIdPipe(),
       new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
     );
     app.useGlobalFilters(new HttpExceptionFilter());
@@ -119,5 +121,25 @@ describe('Auth (e2e)', () => {
     expect(res.body.message).toBe('Tài khoản đã bị vô hiệu hoá');
 
     await userModel.updateOne({ email: ACTIVE_USER.email }, { isActive: true }).exec();
+  });
+
+  it('POST /api/v1/auth/forgot-password KHÔNG trả reset token trong response (Phase 6.1 — bảo mật)', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/api/v1/auth/forgot-password')
+      .send({ email: ACTIVE_USER.email });
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).not.toHaveProperty('token');
+    expect(Object.keys(res.body.data)).toEqual(['message']);
+  });
+
+  it('POST /api/v1/auth/forgot-password với email không tồn tại vẫn trả message chung, không token', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/api/v1/auth/forgot-password')
+      .send({ email: 'khong-ton-tai@example.com' });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data).not.toHaveProperty('token');
   });
 });

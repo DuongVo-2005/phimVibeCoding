@@ -1,9 +1,9 @@
-import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
-import { JwtConfig } from '../config/configuration';
+import { AppConfig, JwtConfig } from '../config/configuration';
 import { UserDocument } from '../users/schemas/user.schema';
 import { UsersService } from '../users/users.service';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
@@ -17,7 +17,9 @@ const RESET_TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hour
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
   private readonly jwtConfig: JwtConfig;
+  private readonly appConfig: AppConfig;
 
   constructor(
     private readonly usersService: UsersService,
@@ -25,6 +27,7 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {
     this.jwtConfig = this.configService.get<JwtConfig>('jwt')!;
+    this.appConfig = this.configService.get<AppConfig>('app')!;
   }
 
   async register(dto: RegisterDto): Promise<AuthTokens> {
@@ -68,7 +71,7 @@ export class AuthService {
     await this.usersService.setRefreshTokenHash(userId, null);
   }
 
-  async forgotPassword(dto: ForgotPasswordDto): Promise<{ message: string; token?: string }> {
+  async forgotPassword(dto: ForgotPasswordDto): Promise<{ message: string }> {
     const user = await this.usersService.findByEmailWithPassword(dto.email);
     if (!user) {
       // Không tiết lộ email có tồn tại hay không
@@ -79,8 +82,15 @@ export class AuthService {
     const expires = new Date(Date.now() + RESET_TOKEN_TTL_MS);
     await this.usersService.setResetPasswordToken(user.id, token, expires);
 
-    // TODO: tích hợp gửi email thực tế (SMTP/SES). Tạm thời trả token để phục vụ test/demo.
-    return { message: 'Nếu email tồn tại, hướng dẫn đặt lại mật khẩu đã được gửi', token };
+    // TODO: tích hợp gửi email thực tế (SMTP/SES) khi hệ thống có SMTP.
+    // Bảo mật (Phase 6.1): reset token KHÔNG được trả về client — trả thẳng trong response cho
+    // phép bất kỳ ai biết email nạn nhân tự chiếm quyền tài khoản mà không cần truy cập hộp thư.
+    // Ở development (chưa có SMTP thật), chỉ log nội bộ để có thể test thủ công, không lọt ra API.
+    if (this.appConfig.nodeEnv !== 'production') {
+      this.logger.debug(`[dev-only] Reset password token cho ${dto.email}: ${token}`);
+    }
+
+    return { message: 'Nếu email tồn tại, hướng dẫn đặt lại mật khẩu đã được gửi' };
   }
 
   async resetPassword(dto: ResetPasswordDto): Promise<{ message: string }> {

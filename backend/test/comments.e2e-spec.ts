@@ -7,6 +7,7 @@ import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { HttpExceptionFilter } from '../src/common/filters/http-exception.filter';
 import { TransformInterceptor } from '../src/common/interceptors/transform.interceptor';
+import { ParseObjectIdPipe } from '../src/common/pipes/parse-object-id.pipe';
 import { Film, FilmDocument } from '../src/films/schemas/film.schema';
 import { Comment, CommentDocument } from '../src/comments/schemas/comment.schema';
 import { User, UserDocument } from '../src/users/schemas/user.schema';
@@ -41,6 +42,7 @@ describe('Comments (e2e)', () => {
     app = moduleFixture.createNestApplication();
     app.setGlobalPrefix('api/v1');
     app.useGlobalPipes(
+      new ParseObjectIdPipe(),
       new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
     );
     app.useGlobalFilters(new HttpExceptionFilter());

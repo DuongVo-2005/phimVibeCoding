@@ -23,8 +23,10 @@ export class AuthController {
     return this.authService.register(dto);
   }
 
+  // ttl tính bằng MILLISECONDS (yêu cầu của @nestjs/throttler v6) — đã xác minh bằng E2E Test
+  // (Phase 6.1.1) rằng ttl:60 trước đây là cửa sổ 60ms, không phải 60 giây như dự định.
   @Public()
-  @Throttle({ default: { limit: 5, ttl: 60 } })
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @ApiResponse({ status: 403, description: 'Tài khoản đã bị vô hiệu hoá' })
   @Post('login')
   login(@Body() dto: LoginDto) {
@@ -44,8 +46,9 @@ export class AuthController {
     return { message: 'Đăng xuất thành công' };
   }
 
+  // ttl tính bằng MILLISECONDS — cùng lý do đã sửa ở POST /login phía trên.
   @Public()
-  @Throttle({ default: { limit: 3, ttl: 60 } })
+  @Throttle({ default: { limit: 3, ttl: 60_000 } })
   @Post('forgot-password')
   forgotPassword(@Body() dto: ForgotPasswordDto) {
     return this.authService.forgotPassword(dto);

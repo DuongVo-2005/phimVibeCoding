@@ -10,6 +10,7 @@ import { AppModule } from './app.module';
 import { AppConfig } from './config/configuration';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
+import { ParseObjectIdPipe } from './common/pipes/parse-object-id.pipe';
 import { FILM_TEXT_INDEX_LANGUAGE_OVERRIDE, Film, FilmDocument } from './films/schemas/film.schema';
 
 async function bootstrap() {
@@ -31,6 +32,7 @@ async function bootstrap() {
   app.setGlobalPrefix(appConfig.apiPrefix);
 
   app.useGlobalPipes(
+    new ParseObjectIdPipe(),
     new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,

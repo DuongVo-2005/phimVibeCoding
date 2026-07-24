@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Public } from '../common/decorators/public.decorator';
+import { RequirePermission } from '../common/decorators/require-permission.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '../common/constants';
 import { AvatarsService } from './avatars.service';
@@ -26,6 +27,7 @@ export class AvatarsController {
 
   @ApiBearerAuth()
   @Roles(UserRole.ADMIN)
+  @RequirePermission('avatars:manage')
   @Post('types')
   createType(@Body() dto: CreateTypeAvatarDto) {
     return this.avatarsService.createType(dto);
@@ -33,6 +35,7 @@ export class AvatarsController {
 
   @ApiBearerAuth()
   @Roles(UserRole.ADMIN)
+  @RequirePermission('avatars:manage')
   @Post('images')
   createImage(@Body() dto: CreateImgAvatarDto) {
     return this.avatarsService.createImage(dto);
@@ -40,6 +43,7 @@ export class AvatarsController {
 
   @ApiBearerAuth()
   @Roles(UserRole.ADMIN)
+  @RequirePermission('avatars:manage')
   @Delete('types/:id')
   removeType(@Param('id') id: string) {
     return this.avatarsService.removeType(id);
@@ -47,6 +51,7 @@ export class AvatarsController {
 
   @ApiBearerAuth()
   @Roles(UserRole.ADMIN)
+  @RequirePermission('avatars:manage')
   @Delete('images/:id')
   removeImage(@Param('id') id: string) {
     return this.avatarsService.removeImage(id);
