@@ -77,15 +77,17 @@ export class CreateFilmDto {
   @IsNumber()
   releaseYear?: number;
 
-  @ApiPropertyOptional({ example: 'Mỹ' })
+  @ApiPropertyOptional({ type: [String], example: ['65f1a2b3c4d5e6f7a8b9c0d3'] })
   @IsOptional()
-  @IsString()
-  country?: string;
+  @IsArray()
+  @IsMongoId({ each: true })
+  countries?: string[];
 
-  @ApiPropertyOptional({ example: 'Jon Watts' })
+  @ApiPropertyOptional({ type: [String], example: ['65f1a2b3c4d5e6f7a8b9c0d4'] })
   @IsOptional()
-  @IsString()
-  director?: string;
+  @IsArray()
+  @IsMongoId({ each: true })
+  directors?: string[];
 
   @ApiPropertyOptional({ type: [String], example: ['65f1a2b3c4d5e6f7a8b9c0d1'] })
   @IsOptional()

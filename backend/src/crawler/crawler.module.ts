@@ -2,7 +2,9 @@ import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { ActorsModule } from '../actors/actors.module';
 import { CategoriesModule } from '../categories/categories.module';
+import { CountriesModule } from '../countries/countries.module';
 import { CrawlerHistoryModule } from '../crawler-history/crawler-history.module';
+import { DirectorsModule } from '../directors/directors.module';
 import { FilmsModule } from '../films/films.module';
 import { CrawlerController } from './crawler.controller';
 import { CrawlerSchedulerService } from './crawler-scheduler.service';
@@ -16,6 +18,8 @@ import { OphimMapperService } from './ophim-mapper.service';
     FilmsModule,
     ActorsModule,
     CategoriesModule,
+    CountriesModule,
+    DirectorsModule,
     CrawlerHistoryModule,
   ],
   controllers: [CrawlerController],

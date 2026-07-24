@@ -77,11 +77,15 @@ export class Film {
   @Prop({ type: Number, default: null })
   releaseYear: number | null;
 
-  @Prop({ default: '' })
-  country: string;
+  // CHANGED (Phase 4 — Film Relationship Refactor): trước là chuỗi tự do (dễ trùng lặp/lỗi chính
+  // tả, không có trang chi tiết quốc gia/đạo diễn riêng) — nay là ref sang Country/Director, resolve-
+  // or-create theo tên qua CountriesService/DirectorsService.findOrCreateByName (crawler) hoặc chọn
+  // trực tiếp bằng ObjectId (admin). Một phim có thể có nhiều quốc gia/đạo diễn nên dùng mảng.
+  @Prop({ type: [Types.ObjectId], ref: 'Country', default: [] })
+  countries: Types.ObjectId[];
 
-  @Prop({ default: '' })
-  director: string;
+  @Prop({ type: [Types.ObjectId], ref: 'Director', default: [] })
+  directors: Types.ObjectId[];
 
   @Prop({ type: [Types.ObjectId], ref: 'Actor', default: [] })
   actors: Types.ObjectId[];
@@ -126,7 +130,8 @@ FilmSchema.index({ view: -1 });
 FilmSchema.index({ ratingAvg: -1 });
 FilmSchema.index({ types: 1 });
 FilmSchema.index({ category: 1 });
-FilmSchema.index({ country: 1 });
+FilmSchema.index({ countries: 1 });
+FilmSchema.index({ directors: 1 });
 // language_override: field `language` của Film dùng để lưu ngôn ngữ lồng tiếng/phụ đề (vd: "Vietsub"),
 // không liên quan tới text search. Nếu không đổi field mặc định, MongoDB sẽ coi `language` là cờ
 // chọn ngôn ngữ stemming cho text index và lỗi với các giá trị như "Vietsub" (not a valid language).

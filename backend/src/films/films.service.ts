@@ -8,6 +8,24 @@ import { QueryFilmDto } from './dto/query-film.dto';
 import { UpdateFilmDto } from './dto/update-film.dto';
 import { Film, FilmDocument } from './schemas/film.schema';
 
+const REF_ARRAY_FIELDS = ['actors', 'types', 'countries', 'directors'] as const;
+
+/**
+ * Model.create()/findByIdAndUpdate() không luôn cast đáng tin cậy chuỗi ObjectId bên trong mảng
+ * kiểu [Types.ObjectId] (cùng lỗi đã gặp với insertMany()/create() ở Phase 2-3) — ép kiểu tường
+ * minh trước khi ghi để các query lọc theo ref sau này (vd. GET /films?country=slug) khớp đúng.
+ */
+function castRefArrays(dto: Partial<CreateFilmDto>): Partial<Record<string, Types.ObjectId[]>> {
+  const casted: Partial<Record<string, Types.ObjectId[]>> = {};
+  for (const field of REF_ARRAY_FIELDS) {
+    const value = (dto as Record<string, unknown>)[field];
+    if (Array.isArray(value)) {
+      casted[field] = value.map((id) => new Types.ObjectId(id as string));
+    }
+  }
+  return casted;
+}
+
 @Injectable()
 export class FilmsService {
   constructor(@InjectModel(Film.name) private readonly filmModel: Model<FilmDocument>) {}
@@ -24,9 +42,6 @@ export class FilmsService {
     if (query.status) {
       filter.status = query.status;
     }
-    if (query.country) {
-      filter.country = new RegExp(query.country, 'i');
-    }
     if (query.year) {
       filter.releaseYear = parseInt(query.year, 10);
     }
@@ -38,6 +53,20 @@ export class FilmsService {
         .findOne({ slug: query.type });
       filter.types = categoryDoc ? categoryDoc._id : new Types.ObjectId();
     }
+    if (query.country) {
+      // country giờ là ref (Phase 4) — lọc theo slug, cùng pattern với `type` ở trên (truy vấn
+      // trực tiếp collection thay vì import CountriesModule vào FilmsModule, tránh phụ thuộc chéo).
+      const countryDoc = await this.filmModel.db
+        .collection('countries')
+        .findOne({ slug: query.country });
+      filter.countries = countryDoc ? countryDoc._id : new Types.ObjectId();
+    }
+    if (query.director) {
+      const directorDoc = await this.filmModel.db
+        .collection('directors')
+        .findOne({ slug: query.director });
+      filter.directors = directorDoc ? directorDoc._id : new Types.ObjectId();
+    }
 
     const sortField = query.sortBy ?? 'createdAt';
     const sortOrder = query.sortOrder === 'asc' ? 1 : -1;
@@ -46,6 +75,8 @@ export class FilmsService {
       this.filmModel
         .find(filter)
         .populate('types', 'name slug')
+        .populate('countries', 'name slug')
+        .populate('directors', 'name slug')
         .sort({ [sortField]: sortOrder })
         .skip(query.skip)
         .limit(query.limit)
@@ -77,6 +108,8 @@ export class FilmsService {
       .findOne({ slug })
       .populate('actors', 'name slug avatar')
       .populate('types', 'name slug')
+      .populate('countries', 'name slug')
+      .populate('directors', 'name slug')
       .exec();
     if (!film) {
       throw new NotFoundException('Không tìm thấy phim');
@@ -112,11 +145,13 @@ export class FilmsService {
 
   async create(dto: CreateFilmDto): Promise<FilmDocument> {
     const slug = toSlug(dto.title);
-    return this.filmModel.create({ ...dto, slug });
+    return this.filmModel.create({ ...dto, ...castRefArrays(dto), slug });
   }
 
   async update(id: string, dto: UpdateFilmDto): Promise<FilmDocument> {
-    const film = await this.filmModel.findByIdAndUpdate(id, dto, { new: true }).exec();
+    const film = await this.filmModel
+      .findByIdAndUpdate(id, { ...dto, ...castRefArrays(dto) }, { new: true })
+      .exec();
     if (!film) {
       throw new NotFoundException('Không tìm thấy phim');
     }

@@ -14,10 +14,15 @@ export class QueryFilmDto extends PaginationQueryDto {
   @IsString()
   type?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ description: 'Slug quốc gia' })
   @IsOptional()
   @IsString()
   country?: string;
+
+  @ApiPropertyOptional({ description: 'Slug đạo diễn' })
+  @IsOptional()
+  @IsString()
+  director?: string;
 
   @ApiPropertyOptional({ enum: FilmCategory })
   @IsOptional()

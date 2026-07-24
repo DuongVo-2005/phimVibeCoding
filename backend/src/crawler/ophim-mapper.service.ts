@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { ActorsService } from '../actors/actors.service';
 import { CategoriesService } from '../categories/categories.service';
+import { CountriesService } from '../countries/countries.service';
+import { DirectorsService } from '../directors/directors.service';
 import { FilmCategory, FilmStatus } from '../common/constants';
 import { toSlug } from '../common/utils/slugify.util';
 import { Film } from '../films/schemas/film.schema';
@@ -12,6 +14,8 @@ export class OphimMapperService {
   constructor(
     private readonly actorsService: ActorsService,
     private readonly categoriesService: CategoriesService,
+    private readonly countriesService: CountriesService,
+    private readonly directorsService: DirectorsService,
   ) {}
 
   private mapCategory(type?: string): FilmCategory {
@@ -51,16 +55,42 @@ export class OphimMapperService {
     return ids;
   }
 
+  /** Resolve/tạo Country documents theo tên (country từ ophim), trả về danh sách ObjectId */
+  private async resolveCountryIds(
+    countries: { name: string; slug?: string }[] = [],
+  ): Promise<Types.ObjectId[]> {
+    const ids: Types.ObjectId[] = [];
+    for (const country of countries) {
+      const name = country?.name?.trim();
+      if (!name) continue;
+      const found = await this.countriesService.findOrCreateByName(name);
+      ids.push(found._id as Types.ObjectId);
+    }
+    return ids;
+  }
+
+  /** Resolve/tạo Director documents theo tên, trả về danh sách ObjectId để gán vào Film.directors */
+  private async resolveDirectorIds(names: string[] = []): Promise<Types.ObjectId[]> {
+    const ids: Types.ObjectId[] = [];
+    for (const name of names) {
+      const trimmed = name?.trim();
+      if (!trimmed) continue;
+      const director = await this.directorsService.findOrCreateByName(trimmed);
+      ids.push(director._id as Types.ObjectId);
+    }
+    return ids;
+  }
+
   /** Map response chi tiết phim từ ophim.cc sang shape của Film schema nội bộ (dùng cho upsert). */
   async mapToFilmData(response: OphimMovieDetailResponse): Promise<Partial<Film>> {
     const movie: OphimMovieDetail = response.movie;
 
-    const [actorIds, typeIds] = await Promise.all([
+    const [actorIds, typeIds, countryIds, directorIds] = await Promise.all([
       this.resolveActorIds(movie.actor),
       this.resolveCategoryIds(movie.category ?? []),
+      this.resolveCountryIds(movie.country ?? []),
+      this.resolveDirectorIds(movie.director),
     ]);
-
-    const countryNames = (movie.country ?? []).map((c) => c.name).join(', ');
 
     const episodes = (response.episodes ?? []).map((server) => ({
       serverName: server.server_name,
@@ -87,8 +117,8 @@ export class OphimMapperService {
       quality: movie.quality ?? '',
       language: movie.lang ?? '',
       releaseYear: movie.year ?? null,
-      country: countryNames,
-      director: (movie.director ?? []).filter(Boolean).join(', '),
+      countries: countryIds,
+      directors: directorIds,
       actors: actorIds,
       types: typeIds,
       episodes,
