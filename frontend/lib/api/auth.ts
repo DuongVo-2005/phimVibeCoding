@@ -3,14 +3,23 @@ import { AUTH_ENDPOINTS } from './endpoints';
 import type { AuthTokens } from './types';
 
 /**
- * authApi — module hoá 2 lệnh gọi Auth đã dùng thật ở Phase 9.1 (trước đây gọi trực tiếp
- * `authPost`/`AUTH_ENDPOINTS` ngay trong route NextAuth). Chỉ 2 hàm này đã được dùng thật
- * (bởi app/api/auth/[...nextauth]/route.ts) — các endpoint Auth còn lại (register, logout,
- * forgot/reset-password) chưa có UI nào gọi tới nên chưa thêm vào đây (đúng phạm vi Phase 9.2:
- * "Không gọi API ngoài Auth để lấy dữ liệu thật" — không mở rộng Auth vượt quá những gì đã
- * triển khai thật ở Phase 9.1).
+ * authApi — hoàn thiện Phase 11.1 (quyết định D): đủ 6 hàm khớp `AuthController` thật
+ * (`register/login/refresh/logout/forgotPassword/resetPassword`). `register`/`login`/`refresh`
+ * trả `AuthTokens` (khớp `AuthController_register`/`_handleLogin`/`_refresh` thật — cùng shape).
+ * `logout`/`forgotPassword`/`resetPassword` trả `{message}` (khớp response thật, không có data
+ * nghiệp vụ nào khác ngoài thông báo).
+ *
+ * `forgotPassword`/`resetPassword` chưa có UI gọi tới (quyết định D: không tạo UI Quên/Đặt lại
+ * mật khẩu ở phase này) — chỉ hoàn thiện tầng API client theo đúng yêu cầu "authApi hoàn chỉnh".
  */
 export const authApi = {
+  register(email: string, password: string, name?: string) {
+    return request<AuthTokens>(AUTH_ENDPOINTS.register, {
+      method: 'POST',
+      body: { email, password, name },
+    });
+  },
+
   login(email: string, password: string) {
     return request<AuthTokens>(AUTH_ENDPOINTS.login, {
       method: 'POST',
@@ -22,6 +31,27 @@ export const authApi = {
     return request<AuthTokens>(AUTH_ENDPOINTS.refresh, {
       method: 'POST',
       body: { refreshToken },
+    });
+  },
+
+  logout(accessToken: string) {
+    return request<{ message: string }>(AUTH_ENDPOINTS.logout, {
+      method: 'POST',
+      accessToken,
+    });
+  },
+
+  forgotPassword(email: string) {
+    return request<{ message: string }>(AUTH_ENDPOINTS.forgotPassword, {
+      method: 'POST',
+      body: { email },
+    });
+  },
+
+  resetPassword(token: string, newPassword: string) {
+    return request<{ message: string }>(AUTH_ENDPOINTS.resetPassword, {
+      method: 'POST',
+      body: { token, newPassword },
     });
   },
 };

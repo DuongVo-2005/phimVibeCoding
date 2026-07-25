@@ -12,8 +12,12 @@
 export const API_PREFIX = '/api/v1';
 
 export const AUTH_ENDPOINTS = {
+  register: '/auth/register',
   login: '/auth/login',
   refresh: '/auth/refresh',
+  logout: '/auth/logout',
+  forgotPassword: '/auth/forgot-password',
+  resetPassword: '/auth/reset-password',
 } as const;
 
 export const FILMS_ENDPOINTS = {

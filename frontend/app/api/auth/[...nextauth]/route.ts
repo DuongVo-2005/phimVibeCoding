@@ -9,6 +9,10 @@ import { decodeJwtExpiry } from '@/lib/auth/decode-jwt-expiry';
 // — mỗi lần refresh backend phát cặp token MỚI và thu hồi refresh token cũ).
 export const authOptions: NextAuthOptions = {
   session: { strategy: 'jwt' },
+  // Phase 11.1: trỏ NextAuth về đúng trang đăng nhập thật của dự án thay vì trang mặc định
+  // `/api/auth/signin` — `LoginForm` tự xử lý lỗi qua `signIn(..., {redirect:false})` nên không
+  // cần cấu hình `pages.error` riêng (không dùng trang lỗi mặc định của NextAuth).
+  pages: { signIn: '/dang-nhap' },
   providers: [
     CredentialsProvider({
       name: 'Credentials',
