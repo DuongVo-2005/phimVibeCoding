@@ -1,5 +1,11 @@
+'use client';
+
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Navigation } from './Navigation';
+
+/** Route nào cần biến thể "quay lại" (khớp `design/moviedentail.html`). */
+const BACK_BUTTON_ROUTE_PREFIX = '/phim/';
 
 /**
  * Header — khớp chữ ký class `fixed top-0 w-full ... bg-surface/80 backdrop-blur-xl border-b`
@@ -9,29 +15,64 @@ import { Navigation } from './Navigation';
  * mobile trong design) + nút thông báo, giống hệt `homepage.html` mobile header (không có nav
  * inline/search/CTA/avatar ở mobile — các mục đó chuyển sang Navigation's bottom bar hoặc ẩn).
  *
+ * Biến thể "quay lại" (Phase 10.4, đã kiến trúc lại): thay vì nhận prop `backHref` từ ngoài
+ * (khiến `(public)/layout.tsx`/`MainLayout` phải trở thành Client Component để dò route, kéo cả
+ * Footer vào client bundle không cần thiết), `Header` tự dùng `usePathname()` để quyết định —
+ * đúng cách `Navigation.tsx` đã làm để biết link nào đang active. `(public)/layout.tsx` và
+ * `MainLayout` giữ nguyên Server Component như trước Phase 10.4, không đổi hành vi UI.
+ *
  * Search input / nút thông báo / nút "Thành viên" / avatar: chỉ dựng UI tĩnh theo đúng thiết kế,
- * KHÔNG gắn state/onChange/onClick nào (không có auth/search logic ở Phase 10.1). Avatar dùng
- * icon "person" thay vì ảnh thật (design dùng ảnh mẫu AI-generated, không phải asset của dự án).
+ * KHÔNG gắn state/onChange/onClick nào. Avatar dùng icon "person" thay vì ảnh thật (design dùng
+ * ảnh mẫu AI-generated, không phải asset của dự án).
  *
  * Mọi icon Material Symbols thuần trang trí đều gắn `aria-hidden="true"` — icon font dùng chính
  * text content ("movie", "search"...) làm ligature, nếu không ẩn sẽ bị đọc/nhận diện nhầm thành
  * tên hiển thị (vd. accessible name của logo sẽ lẫn cả chữ "movie").
  */
 export function Header() {
+  const pathname = usePathname();
+  const backHref = pathname.startsWith(BACK_BUTTON_ROUTE_PREFIX) ? '/' : undefined;
+
   return (
     <header className="fixed top-0 w-full flex justify-between items-center px-gutter py-base bg-surface/80 backdrop-blur-xl z-50 border-b border-white/10 shadow-xl h-20">
       <div className="flex items-center gap-lg">
-        <Link href="/" className="flex items-center gap-2 md:gap-0">
-          <span
-            className="material-symbols-outlined text-primary text-headline-md md:hidden"
-            aria-hidden="true"
+        {backHref ? (
+          <div className="flex items-center gap-3 md:hidden">
+            <Link href={backHref} aria-label="Quay lại">
+              <span
+                className="material-symbols-outlined text-primary text-headline-md"
+                aria-hidden="true"
+              >
+                arrow_back
+              </span>
+            </Link>
+            <span className="text-headline-md font-headline-xl font-bold tracking-tighter text-primary">
+              RoPhim
+            </span>
+          </div>
+        ) : (
+          <Link href="/" className="flex items-center gap-2 md:gap-0">
+            <span
+              className="material-symbols-outlined text-primary text-headline-md md:hidden"
+              aria-hidden="true"
+            >
+              movie
+            </span>
+            <span className="text-headline-md font-headline-xl font-bold tracking-tighter text-primary md:text-on-surface md:tracking-tighter">
+              RoPhim
+            </span>
+          </Link>
+        )}
+        {/* Desktop luôn hiện logo/nav chuẩn (design moviedentail.html desktop header giống hệt
+            mặc định) — chỉ khác ở mobile, xử lý bằng nhánh trên. */}
+        {backHref ? (
+          <Link
+            href="/"
+            className="hidden md:flex items-center gap-0 text-headline-md font-headline-xl font-bold tracking-tighter text-on-surface"
           >
-            movie
-          </span>
-          <span className="text-headline-md font-headline-xl font-bold tracking-tighter text-primary md:text-on-surface md:tracking-tighter">
             RoPhim
-          </span>
-        </Link>
+          </Link>
+        ) : null}
         <Navigation />
       </div>
 
@@ -50,6 +91,14 @@ export function Header() {
             search
           </span>
         </div>
+        {backHref ? (
+          <span
+            className="material-symbols-outlined text-on-surface-variant md:hidden"
+            aria-hidden="true"
+          >
+            search
+          </span>
+        ) : null}
         <button
           type="button"
           className="p-2 hover:bg-white/5 rounded-full transition-all scale-95 active:scale-90"
