@@ -15,12 +15,20 @@ cd backend
 cp .env.example .env    # chỉnh JWT secrets nếu cần
 docker compose up -d mongodb   # chỉ chạy MongoDB bằng Docker
 npm install
+npm run seed:rbac       # tạo role/permission mặc định (admin/user) — bắt buộc, nếu không mọi route @RequirePermission() sẽ không có ai truy cập được
+npm run seed:admin      # tạo tài khoản admin từ ADMIN_EMAIL/ADMIN_PASSWORD trong .env
 npm run start:dev
 ```
 
 API mặc định chạy tại `http://localhost:3000/api/v1`, tài liệu Swagger tại `http://localhost:3000/api/docs`.
 
 Health check: `GET /api/v1/health` (kiểm tra kết nối MongoDB qua `@nestjs/terminus`).
+
+### Seed & migration scripts
+
+- `npm run seed:rbac` — tạo/đồng bộ các `permissions` + role `admin`/`user` mặc định, và backfill `roleIds` cho user hiện có (dựa trên field `role` cũ). Chạy được nhiều lần (idempotent).
+- `npm run seed:admin` — tạo tài khoản admin đầu tiên từ `ADMIN_EMAIL`/`ADMIN_PASSWORD`/`ADMIN_NAME` trong `.env`. Bỏ qua nếu email đã tồn tại.
+- `npm run migrate:categories`, `npm run migrate:film-refs`, `npm run migrate:films-stabilization`, `npm run migrate:comments-hidden` — các script migrate **một lần** (one-off) cho dữ liệu cũ (đổi tên collection `types`→`categories`, chuyển `films.country/director` dạng chuỗi sang ref `countries/directors`, đổi tên field `films.types`→`films.categories` + backfill `isPublished`, backfill `comments.isHidden`). **Không bắt buộc** với database mới tạo (không có dữ liệu cũ để migrate); chỉ cần chạy khi nâng cấp một database đã tồn tại từ schema cũ, theo đúng thứ tự liệt kê ở trên.
 
 ## Chạy toàn bộ bằng Docker (API + MongoDB)
 

@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type as TransformType } from 'class-transformer';
-import { IsArray, IsString, ValidateNested } from 'class-validator';
+import { IsArray, IsOptional, IsString, ValidateNested } from 'class-validator';
 
 export class EpisodeItemDto {
   @ApiProperty({ example: 'Tập 1' })
@@ -12,10 +12,12 @@ export class EpisodeItemDto {
   slug: string;
 
   @ApiProperty({ required: false, example: 'https://example.com/embed/tap-1' })
+  @IsOptional()
   @IsString()
   embedUrl?: string;
 
   @ApiProperty({ required: false, example: 'https://example.com/m3u8/tap-1.m3u8' })
+  @IsOptional()
   @IsString()
   m3u8Url?: string;
 }
