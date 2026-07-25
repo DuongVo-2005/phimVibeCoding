@@ -4,8 +4,17 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Navigation } from './Navigation';
 
-/** Route nào cần biến thể "quay lại" (khớp `design/moviedentail.html`). */
-const BACK_BUTTON_ROUTE_PREFIX = '/phim/';
+/**
+ * Route nào cần biến thể "quay lại" — khớp `design/moviedentail.html` (`/phim/[slug]`). Phase
+ * 10.7 (quyết định A phương án c): tái sử dụng NGUYÊN biến thể này cho `/dien-vien/[slug]`
+ * (`design/actorprofile.html` cũng có nút back ở mobile header) thay vì thêm biến thể mới — chấp
+ * nhận khác biệt nhỏ so với design gốc (design dùng icon "share" ở đây, biến thể có sẵn dùng
+ * "search"). Chỉ thêm 1 mục vào danh sách match, không đổi cấu trúc JSX/render của Header.
+ */
+const BACK_BUTTON_ROUTES: Array<{ prefix: string; backHref: string }> = [
+  { prefix: '/phim/', backHref: '/' },
+  { prefix: '/dien-vien/', backHref: '/dien-vien' },
+];
 
 /**
  * Header — khớp chữ ký class `fixed top-0 w-full ... bg-surface/80 backdrop-blur-xl border-b`
@@ -31,7 +40,7 @@ const BACK_BUTTON_ROUTE_PREFIX = '/phim/';
  */
 export function Header() {
   const pathname = usePathname();
-  const backHref = pathname.startsWith(BACK_BUTTON_ROUTE_PREFIX) ? '/' : undefined;
+  const backHref = BACK_BUTTON_ROUTES.find((route) => pathname.startsWith(route.prefix))?.backHref;
 
   return (
     <header className="fixed top-0 w-full flex justify-between items-center px-gutter py-base bg-surface/80 backdrop-blur-xl z-50 border-b border-white/10 shadow-xl h-20">
