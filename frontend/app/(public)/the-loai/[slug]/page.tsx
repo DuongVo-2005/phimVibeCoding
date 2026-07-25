@@ -1,5 +1,24 @@
-export default function CategoryPage() {
+import { MovieListing } from '@/components/film/MovieListing';
+
+/**
+ * Route động — chỉ dùng `slug` để hiển thị tiêu đề (format chuỗi thuần, không gọi API tra cứu
+ * tên thể loại thật — đúng phạm vi Phase 10.3: chỉ UI tĩnh, dữ liệu mock).
+ */
+function formatGenreTitle(slug: string): string {
+  return slug
+    .split('-')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const genreTitle = formatGenreTitle(slug);
+
   return (
-    <p>Placeholder — Danh sách phim theo thể loại (moviecategory.html) — Phase 8.1 bootstrap</p>
+    <MovieListing
+      title={`Thể Loại: ${genreTitle}`}
+      description={`Danh sách phim thuộc thể loại ${genreTitle} được chọn lọc cho bạn.`}
+    />
   );
 }

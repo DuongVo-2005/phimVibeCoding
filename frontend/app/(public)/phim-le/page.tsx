@@ -1,3 +1,10 @@
+import { MovieListing } from '@/components/film/MovieListing';
+
 export default function PhimLePage() {
-  return <p>Placeholder — Phim lẻ (moviecategory.html) — Phase 8.1 bootstrap</p>;
+  return (
+    <MovieListing
+      title="Phim Lẻ"
+      description="Những bộ phim điện ảnh chọn lọc, cập nhật liên tục dành cho bạn."
+    />
+  );
 }
