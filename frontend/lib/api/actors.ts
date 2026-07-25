@@ -3,10 +3,10 @@ import { ACTORS_ENDPOINTS } from './endpoints';
 import type { PaginatedResult, PaginationQueryParams } from './types';
 
 /** Khớp `actors.controller.ts` + `QueryActorDto` (Phase 9.2 audit). Chưa gọi thật ở đâu. */
-export interface ActorsQueryParams extends PaginationQueryParams {
+export type ActorsQueryParams = PaginationQueryParams & {
   search?: string;
   letter?: string;
-}
+};
 
 export const actorsApi = {
   list(query?: ActorsQueryParams) {

@@ -7,7 +7,7 @@ import type { LimitQueryParams, PaginatedResult, PaginationQueryParams } from '.
  * skeleton sẵn sàng cho hook/page dùng ở phase sau. Response/body payload để `unknown` (chưa
  * model domain Film đầy đủ — ngoài phạm vi "API foundation", tránh suy đoán trước field).
  */
-export interface FilmsQueryParams extends PaginationQueryParams {
+export type FilmsQueryParams = PaginationQueryParams & {
   search?: string;
   category?: string;
   country?: string;
@@ -16,12 +16,12 @@ export interface FilmsQueryParams extends PaginationQueryParams {
   status?: string;
   year?: string;
   isPublished?: boolean;
-}
+};
 
-export interface FilmsTopQueryParams {
+export type FilmsTopQueryParams = {
   limit?: number;
   metric?: 'view' | 'ratingAvg';
-}
+};
 
 export const filmsApi = {
   list(query?: FilmsQueryParams, accessToken?: string) {

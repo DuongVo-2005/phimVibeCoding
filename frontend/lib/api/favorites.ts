@@ -7,10 +7,10 @@ import type { PaginatedResult, PaginationQueryParams } from './types';
  * module này đều yêu cầu access token (`@ApiBearerAuth()` ở cấp controller, không có route
  * Public nào). Chưa gọi thật ở đâu.
  */
-export interface FavoritesQueryParams extends PaginationQueryParams {
+export type FavoritesQueryParams = PaginationQueryParams & {
   /** Bắt buộc — QueryFavoriteDto.targetType không có @IsOptional(). */
   targetType: 'film' | 'actor';
-}
+};
 
 export const favoritesApi = {
   add(body: unknown, accessToken: string) {

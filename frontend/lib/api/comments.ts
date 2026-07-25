@@ -3,14 +3,14 @@ import { COMMENTS_ENDPOINTS } from './endpoints';
 import type { LimitQueryParams, PaginatedResult, PaginationQueryParams } from './types';
 
 /** Khớp `comments.controller.ts` + Query DTO tương ứng (Phase 9.2 audit). Chưa gọi thật ở đâu. */
-export interface CommentsByFilmQueryParams extends PaginationQueryParams {
+export type CommentsByFilmQueryParams = PaginationQueryParams & {
   sort?: 'new' | 'top';
-}
+};
 
-export interface CommentsModerationQueryParams extends PaginationQueryParams {
+export type CommentsModerationQueryParams = PaginationQueryParams & {
   filmId?: string;
   userId?: string;
-}
+};
 
 export const commentsApi = {
   byFilm(filmId: string, query?: CommentsByFilmQueryParams) {

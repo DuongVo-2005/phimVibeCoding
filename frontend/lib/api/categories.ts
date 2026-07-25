@@ -2,9 +2,9 @@ import { request } from './client';
 import { CATEGORIES_ENDPOINTS } from './endpoints';
 
 /** Khớp `categories.controller.ts` + `QueryCategoryDto` (Phase 9.2 audit). Chưa gọi thật ở đâu. */
-export interface CategoriesQueryParams {
+export type CategoriesQueryParams = {
   isActive?: boolean;
-}
+};
 
 export const categoriesApi = {
   list(query?: CategoriesQueryParams) {

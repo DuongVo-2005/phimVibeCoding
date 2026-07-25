@@ -38,10 +38,7 @@ export interface RequestOptions {
  * Unwrap đúng envelope {success,data} / {success:false,statusCode,message} — api_design.md §3,
  * khớp `TransformInterceptor`/`HttpExceptionFilter` thật của backend.
  */
-export async function request<TData>(
-  path: string,
-  options: RequestOptions = {},
-): Promise<TData> {
+export async function request<TData>(path: string, options: RequestOptions = {}): Promise<TData> {
   const { method = 'GET', body, query, accessToken } = options;
 
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };

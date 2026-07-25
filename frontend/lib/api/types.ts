@@ -46,15 +46,20 @@ export interface AuthTokens {
   user: AuthUser;
 }
 
-/** Khớp `PaginationQueryDto` — backend/src/common/dto/pagination-query.dto.ts */
-export interface PaginationQueryParams {
+/**
+ * Khớp `PaginationQueryDto` — backend/src/common/dto/pagination-query.dto.ts.
+ * Dùng `type` (không phải `interface`) để TypeScript coi là object literal, tự động tương thích
+ * với index signature của `QueryParams` (RequestOptions.query) — `interface` không tự động khớp
+ * index signature dù cùng cấu trúc, đây là đặc thù type-checking của TypeScript.
+ */
+export type PaginationQueryParams = {
   page?: number;
   limit?: number;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
-}
+};
 
 /** Dùng cho các endpoint chỉ nhận `?limit=` đơn lẻ, không phân trang đầy đủ (vd. films/top,hot...). */
-export interface LimitQueryParams {
+export type LimitQueryParams = {
   limit?: number;
-}
+};
