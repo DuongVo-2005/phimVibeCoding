@@ -23,8 +23,9 @@ import { buildWatchUrl } from '@/lib/watch/url';
  *
  * Phase 13A: nhận thêm `episodeSlug`/`serverIndex` (đọc từ `?ep=&server=` ở page.tsx, xem
  * `lib/watch/playback-state.ts`) — derive `PlaybackState` từ `film.episodes` + 2 param này (không
- * lưu state riêng). Chỉ truyền `playerType`/`currentEpisode`/`currentVideoUrl` xuống `VideoPlayer`
- * để chuẩn bị Phase 13B — KHÔNG phát video, KHÔNG HLS, KHÔNG iframe ở phase này.
+ * lưu state riêng). Phase 13B: truyền `playerType`/`currentVideoUrl` xuống `VideoPlayer` →
+ * `PlayerResolver` (`components/film/player/`) mount `HlsPlayer`/`IframePlayer`/`EmptyPlayer` thật
+ * — KHÔNG Progress/History/Resume/Next Episode/Favorite/Mutation ở phase này.
  *
  * Phase 13A (tiếp): `EpisodeList(layout="list")` đã bỏ hẳn mock `_mock/watchmovie-data`'s
  * `episodes` — dùng `film.episodes[currentServerIndex].items` thật. `active`/`href` tính ở đây
@@ -91,10 +92,8 @@ export function WatchMovieView({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
           <div className="lg:col-span-9">
             <VideoPlayer
-              backdropSrc={filmInfo.backdropSrc}
               currentTimeLabel={filmInfo.currentTimeLabel}
               playerType={playbackState?.playerType}
-              currentEpisode={playbackState?.currentEpisode}
               currentVideoUrl={playbackState?.currentVideoUrl}
             />
           </div>
