@@ -3,13 +3,15 @@
 import { useQuery } from '@tanstack/react-query';
 import { Container } from '@/components/layout/Container';
 import { CommentSection, type CommentItem } from '@/components/film/CommentSection';
-import { EpisodeList } from '@/components/film/EpisodeList';
+import { EpisodeList, type ListEpisodeItem } from '@/components/film/EpisodeList';
 import { RecommendedCard } from '@/components/film/RecommendedCard';
 import { RelatedMovieCard } from '@/components/film/RelatedMovieCard';
 import { VideoPlayer } from '@/components/film/VideoPlayer';
-import { episodes, filmInfo, recommendedMovies } from '@/app/(public)/_mock/watchmovie-data';
+import { filmInfo, recommendedMovies } from '@/app/(public)/_mock/watchmovie-data';
 import { formatTimeAgo } from '@/lib/utils/format-time-ago';
 import { commentsQueryOptions, filmsQueryOptions, ratingsQueryOptions } from '@/lib/query/options';
+import { resolvePlaybackState } from '@/lib/watch/playback-state';
+import { buildWatchUrl } from '@/lib/watch/url';
 
 /**
  * WatchMovieView — nội dung trang xem phim, khớp `design/watchmovie.html`. Phase 12A: nối API
@@ -18,6 +20,18 @@ import { commentsQueryOptions, filmsQueryOptions, ratingsQueryOptions } from '@/
  * — cùng pattern `ratingsQueryOptions.summary`). Video Player/Episode List/Favorite vẫn dùng
  * `_mock/watchmovie-data.ts` — ngoài phạm vi (xem audit Phase 12). Reply/Vote/Send Comment/
  * Pagination/Infinite Scroll KHÔNG làm — `CommentSection` (presentational) không đổi.
+ *
+ * Phase 13A: nhận thêm `episodeSlug`/`serverIndex` (đọc từ `?ep=&server=` ở page.tsx, xem
+ * `lib/watch/playback-state.ts`) — derive `PlaybackState` từ `film.episodes` + 2 param này (không
+ * lưu state riêng). Chỉ truyền `playerType`/`currentEpisode`/`currentVideoUrl` xuống `VideoPlayer`
+ * để chuẩn bị Phase 13B — KHÔNG phát video, KHÔNG HLS, KHÔNG iframe ở phase này.
+ *
+ * Phase 13A (tiếp): `EpisodeList(layout="list")` đã bỏ hẳn mock `_mock/watchmovie-data`'s
+ * `episodes` — dùng `film.episodes[currentServerIndex].items` thật. `active`/`href` tính ở đây
+ * (không phải trong `EpisodeList`): `active = slug === playbackState.currentEpisodeSlug`, `href`
+ * dựng qua `buildWatchUrl()` (không hardcode string URL). Bấm 1 tập chỉ điều hướng URL (Next.js
+ * `<Link>` trong `EpisodeList`) — KHÔNG `setState`, KHÔNG tự mutate `PlaybackState`; state luôn
+ * resolve lại từ URL đúng kiến trúc đã chốt.
  *
  * D2 (tab mobile): chỉ 1 tab tĩnh "Danh sách tập" được đánh dấu active — design gốc cũng không có
  * logic chuyển nội dung theo tab (JS chỉ đổi màu chữ), nên danh sách tập/bình luận/phim liên quan
@@ -28,7 +42,15 @@ import { commentsQueryOptions, filmsQueryOptions, ratingsQueryOptions } from '@/
  * video, mobile nằm sau phần thông tin phim), không thể chỉ đổi CSS vị trí của cùng 1 node — cùng
  * kỹ thuật 2 nhánh JSX theo breakpoint đã dùng trong `Header`/`EpisodeList` chính nó.
  */
-export function WatchMovieView({ slug }: { slug: string }) {
+export function WatchMovieView({
+  slug,
+  episodeSlug,
+  serverIndex,
+}: {
+  slug: string;
+  episodeSlug?: string;
+  serverIndex?: string;
+}) {
   const { data: film } = useQuery(filmsQueryOptions.detail(slug));
   const { data: related } = useQuery(filmsQueryOptions.related(slug));
   const { data: ratingSummary } = useQuery({
@@ -39,6 +61,17 @@ export function WatchMovieView({ slug }: { slug: string }) {
     ...commentsQueryOptions.byFilm(film?._id ?? ''),
     enabled: Boolean(film?._id),
   });
+
+  const playbackState = film
+    ? resolvePlaybackState(film, { ep: episodeSlug, server: serverIndex })
+    : null;
+  const currentServerItems = film?.episodes[playbackState?.currentServerIndex ?? 0]?.items ?? [];
+  const watchEpisodes: ListEpisodeItem[] = currentServerItems.map((episode) => ({
+    slug: episode.slug,
+    name: episode.name,
+    active: episode.slug === playbackState?.currentEpisodeSlug,
+    href: buildWatchUrl(slug, episode.slug, playbackState?.currentServerIndex ?? 0),
+  }));
 
   const rating = ratingSummary ? ratingSummary.average.toFixed(1) : '—';
   const relatedMovies = related ?? [];
@@ -60,10 +93,13 @@ export function WatchMovieView({ slug }: { slug: string }) {
             <VideoPlayer
               backdropSrc={filmInfo.backdropSrc}
               currentTimeLabel={filmInfo.currentTimeLabel}
+              playerType={playbackState?.playerType}
+              currentEpisode={playbackState?.currentEpisode}
+              currentVideoUrl={playbackState?.currentVideoUrl}
             />
           </div>
           <div className="hidden lg:block lg:col-span-3 lg:h-[716px] overflow-hidden">
-            <EpisodeList episodes={episodes} layout="list" />
+            <EpisodeList episodes={watchEpisodes} layout="list" />
           </div>
         </div>
 
@@ -115,7 +151,7 @@ export function WatchMovieView({ slug }: { slug: string }) {
             </div>
           </div>
 
-          <EpisodeList episodes={episodes} layout="list" />
+          <EpisodeList episodes={watchEpisodes} layout="list" />
         </div>
 
         {/* Desktop: thông tin phim + bình luận (8 cột) + đề xuất (4 cột) */}

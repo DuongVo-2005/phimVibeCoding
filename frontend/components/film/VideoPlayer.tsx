@@ -1,10 +1,16 @@
 import Image from 'next/image';
+import type { EpisodeItem } from '@/lib/types/film';
+import type { PlayerType } from '@/lib/watch/playback-state';
 
 /**
  * VideoPlayer — khớp khối trình phát video trong `design/watchmovie.html` (desktop + mobile, 1
  * cây responsive). D1: CHỈ dựng UI tĩnh — không `<video>`, không hls.js, không playback, không
  * state. Toàn bộ nút bấm/thanh tiến trình chỉ là hình ảnh tĩnh mô phỏng đúng design, KHÔNG có
  * `onClick`/xử lý thật.
+ *
+ * Phase 13A: nhận thêm `playerType`/`currentEpisode`/`currentVideoUrl` từ `PlaybackState`
+ * (`WatchMovieView`) — CHỈ chuẩn bị prop surface cho Phase 13B (HLS/iframe), CHƯA dùng ở component
+ * này (không destructure, không render theo 3 field này).
  */
 export function VideoPlayer({
   backdropSrc,
@@ -12,6 +18,9 @@ export function VideoPlayer({
 }: {
   backdropSrc: string;
   currentTimeLabel: string;
+  playerType?: PlayerType;
+  currentEpisode?: EpisodeItem | null;
+  currentVideoUrl?: string;
 }) {
   return (
     <div className="group relative aspect-video md:aspect-auto md:h-[500px] lg:h-[716px] overflow-hidden bg-black shadow-2xl md:rounded-[20px]">

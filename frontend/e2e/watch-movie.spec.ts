@@ -7,9 +7,13 @@ test.describe('watch movie page', () => {
     await expect(page.getByRole('heading', { name: 'Kẻ Truy Tìm Di Sản' })).toBeVisible();
   });
 
-  test('hiển thị danh sách tập với tập đang xem', async ({ page }) => {
+  // Phase 13A: EpisodeList(layout="list") đã bỏ hẳn mock, dùng film.episodes thật. Môi trường
+  // Playwright không có backend nên danh sách tập luôn rỗng ("Chưa có tập nào cho server này.") —
+  // không còn assert được tiêu đề tập mock cứng. Đổi sang xác nhận heading "Danh sách tập" (luôn
+  // render, kể cả khi rỗng — đúng yêu cầu "không throw, không crash" của Phase 13A).
+  test('hiển thị section "Danh sách tập"', async ({ page }) => {
     await page.goto('/xem-phim/ke-truy-tim-di-san');
-    await expect(page.getByText('Tập 1: Bản đồ bí ẩn').first()).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Danh sách tập' }).first()).toBeVisible();
   });
 
   test('mobile: hiển thị danh sách phim liên quan', async ({ page }) => {
