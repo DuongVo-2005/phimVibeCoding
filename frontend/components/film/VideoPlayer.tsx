@@ -10,20 +10,29 @@ import type { PlayerType } from '@/lib/watch/playback-state';
  * Phase 13B: chỉ còn LAYOUT NGOÀI — nội dung phát thật (KHÔNG còn `Image` backdrop tĩnh) do
  * `PlayerResolver` quyết định render (`HlsPlayer`/`IframePlayer`/`EmptyPlayer` theo `playerType`
  * đã derive sẵn ở `PlaybackState`) — component này KHÔNG còn nhánh `if (playerType) ... else`.
+ *
+ * Phase 13C: forward `onVideoRef` xuống `PlayerResolver` → `HlsPlayer` để `WatchMovieView` lấy
+ * element `<video>` thật, truyền cho `HistoryWriter` (component riêng, tách khỏi player).
  */
 export function VideoPlayer({
   currentTimeLabel,
   playerType,
   currentVideoUrl,
+  onVideoRef,
 }: {
   currentTimeLabel: string;
   playerType?: PlayerType;
   currentVideoUrl?: string;
+  onVideoRef?: (video: HTMLVideoElement | null) => void;
 }) {
   return (
     <div className="group relative aspect-video md:aspect-auto md:h-[500px] lg:h-[716px] overflow-hidden bg-black shadow-2xl md:rounded-[20px]">
       <div className="absolute inset-0 z-0">
-        <PlayerResolver playerType={playerType} currentVideoUrl={currentVideoUrl ?? ''} />
+        <PlayerResolver
+          playerType={playerType}
+          currentVideoUrl={currentVideoUrl ?? ''}
+          onVideoRef={onVideoRef}
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60" />
       </div>
 

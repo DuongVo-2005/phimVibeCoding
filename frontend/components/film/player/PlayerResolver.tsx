@@ -13,12 +13,14 @@ import { IframePlayer } from './IframePlayer';
 export function PlayerResolver({
   playerType,
   currentVideoUrl,
+  onVideoRef,
 }: {
   playerType: PlayerType | undefined;
   currentVideoUrl: string;
+  onVideoRef?: (video: HTMLVideoElement | null) => void;
 }) {
   if (playerType === 'hls') {
-    return <HlsPlayer src={currentVideoUrl} />;
+    return <HlsPlayer src={currentVideoUrl} onVideoRef={onVideoRef} />;
   }
 
   if (playerType === 'iframe') {

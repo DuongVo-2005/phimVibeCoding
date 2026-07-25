@@ -1,9 +1,11 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 import { Container } from '@/components/layout/Container';
 import { CommentSection, type CommentItem } from '@/components/film/CommentSection';
 import { EpisodeList, type ListEpisodeItem } from '@/components/film/EpisodeList';
+import { HistoryWriter } from '@/components/film/HistoryWriter';
 import { RecommendedCard } from '@/components/film/RecommendedCard';
 import { RelatedMovieCard } from '@/components/film/RelatedMovieCard';
 import { VideoPlayer } from '@/components/film/VideoPlayer';
@@ -24,8 +26,13 @@ import { buildWatchUrl } from '@/lib/watch/url';
  * Phase 13A: nhận thêm `episodeSlug`/`serverIndex` (đọc từ `?ep=&server=` ở page.tsx, xem
  * `lib/watch/playback-state.ts`) — derive `PlaybackState` từ `film.episodes` + 2 param này (không
  * lưu state riêng). Phase 13B: truyền `playerType`/`currentVideoUrl` xuống `VideoPlayer` →
- * `PlayerResolver` (`components/film/player/`) mount `HlsPlayer`/`IframePlayer`/`EmptyPlayer` thật
- * — KHÔNG Progress/History/Resume/Next Episode/Favorite/Mutation ở phase này.
+ * `PlayerResolver` (`components/film/player/`) mount `HlsPlayer`/`IframePlayer`/`EmptyPlayer` thật.
+ *
+ * Phase 13C: `videoElement` (state duy nhất thêm ở phase này — lấy qua `onVideoRef` callback ref
+ * từ `HlsPlayer`, KHÔNG phải state trùng lặp với `PlaybackState`) truyền cho `HistoryWriter` — CHỈ
+ * mount khi `playerType === 'hls'` (`IframePlayer` không ghi progress). `HistoryWriter` tự
+ * GHI `POST /histories` theo sự kiện play/pause/ended — KHÔNG đọc History, KHÔNG resume/seek,
+ * KHÔNG Next Episode/Favorite/Mutation khác ở phase này.
  *
  * Phase 13A (tiếp): `EpisodeList(layout="list")` đã bỏ hẳn mock `_mock/watchmovie-data`'s
  * `episodes` — dùng `film.episodes[currentServerIndex].items` thật. `active`/`href` tính ở đây
@@ -62,6 +69,7 @@ export function WatchMovieView({
     ...commentsQueryOptions.byFilm(film?._id ?? ''),
     enabled: Boolean(film?._id),
   });
+  const [videoElement, setVideoElement] = useState<HTMLVideoElement | null>(null);
 
   const playbackState = film
     ? resolvePlaybackState(film, { ep: episodeSlug, server: serverIndex })
@@ -95,7 +103,16 @@ export function WatchMovieView({
               currentTimeLabel={filmInfo.currentTimeLabel}
               playerType={playbackState?.playerType}
               currentVideoUrl={playbackState?.currentVideoUrl}
+              onVideoRef={setVideoElement}
             />
+            {playbackState?.playerType === 'hls' && film ? (
+              <HistoryWriter
+                videoElement={videoElement}
+                filmId={film._id}
+                episodeSlug={playbackState.currentEpisodeSlug}
+                serverName={film.episodes[playbackState.currentServerIndex]?.serverName ?? ''}
+              />
+            ) : null}
           </div>
           <div className="hidden lg:block lg:col-span-3 lg:h-[716px] overflow-hidden">
             <EpisodeList episodes={watchEpisodes} layout="list" />
