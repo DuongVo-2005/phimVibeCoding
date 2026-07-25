@@ -1,3 +1,6 @@
+'use client';
+
+import { useQuery } from '@tanstack/react-query';
 import { Container } from '@/components/layout/Container';
 import { CommentSection } from '@/components/film/CommentSection';
 import { EpisodeList } from '@/components/film/EpisodeList';
@@ -10,13 +13,14 @@ import {
   episodes,
   filmInfo,
   recommendedMovies,
-  relatedMovies,
 } from '@/app/(public)/_mock/watchmovie-data';
+import { filmsQueryOptions, ratingsQueryOptions } from '@/lib/query/options';
 
 /**
- * WatchMovieView — nội dung trang xem phim, khớp `design/watchmovie.html`. Route
- * `/xem-phim/[slug]` chỉ có 1 nội dung mock cố định (không suy diễn theo slug, cùng lý do đã áp
- * dụng ở `FilmDetailView`). KHÔNG gọi API, không state (đúng phạm vi đã xác nhận Phase 10.5).
+ * WatchMovieView — nội dung trang xem phim, khớp `design/watchmovie.html`. Phase 12A: nối API
+ * thật CHỈ cho Rating Display + Related Movies (READ ONLY) qua `filmsQueryOptions.detail/related`
+ * + `ratingsQueryOptions.summary`. Video Player/Episode List/Comment/Favorite vẫn dùng
+ * `_mock/watchmovie-data.ts` — ngoài phạm vi 12A (xem audit Phase 12).
  *
  * D2 (tab mobile): chỉ 1 tab tĩnh "Danh sách tập" được đánh dấu active — design gốc cũng không có
  * logic chuyển nội dung theo tab (JS chỉ đổi màu chữ), nên danh sách tập/bình luận/phim liên quan
@@ -27,7 +31,17 @@ import {
  * video, mobile nằm sau phần thông tin phim), không thể chỉ đổi CSS vị trí của cùng 1 node — cùng
  * kỹ thuật 2 nhánh JSX theo breakpoint đã dùng trong `Header`/`EpisodeList` chính nó.
  */
-export function WatchMovieView() {
+export function WatchMovieView({ slug }: { slug: string }) {
+  const { data: film } = useQuery(filmsQueryOptions.detail(slug));
+  const { data: related } = useQuery(filmsQueryOptions.related(slug));
+  const { data: ratingSummary } = useQuery({
+    ...ratingsQueryOptions.summary(film?._id ?? ''),
+    enabled: Boolean(film?._id),
+  });
+
+  const rating = ratingSummary ? ratingSummary.average.toFixed(1) : '—';
+  const relatedMovies = related ?? [];
+
   return (
     <div className="flex flex-col">
       <Container maxWidth="max-w-[1920px]" className="py-md flex flex-col gap-xl">
@@ -51,7 +65,7 @@ export function WatchMovieView() {
                 {filmInfo.title}
               </h1>
               <div className="flex items-center gap-3 text-on-surface-variant text-body-md">
-                <span className="text-primary font-bold">{filmInfo.rating} Rating</span>
+                <span className="text-primary font-bold">{rating} Rating</span>
                 <span>•</span>
                 <span>{filmInfo.year}</span>
                 <span>•</span>
@@ -121,7 +135,7 @@ export function WatchMovieView() {
                       >
                         star
                       </span>
-                      <span className="text-label-md">{filmInfo.rating}</span>
+                      <span className="text-label-md">{rating}</span>
                     </span>
                   </div>
                 </div>
@@ -201,10 +215,16 @@ export function WatchMovieView() {
           <div className="flex gap-gutter overflow-x-auto pb-md">
             {relatedMovies.map((movie) => (
               <RelatedMovieCard
-                key={movie.id}
+                key={movie._id}
                 title={movie.title}
-                subtitle={movie.subtitle}
-                imageSrc={movie.imageSrc}
+                subtitle={[
+                  movie.categories[0]?.name,
+                  movie.releaseYear ? String(movie.releaseYear) : null,
+                ]
+                  .filter((part): part is string => Boolean(part))
+                  .join(' • ')}
+                imageSrc={movie.posterUrl ?? movie.thumbUrl ?? ''}
+                href={`/phim/${movie.slug}`}
               />
             ))}
           </div>
