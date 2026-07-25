@@ -1,20 +1,22 @@
+import type { PaginatedResponse } from '@/lib/types/common';
+import type { CreateFavoriteInput, Favorite, FavoriteTargetType } from '@/lib/types/favorite';
 import { request } from './client';
 import { FAVORITES_ENDPOINTS } from './endpoints';
-import type { PaginatedResult, PaginationQueryParams } from './types';
+import type { PaginationQueryParams } from './types';
 
 /**
- * Khớp `favorites.controller.ts` + `QueryFavoriteDto` (Phase 9.2 audit). Toàn bộ route thuộc
- * module này đều yêu cầu access token (`@ApiBearerAuth()` ở cấp controller, không có route
- * Public nào). Chưa gọi thật ở đâu.
+ * Khớp `favorites.controller.ts` + `QueryFavoriteDto` thật (Phase 11.0/11.2 audit). Toàn bộ route
+ * thuộc module này đều yêu cầu access token (`@ApiBearerAuth()` ở cấp controller, không có route
+ * Public nào).
  */
 export type FavoritesQueryParams = PaginationQueryParams & {
   /** Bắt buộc — QueryFavoriteDto.targetType không có @IsOptional(). */
-  targetType: 'film' | 'actor';
+  targetType: FavoriteTargetType;
 };
 
 export const favoritesApi = {
-  add(body: unknown, accessToken: string) {
-    return request<unknown>(FAVORITES_ENDPOINTS.add, { method: 'POST', body, accessToken });
+  add(body: CreateFavoriteInput, accessToken: string) {
+    return request<Favorite>(FAVORITES_ENDPOINTS.add, { method: 'POST', body, accessToken });
   },
 
   remove(targetType: string, targetId: string, accessToken: string) {
@@ -25,6 +27,6 @@ export const favoritesApi = {
   },
 
   mine(query: FavoritesQueryParams, accessToken: string) {
-    return request<PaginatedResult<unknown>>(FAVORITES_ENDPOINTS.mine, { query, accessToken });
+    return request<PaginatedResponse<Favorite>>(FAVORITES_ENDPOINTS.mine, { query, accessToken });
   },
 };

@@ -1,33 +1,14 @@
 /**
- * Kiểu dữ liệu envelope chung của backend — theo api_design.md §3 (Cross-cutting conventions).
- * Chỉ khai báo type, không có logic.
+ * Phase 11.2: envelope chung (`ApiResponse`/`PaginatedResponse`/`ErrorResponse`) đã dời sang
+ * `lib/types/common.ts` (đúng cấu trúc domain-first) — file này chỉ còn giữ:
+ * - Type request-shape thuần tuý (`PaginationQueryParams`/`LimitQueryParams`) — không phải domain
+ *   entity, không thuộc về `lib/types/*`.
+ * - `AuthUser`/`AuthTokens` — object NextAuth/AuthService tự dựng thủ công cho response
+ *   login/register/refresh (`{id,...}`, dùng `id` KHÔNG phải `_id`), khác hẳn `UserProfile`
+ *   (`lib/types/user.ts`, document Mongoose thật của `/users/me`, dùng `_id`) — xem ghi chú đầy đủ
+ *   trong `lib/types/user.ts`. Giữ ở đây vì gắn chặt với luồng NextAuth
+ *   (`app/api/auth/[...nextauth]/route.ts`, `types/next-auth.d.ts` import trực tiếp từ đây).
  */
-
-export interface ApiSuccessResponse<T> {
-  success: true;
-  data: T;
-}
-
-export interface ApiErrorResponse {
-  success: false;
-  statusCode: number;
-  path: string;
-  timestamp: string;
-  message: string | string[];
-}
-
-export type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse;
-
-/** Khớp `PaginatedResponseDto` — backend/src/common/dto/paginated-response.dto.ts */
-export interface PaginatedResult<T> {
-  items: T[];
-  meta: {
-    page: number;
-    limit: number;
-    totalItems: number;
-    totalPages: number;
-  };
-}
 
 /**
  * Khớp `AuthTokens` — backend/src/auth/interfaces/auth-tokens.interface.ts.

@@ -1,13 +1,14 @@
 /**
- * Danh mục endpoint backend — đối chiếu trực tiếp từng controller ở backend/src (Phase 9.2
- * audit), khớp api_design.md. `API_PREFIX` khớp `apiPrefix` mặc định của backend
- * (backend/src/config/configuration.ts, .env.example: API_PREFIX=api/v1) — frontend không có
- * biến môi trường riêng cho prefix này (frontend.md §6 không liệt kê) nên hardcode theo đúng
- * giá trị mặc định đã xác nhận ở backend.
+ * Danh mục endpoint backend — đối chiếu trực tiếp từng controller ở backend/src (Phase 9.2 audit,
+ * bổ sung Phase 11.2 — histories/ratings/countries — theo audit mã nguồn thật Phase 11.0).
+ * `API_PREFIX` khớp `apiPrefix` mặc định của backend (backend/src/config/configuration.ts,
+ * .env.example: API_PREFIX=api/v1) — frontend không có biến môi trường riêng cho prefix này
+ * (frontend.md §6 không liệt kê) nên hardcode theo đúng giá trị mặc định đã xác nhận ở backend.
  *
- * Chỉ điền endpoint của 8 module được yêu cầu ở Phase 9.2 (auth, films, actors, categories,
- * comments, favorites, playlists, users). Các module khác (roles, permissions, film-reports,
- * avatars, crawler...) chưa có api module tương ứng, sẽ bổ sung khi được yêu cầu.
+ * 11 module đã có client (auth, films, actors, categories, comments, favorites, playlists, users,
+ * histories, ratings, countries). Các module còn lại (roles, permissions, film-reports, avatars,
+ * directors, crawler, dashboard...) chưa có api module tương ứng — ngoài phạm vi 7 màn hình public
+ * hiện tại, sẽ bổ sung khi được yêu cầu.
  */
 export const API_PREFIX = '/api/v1';
 
@@ -78,6 +79,25 @@ export const USERS_ENDPOINTS = {
   updatePassword: '/users/me/password',
 } as const;
 
+export const HISTORIES_ENDPOINTS = {
+  update: '/histories',
+  recent: '/histories/recent',
+  byFilm: (filmId: string) => `/histories/film/${filmId}`,
+  remove: (filmId: string) => `/histories/${filmId}`,
+} as const;
+
+export const RATINGS_ENDPOINTS = {
+  summary: (filmId: string) => `/ratings/film/${filmId}`,
+  mine: (filmId: string) => `/ratings/film/${filmId}/me`,
+  byFilm: (filmId: string) => `/ratings/${filmId}`,
+} as const;
+
+export const COUNTRIES_ENDPOINTS = {
+  list: '/countries',
+  bySlug: (slug: string) => `/countries/${slug}`,
+  byId: (id: string) => `/countries/${id}`,
+} as const;
+
 export const ENDPOINTS = {
   auth: AUTH_ENDPOINTS,
   films: FILMS_ENDPOINTS,
@@ -87,4 +107,7 @@ export const ENDPOINTS = {
   favorites: FAVORITES_ENDPOINTS,
   playlists: PLAYLISTS_ENDPOINTS,
   users: USERS_ENDPOINTS,
+  histories: HISTORIES_ENDPOINTS,
+  ratings: RATINGS_ENDPOINTS,
+  countries: COUNTRIES_ENDPOINTS,
 } as const;

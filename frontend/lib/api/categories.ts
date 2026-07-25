@@ -1,30 +1,31 @@
+import type { Category, CreateCategoryInput, UpdateCategoryInput } from '@/lib/types/category';
 import { request } from './client';
 import { CATEGORIES_ENDPOINTS } from './endpoints';
 
-/** Khớp `categories.controller.ts` + `QueryCategoryDto` (Phase 9.2 audit). Chưa gọi thật ở đâu. */
+/** Khớp `categories.controller.ts` + `QueryCategoryDto` thật (Phase 11.0/11.2 audit). */
 export type CategoriesQueryParams = {
   isActive?: boolean;
 };
 
 export const categoriesApi = {
   list(query?: CategoriesQueryParams) {
-    return request<unknown[]>(CATEGORIES_ENDPOINTS.list, { query });
+    return request<Category[]>(CATEGORIES_ENDPOINTS.list, { query });
   },
 
   hot() {
-    return request<unknown[]>(CATEGORIES_ENDPOINTS.hot);
+    return request<Category[]>(CATEGORIES_ENDPOINTS.hot);
   },
 
   bySlug(slug: string) {
-    return request<unknown>(CATEGORIES_ENDPOINTS.bySlug(slug));
+    return request<Category>(CATEGORIES_ENDPOINTS.bySlug(slug));
   },
 
-  create(body: unknown, accessToken: string) {
-    return request<unknown>(CATEGORIES_ENDPOINTS.list, { method: 'POST', body, accessToken });
+  create(body: CreateCategoryInput, accessToken: string) {
+    return request<Category>(CATEGORIES_ENDPOINTS.list, { method: 'POST', body, accessToken });
   },
 
-  update(id: string, body: unknown, accessToken: string) {
-    return request<unknown>(CATEGORIES_ENDPOINTS.byId(id), {
+  update(id: string, body: UpdateCategoryInput, accessToken: string) {
+    return request<Category>(CATEGORIES_ENDPOINTS.byId(id), {
       method: 'PATCH',
       body,
       accessToken,

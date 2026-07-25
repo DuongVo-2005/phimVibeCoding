@@ -1,7 +1,7 @@
 import { env } from '@/lib/env';
+import type { ApiSuccessResponse, ErrorResponse } from '@/lib/types/common';
 import { API_PREFIX } from './endpoints';
 import { buildQueryString, type QueryParams } from './query-string';
-import type { ApiErrorResponse, ApiSuccessResponse } from './types';
 
 /**
  * `NEXT_PUBLIC_API_URL` chỉ chứa domain gốc (không kèm /api/v1) — đã xác nhận với người dùng
@@ -52,7 +52,7 @@ export async function request<TData>(path: string, options: RequestOptions = {})
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
 
-  const json = (await response.json()) as ApiSuccessResponse<TData> | ApiErrorResponse;
+  const json = (await response.json()) as ApiSuccessResponse<TData> | ErrorResponse;
 
   if (!json.success) {
     const message = Array.isArray(json.message) ? json.message.join(', ') : json.message;
