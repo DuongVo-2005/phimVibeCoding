@@ -2,25 +2,22 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { Container } from '@/components/layout/Container';
-import { CommentSection } from '@/components/film/CommentSection';
+import { CommentSection, type CommentItem } from '@/components/film/CommentSection';
 import { EpisodeList } from '@/components/film/EpisodeList';
 import { RecommendedCard } from '@/components/film/RecommendedCard';
 import { RelatedMovieCard } from '@/components/film/RelatedMovieCard';
 import { VideoPlayer } from '@/components/film/VideoPlayer';
-import {
-  comments,
-  commentTotalLabel,
-  episodes,
-  filmInfo,
-  recommendedMovies,
-} from '@/app/(public)/_mock/watchmovie-data';
-import { filmsQueryOptions, ratingsQueryOptions } from '@/lib/query/options';
+import { episodes, filmInfo, recommendedMovies } from '@/app/(public)/_mock/watchmovie-data';
+import { formatTimeAgo } from '@/lib/utils/format-time-ago';
+import { commentsQueryOptions, filmsQueryOptions, ratingsQueryOptions } from '@/lib/query/options';
 
 /**
  * WatchMovieView — nội dung trang xem phim, khớp `design/watchmovie.html`. Phase 12A: nối API
- * thật CHỈ cho Rating Display + Related Movies (READ ONLY) qua `filmsQueryOptions.detail/related`
- * + `ratingsQueryOptions.summary`. Video Player/Episode List/Comment/Favorite vẫn dùng
- * `_mock/watchmovie-data.ts` — ngoài phạm vi 12A (xem audit Phase 12).
+ * thật cho Rating Display + Related Movies. Phase 12C: nối API thật cho Comment Section (READ
+ * ONLY) qua `commentsQueryOptions.byFilm(film._id)` (dependent query, `enabled: Boolean(film?._id)`
+ * — cùng pattern `ratingsQueryOptions.summary`). Video Player/Episode List/Favorite vẫn dùng
+ * `_mock/watchmovie-data.ts` — ngoài phạm vi (xem audit Phase 12). Reply/Vote/Send Comment/
+ * Pagination/Infinite Scroll KHÔNG làm — `CommentSection` (presentational) không đổi.
  *
  * D2 (tab mobile): chỉ 1 tab tĩnh "Danh sách tập" được đánh dấu active — design gốc cũng không có
  * logic chuyển nội dung theo tab (JS chỉ đổi màu chữ), nên danh sách tập/bình luận/phim liên quan
@@ -38,9 +35,22 @@ export function WatchMovieView({ slug }: { slug: string }) {
     ...ratingsQueryOptions.summary(film?._id ?? ''),
     enabled: Boolean(film?._id),
   });
+  const { data: commentsData } = useQuery({
+    ...commentsQueryOptions.byFilm(film?._id ?? ''),
+    enabled: Boolean(film?._id),
+  });
 
   const rating = ratingSummary ? ratingSummary.average.toFixed(1) : '—';
   const relatedMovies = related ?? [];
+  const comments: CommentItem[] = (commentsData?.items ?? []).map((comment) => ({
+    id: comment._id,
+    author: comment.user.name,
+    timeAgo: formatTimeAgo(comment.createdAt),
+    content: comment.content,
+    likeCount: comment.upVoteCount,
+    avatarSrc: comment.user.avatar ?? '',
+  }));
+  const commentTotalLabel = String(commentsData?.meta.totalItems ?? 0);
 
   return (
     <div className="flex flex-col">
