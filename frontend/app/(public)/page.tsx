@@ -1,6 +1,9 @@
 import { CategoriesSection } from '@/components/film/CategoriesSection';
 import { ContinueWatchingSection } from '@/components/film/ContinueWatchingSection';
 import { HeroSection } from '@/components/film/HeroSection';
+import { LatestMoviesSection } from '@/components/film/LatestMoviesSection';
+import { LatestSeriesSection } from '@/components/film/LatestSeriesSection';
+import { MostCommentedSection } from '@/components/film/MostCommentedSection';
 import { MovieCard } from '@/components/film/MovieCard';
 import { TopRatedSection } from '@/components/film/TopRatedSection';
 import { TrendingSection } from '@/components/film/TrendingSection';
@@ -11,9 +14,12 @@ import { recommendations } from './_mock/homepage-data';
  * Trang chủ — UI khớp `design/homepage.html` (Phase 10.2). Phase 11.4/11.4A: Hero/Tiếp tục xem/
  * Đang thịnh hành/Khám phá Thể loại/Đánh giá cao đã nối API thật qua các Section component riêng
  * (React Query) — xem `components/film/{HeroSection,ContinueWatchingSection,TrendingSection,
- * CategoriesSection,TopRatedSection}.tsx`. Chỉ "Gợi ý riêng cho bạn" còn dùng
- * `_mock/homepage-data.ts` — backend chưa có endpoint recommend (xem audit Phase 11.4, mục 9).
- * SideNavBar (widget tài khoản nổi) tiếp tục KHÔNG dựng — giữ nguyên quyết định Phase 10.1.
+ * CategoriesSection,TopRatedSection}.tsx`. Phase 11.5: thêm 3 section mới (không có trong
+ * `design/homepage.html` gốc, xem audit Phase 11.5) — `LatestSeriesSection`,
+ * `MostCommentedSection`, `LatestMoviesSection`, cùng pattern `TrendingSection`. Chỉ "Gợi ý riêng
+ * cho bạn" còn dùng `_mock/homepage-data.ts` — backend chưa có endpoint recommend (BLOCKED, xem
+ * audit Phase 11.5). SideNavBar (widget tài khoản nổi) tiếp tục KHÔNG dựng — giữ nguyên quyết định
+ * Phase 10.1.
  */
 export default function HomePage() {
   return (
@@ -23,6 +29,12 @@ export default function HomePage() {
       <ContinueWatchingSection />
 
       <TrendingSection />
+
+      <LatestSeriesSection />
+
+      <MostCommentedSection />
+
+      <LatestMoviesSection />
 
       <section className="px-gutter grid grid-cols-1 lg:grid-cols-12 gap-lg">
         <CategoriesSection />
