@@ -1,13 +1,10 @@
 /**
  * Dữ liệu mock cho trang quản lý tài khoản (`design/userdasboard.html`) — KHÔNG gọi API.
  *
- * Tên/email: design gốc dùng "duong vo" / "voduong1147@gmail.com" — TRÙNG với thông tin thật của
- * người dùng hệ thống hiện tại. Theo nguyên tắc đã xác nhận ở Phase 10.6 (quyết định A: không đưa
- * PII thật vào mock data), dùng persona hư cấu thay thế, không lấy nguyên văn từ design.
- *
- * Ảnh avatar: design có 3 ảnh khác nhau cho cùng 1 người (avatar nhỏ trong TopNav, avatar sidebar
- * desktop, avatar lớn trong hero, avatar mobile) — chỉ giữ 1 ảnh canonical dùng chung mọi nơi,
- * cùng nguyên tắc đã áp dụng cho ảnh nền/ảnh đại diện từ Phase 10.2.
+ * `userProfile` (tên/email/avatar/premium/điểm thưởng...) đã bị xoá ở Phase 17A — `AccountSidebar`/
+ * `ProfileHero` giờ nhận dữ liệu THẬT từ `GET /users/me` (xem `UserDashboardView.tsx`). 3 mảng
+ * dưới đây (watchHistory/favorites/watchlist) VẪN mock — xây dựng list thật cho các mục này thuộc
+ * phase sau, ngoài phạm vi 17A.
  *
  * Danh sách xem (watchlist): quyết định D (Phase 10.8) — hợp nhất 1 mô hình dữ liệu duy nhất
  * (tên, ảnh, % tiến độ tuỳ chọn, thời gian còn lại tuỳ chọn), dùng chung mọi kích thước, không
@@ -15,21 +12,6 @@
  * có 5 ảnh không tiêu đề/tiến độ + ô "Thêm mới") — chỉ giữ 2 mục có đủ dữ liệu thật (tiêu đề lấy từ
  * bản mobile), không bịa tiêu đề cho các ảnh không tên của bản desktop.
  */
-
-export const userProfile = {
-  name: 'Bảo Anh',
-  email: 'baoanh.rophim@example.com',
-  premiumLabel: 'PREMIUM',
-  memberSinceLabel: 'Tháng 1, 2024',
-  moviesWatchedLabel: '128 phim đã xem',
-  pointsLabel: '1.250 điểm',
-  favoritesCountLabel: '42',
-  watchHistoryCountLabel: '158',
-  avatarSrc:
-    'https://lh3.googleusercontent.com/aida-public/AB6AXuAXmxaabXOSWnruJUa6Bjjz2tTW5HIwFSWlAl3ErIKtUgyq2kBNeKrgt-eEyWd_JIQBzHD6AolGTgdVrPhy1MOKpAXTcSKjHFPsMxGDi-SvBewNN4Kk4DZBOzklSW9D1sFkUWLIQLiBNwCgkGLBiRGlm1sdGz2gs8U75vrJRsYAqiMY6IquLgrUet786JXIsbysJJlVVqOY46HwDQlJnhQZbMUYGlypF5pk7c_qgvjiztaNy1W0b_NWEq3rNAsBYetuw5JskKclbxN7',
-  bannerSrc:
-    'https://lh3.googleusercontent.com/aida-public/AB6AXuD2TYtfWn0fF5esc4O8mR70RO1RU2hyarj-Inu7PG7eMZ3JNh18MM4keNGQ-9HIK1KCrAAWF1NAO0Vvj7PxsMIsf46TWNLMZJNTLfE7f005q_5rNNrpQfDEDTCMuz4SjyBeMHGu43naPUURuSK_z-tvvDFcxSEqT3NKbw4xR_pk0GHkeC7iW-yb4KU7RE41iZcOpfbtOTXjUC6c6vCCuKdmgJKzWMWYemXZCH8MDaiDvNuZY6Nd6g8FDokRtKe65E93qb1U23HdwbO2',
-};
 
 export interface WatchHistoryItem {
   id: string;

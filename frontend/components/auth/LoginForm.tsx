@@ -4,11 +4,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { signIn, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { useNotification } from '@/hooks/useNotification';
 import { loginSchema, type LoginFormValues } from '@/lib/validation/auth';
+
+const SESSION_EXPIRED_MESSAGE = 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.';
 
 /**
  * Khớp nguyên văn 3 message `authorize()` throw ra ở `app/api/auth/[...nextauth]/route.ts`
@@ -26,6 +29,7 @@ export function LoginForm() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/';
   const { status } = useSession();
+  const notify = useNotification();
 
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -37,6 +41,17 @@ export function LoginForm() {
       router.replace('/');
     }
   }, [status, router]);
+
+  // Phase 17A: `SessionErrorWatcher` (App Root) tự signOut() + điều hướng tới đây kèm
+  // `?reason=session-expired` khi refresh token thất bại giữa phiên — hiện thông báo Ở ĐÂY (không
+  // phải lúc phát hiện lỗi) để tránh 2 toast chồng nhau trong lúc điều hướng.
+  const shownSessionExpiredRef = useRef(false);
+  useEffect(() => {
+    if (searchParams.get('reason') === 'session-expired' && !shownSessionExpiredRef.current) {
+      shownSessionExpiredRef.current = true;
+      notify.error(SESSION_EXPIRED_MESSAGE);
+    }
+  }, [searchParams, notify]);
 
   const {
     register,

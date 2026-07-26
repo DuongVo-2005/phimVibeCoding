@@ -1,70 +1,88 @@
+'use client';
+
+import { useQuery } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
+import Link from 'next/link';
 import { Container } from '@/components/layout/Container';
 import { AccountSidebar } from '@/components/account/AccountSidebar';
 import { FavoriteListItem } from '@/components/account/FavoriteListItem';
 import { HistoryCard } from '@/components/account/HistoryCard';
 import { ProfileHero } from '@/components/account/ProfileHero';
 import { WatchlistThumb } from '@/components/account/WatchlistThumb';
-import {
-  favorites,
-  userProfile,
-  watchHistory,
-  watchlist,
-} from '@/app/(account)/_mock/user-dashboard-data';
+import { ErrorState } from '@/components/ui/ErrorState';
+import { SkeletonBlock } from '@/components/ui/SkeletonBlock';
+import { logoutUser } from '@/lib/auth/logout';
+import { usersQueryOptions } from '@/lib/query/options';
+import { favorites, watchHistory, watchlist } from '@/app/(account)/_mock/user-dashboard-data';
+
+/** Khớp format mock cũ ("Tháng 1, 2024") — chỉ đổi nguồn dữ liệu (`user.createdAt` thật). */
+function toMemberSinceLabel(createdAt: string): string {
+  const date = new Date(createdAt);
+  return `Tháng ${date.getMonth() + 1}, ${date.getFullYear()}`;
+}
 
 /**
- * UserDashboardView — nội dung trang quản lý tài khoản, khớp `design/userdasboard.html`. Route
- * `/user/profile` chỉ có 1 nội dung mock cố định (không suy diễn theo user thật — KHÔNG gọi API,
- * không state, đúng phạm vi đã xác nhận Phase 10.8).
+ * UserDashboardView — nội dung trang quản lý tài khoản, khớp `design/userdasboard.html`.
+ *
+ * Phase 17A: `AccountSidebar`/`ProfileHero` giờ nhận dữ liệu THẬT từ `GET /users/me`
+ * (`usersQueryOptions.me`) — thay hoàn toàn mock `userProfile` (đã xoá khỏi
+ * `_mock/user-dashboard-data.ts`). "Xem tiếp"/"Yêu thích"/"Danh sách xem" (watchHistory/favorites/
+ * watchlist) VẪN dùng mock — xây dựng list thật cho 3 mục này thuộc phase sau (ngoài phạm vi
+ * 17A, xem audit Phase 17: "Do NOT build Favorite list/History").
+ *
+ * Bỏ Stats Row (favoritesCount/watchHistoryCount) — 2 con số này lấy từ mock `userProfile` cũ,
+ * không có nguồn dữ liệu thật tương ứng trong `GET /users/me` (và tính đúng số thật đòi hỏi gọi
+ * API Favorite/History đầy đủ — ngoài phạm vi 17A), giữ lại sẽ là số liệu bịa.
+ *
+ * Nút "Thoát"/"Đăng xuất" (cả desktop `AccountSidebar` lẫn mobile) giờ gọi `logoutUser()` thật
+ * (Phase 17A) — trước đây hoàn toàn trang trí.
  *
  * Quyết định A: layout Header/Footer do `app/(account)/layout.tsx` cung cấp qua `MainLayout`,
  * component này chỉ chứa nội dung canvas (sidebar + main content), không tự dựng Header/Footer.
  *
  * Quyết định B: "Xem tiếp" dùng `HistoryCard` (component mới) — chỉ hiện ở desktop (`hidden
- * md:block`), design mobile không có mục này (chỉ có số liệu tổng trong Stats Row).
+ * md:block`).
  *
  * Quyết định D: "Danh sách xem" dùng `WatchlistThumb` với 1 mô hình dữ liệu duy nhất — ô "Thêm
  * mới" là UI tĩnh không gắn dữ liệu, hiện ở mọi kích thước.
- *
- * Quyết định E: nút "Thoát"/"Đăng xuất" hoàn toàn trang trí, không `onClick`, không `signOut()`.
  *
  * "Subscription & Settings" (mobile) là bản thay thế của 2 mục cùng tên trong `AccountSidebar`
  * (desktop) — sidebar ẩn ở mobile (`hidden md:flex`), section này ẩn ở desktop (`md:hidden`).
  */
 export function UserDashboardView() {
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
+  const { data: user, isLoading, isError, refetch } = useQuery(usersQueryOptions.me(accessToken));
+
+  const handleLogout = () => {
+    void logoutUser(accessToken);
+  };
+
+  if (isError) {
+    return (
+      <Container maxWidth="max-w-screen-2xl" className="py-lg">
+        <ErrorState message="Không tải được thông tin tài khoản." onRetry={() => refetch()} />
+      </Container>
+    );
+  }
+
+  if (isLoading || !user) {
+    return (
+      <Container maxWidth="max-w-screen-2xl" className="py-lg flex flex-col md:flex-row gap-lg">
+        <SkeletonBlock className="hidden md:block md:sticky md:top-28 w-64 h-96 rounded-xl shrink-0" />
+        <div className="flex-1 flex flex-col gap-xl">
+          <SkeletonBlock className="h-48 rounded-xl" />
+        </div>
+      </Container>
+    );
+  }
+
   return (
     <Container maxWidth="max-w-screen-2xl" className="py-lg flex flex-col md:flex-row gap-lg">
-      <AccountSidebar
-        name={userProfile.name}
-        email={userProfile.email}
-        avatarSrc={userProfile.avatarSrc}
-      />
+      <AccountSidebar name={user.name} email={user.email} onLogout={handleLogout} />
 
       <div className="flex-1 flex flex-col gap-xl">
-        <ProfileHero
-          name={userProfile.name}
-          premiumLabel={userProfile.premiumLabel}
-          memberSinceLabel={userProfile.memberSinceLabel}
-          moviesWatchedLabel={userProfile.moviesWatchedLabel}
-          pointsLabel={userProfile.pointsLabel}
-          avatarSrc={userProfile.avatarSrc}
-          bannerSrc={userProfile.bannerSrc}
-        />
-
-        {/* Stats row — chỉ mobile, khớp Stats Row trong design (desktop không có, vì đã có số liệu trong ProfileHero) */}
-        <div className="md:hidden grid grid-cols-2 gap-4">
-          <div className="bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-xl p-4 flex flex-col items-center justify-center text-center">
-            <span className="text-headline-md font-bold text-primary">
-              {userProfile.favoritesCountLabel}
-            </span>
-            <span className="text-on-surface-variant font-label-md">Favorites</span>
-          </div>
-          <div className="bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-xl p-4 flex flex-col items-center justify-center text-center">
-            <span className="text-headline-md font-bold text-secondary">
-              {userProfile.watchHistoryCountLabel}
-            </span>
-            <span className="text-on-surface-variant font-label-md">Watch History</span>
-          </div>
-        </div>
+        <ProfileHero name={user.name} memberSinceLabel={toMemberSinceLabel(user.createdAt)} />
 
         {/* Xem tiếp — chỉ desktop */}
         <section className="hidden md:block">
@@ -183,7 +201,10 @@ export function UserDashboardView() {
             </span>
           </div>
           <div className="bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-xl overflow-hidden">
-            <div className="p-4 flex items-center justify-between border-b border-white/5">
+            <Link
+              href="/user/doi-mat-khau"
+              className="p-4 flex items-center justify-between border-b border-white/5"
+            >
               <div className="flex items-center gap-4">
                 <span
                   className="material-symbols-outlined text-on-surface-variant"
@@ -199,7 +220,7 @@ export function UserDashboardView() {
               >
                 chevron_right
               </span>
-            </div>
+            </Link>
             <div className="p-4 flex items-center justify-between border-b border-white/5">
               <div className="flex items-center gap-4">
                 <span
@@ -217,7 +238,11 @@ export function UserDashboardView() {
                 chevron_right
               </span>
             </div>
-            <button type="button" className="w-full p-4 flex items-center gap-4 text-error">
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="w-full p-4 flex items-center gap-4 text-error"
+            >
               <span className="material-symbols-outlined" aria-hidden="true">
                 logout
               </span>

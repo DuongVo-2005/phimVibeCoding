@@ -1,32 +1,47 @@
 import Image from 'next/image';
+import Link from 'next/link';
 
 /**
- * AccountSidebar — khớp `<aside>` sidebar tài khoản trong `design/userdasboard.html`. Đây chính
- * là component mà Phase 10.6 (quyết định A) đã cố tình KHÔNG dựng ở `/dien-vien` vì thuộc về
- * trang này — không trùng lặp, giờ mới có "nhà" thật sự. Chỉ hiện ở desktop (`hidden md:flex`) —
- * mobile dùng section "Subscription & Settings" riêng trong `UserDashboardView`.
+ * AccountSidebar — khớp `<aside>` sidebar tài khoản trong `design/userdasboard.html`. Chỉ hiện ở
+ * desktop (`hidden md:flex`) — mobile dùng section "Subscription & Settings" riêng trong
+ * `UserDashboardView`.
  *
- * "Tài khoản" là mục active tĩnh (route hiện tại), không phải `<a>` — các mục khác không có route
- * thật tương ứng (Yêu thích/Danh sách/Xem tiếp/Thông báo/Subscription/Settings không nằm trong 7
- * trang design đã xác nhận) nên giữ `href="#"`, cùng quy ước placeholder-link đã dùng ở
- * `Navigation.tsx`. Nút "Thoát" chỉ trang trí — quyết định E (Phase 10.8): không `onClick`, không
- * gọi `signOut()`.
+ * "Tài khoản" là mục active tĩnh (route hiện tại), không phải `<a>` — Yêu thích/Danh sách/Xem
+ * tiếp/Thông báo/Subscription vẫn `href="#"` (chưa xây ở Phase 17A, thuộc phase sau — xem audit
+ * Phase 17). "Settings" (Phase 17A) đổi thành link thật tới `/user/doi-mat-khau` — trang cài đặt
+ * đầy đủ chưa tồn tại, đây là hành động cài đặt DUY NHẤT đã xây trong phase này nên trỏ thẳng vào
+ * đó thay vì giữ placeholder.
+ *
+ * `avatarSrc` optional — `GET /users/me` không trả URL avatar thật (xem ghi chú `ProfileHero.tsx`),
+ * hiện icon "person" thay thế khi không có. Nút "Thoát": `onLogout` do `UserDashboardView` truyền
+ * xuống (gọi `logoutUser()`, Phase 17A) — trước đây hoàn toàn trang trí.
  */
 export function AccountSidebar({
   name,
   email,
   avatarSrc,
+  onLogout,
 }: {
   name: string;
   email: string;
-  avatarSrc: string;
+  avatarSrc?: string;
+  onLogout: () => void;
 }) {
   return (
     <aside className="hidden md:flex md:sticky md:top-28 h-fit w-64 flex-col gap-sm shrink-0">
       <div className="bg-surface-container rounded-xl p-md shadow-lg flex flex-col gap-md">
         <div className="flex items-center gap-sm p-xs">
-          <div className="relative h-12 w-12 rounded-xl overflow-hidden shrink-0 ring-2 ring-primary/20">
-            <Image src={avatarSrc} alt={name} fill sizes="48px" className="object-cover" />
+          <div className="relative h-12 w-12 rounded-xl overflow-hidden shrink-0 ring-2 ring-primary/20 bg-surface-container-high flex items-center justify-center">
+            {avatarSrc ? (
+              <Image src={avatarSrc} alt={name} fill sizes="48px" className="object-cover" />
+            ) : (
+              <span
+                className="material-symbols-outlined text-on-surface-variant"
+                aria-hidden="true"
+              >
+                person
+              </span>
+            )}
           </div>
           <div className="flex flex-col overflow-hidden">
             <span className="text-body-md font-bold text-on-surface truncate">{name}</span>
@@ -93,19 +108,20 @@ export function AccountSidebar({
             </span>
             <span className="text-label-md font-label-md">Subscription</span>
           </a>
-          <a
-            href="#"
+          <Link
+            href="/user/doi-mat-khau"
             className="flex items-center gap-sm px-sm py-xs text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-all duration-200 rounded-lg"
           >
             <span className="material-symbols-outlined" aria-hidden="true">
               settings
             </span>
             <span className="text-label-md font-label-md">Settings</span>
-          </a>
+          </Link>
         </nav>
 
         <button
           type="button"
+          onClick={onLogout}
           className="mt-md w-full py-sm bg-surface-container-highest text-error rounded-xl font-label-md hover:bg-error/10 transition-colors"
         >
           Thoát
