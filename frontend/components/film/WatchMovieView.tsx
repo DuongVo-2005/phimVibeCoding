@@ -1,17 +1,24 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { Container } from '@/components/layout/Container';
 import { CommentSection, type CommentItem } from '@/components/film/CommentSection';
 import { EpisodeList, type ListEpisodeItem } from '@/components/film/EpisodeList';
+import { HistoryResume } from '@/components/film/HistoryResume';
 import { HistoryWriter } from '@/components/film/HistoryWriter';
 import { RecommendedCard } from '@/components/film/RecommendedCard';
 import { RelatedMovieCard } from '@/components/film/RelatedMovieCard';
 import { VideoPlayer } from '@/components/film/VideoPlayer';
 import { filmInfo, recommendedMovies } from '@/app/(public)/_mock/watchmovie-data';
 import { formatTimeAgo } from '@/lib/utils/format-time-ago';
-import { commentsQueryOptions, filmsQueryOptions, ratingsQueryOptions } from '@/lib/query/options';
+import {
+  commentsQueryOptions,
+  filmsQueryOptions,
+  historiesQueryOptions,
+  ratingsQueryOptions,
+} from '@/lib/query/options';
 import { resolvePlaybackState } from '@/lib/watch/playback-state';
 import { buildWatchUrl } from '@/lib/watch/url';
 
@@ -31,8 +38,19 @@ import { buildWatchUrl } from '@/lib/watch/url';
  * Phase 13C: `videoElement` (state duy nhất thêm ở phase này — lấy qua `onVideoRef` callback ref
  * từ `HlsPlayer`, KHÔNG phải state trùng lặp với `PlaybackState`) truyền cho `HistoryWriter` — CHỈ
  * mount khi `playerType === 'hls'` (`IframePlayer` không ghi progress). `HistoryWriter` tự
- * GHI `POST /histories` theo sự kiện play/pause/ended — KHÔNG đọc History, KHÔNG resume/seek,
- * KHÔNG Next Episode/Favorite/Mutation khác ở phase này.
+ * GHI `POST /histories` theo sự kiện play/pause/ended (+ `beforeunload`/`pagehide` qua
+ * `fetch(..., {keepalive:true})`, xem `HistoryWriter.tsx`).
+ *
+ * Phase 13D: ĐỌC History (`historiesQueryOptions.byFilm`) — chỉ khi đã đăng nhập + `playerType`
+ * (tính theo `ep`/`server` trên URL, CHƯA tính History — gọi là "provisional") là `'hls'`. Đây là
+ * giải pháp cho vòng phụ thuộc vốn có: muốn biết có nên đọc History không thì cần biết
+ * `playerType`, nhưng `playerType` (khi URL không có `ep`) lại có thể phụ thuộc episode do History
+ * chọn — nên `playbackState` được tính 2 lần ("provisional" dùng để quyết định có fetch History
+ * hay không, rồi tính lại lần cuối có thêm `historyEpisodeSlug` nếu History đã có). `resolvePlaybackState`
+ * đảm bảo `ep` trên URL luôn thắng History (xem `lib/watch/playback-state.ts`). Seek tới
+ * `history.progressSeconds` (qua `HistoryResume`) CHỈ khi tập đang phát trùng `history.episodeSlug`
+ * — seek theo tiến độ đo trên tập khác sẽ sai. KHÔNG ghi History mới, KHÔNG auto next, KHÔNG
+ * Favorite/Mutation khác ở phase này.
  *
  * Phase 13A (tiếp): `EpisodeList(layout="list")` đã bỏ hẳn mock `_mock/watchmovie-data`'s
  * `episodes` — dùng `film.episodes[currentServerIndex].items` thật. `active`/`href` tính ở đây
@@ -69,11 +87,33 @@ export function WatchMovieView({
     ...commentsQueryOptions.byFilm(film?._id ?? ''),
     enabled: Boolean(film?._id),
   });
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
   const [videoElement, setVideoElement] = useState<HTMLVideoElement | null>(null);
 
-  const playbackState = film
+  // Pass 1 (provisional) — chưa tính History, chỉ dùng để quyết định có đủ điều kiện fetch
+  // History hay không (yêu cầu 1: đã đăng nhập + playerType 'hls').
+  const provisionalPlaybackState = film
     ? resolvePlaybackState(film, { ep: episodeSlug, server: serverIndex })
     : null;
+
+  const { data: history } = useQuery({
+    ...historiesQueryOptions.byFilm(film?._id ?? '', accessToken),
+    enabled: Boolean(accessToken) && provisionalPlaybackState?.playerType === 'hls',
+  });
+
+  // Pass 2 (final) — nếu URL không có ep, History (nếu có) quyết định tập mặc định.
+  const playbackState = film
+    ? resolvePlaybackState(film, {
+        ep: episodeSlug,
+        server: serverIndex,
+        historyEpisodeSlug: history?.episodeSlug,
+      })
+    : null;
+  const resumeProgressSeconds =
+    history && playbackState && history.episodeSlug === playbackState.currentEpisodeSlug
+      ? history.progressSeconds
+      : null;
   const currentServerItems = film?.episodes[playbackState?.currentServerIndex ?? 0]?.items ?? [];
   const watchEpisodes: ListEpisodeItem[] = currentServerItems.map((episode) => ({
     slug: episode.slug,
@@ -106,12 +146,18 @@ export function WatchMovieView({
               onVideoRef={setVideoElement}
             />
             {playbackState?.playerType === 'hls' && film ? (
-              <HistoryWriter
-                videoElement={videoElement}
-                filmId={film._id}
-                episodeSlug={playbackState.currentEpisodeSlug}
-                serverName={film.episodes[playbackState.currentServerIndex]?.serverName ?? ''}
-              />
+              <>
+                <HistoryWriter
+                  videoElement={videoElement}
+                  filmId={film._id}
+                  episodeSlug={playbackState.currentEpisodeSlug}
+                  serverName={film.episodes[playbackState.currentServerIndex]?.serverName ?? ''}
+                />
+                <HistoryResume
+                  videoElement={videoElement}
+                  progressSeconds={resumeProgressSeconds}
+                />
+              </>
             ) : null}
           </div>
           <div className="hidden lg:block lg:col-span-3 lg:h-[716px] overflow-hidden">

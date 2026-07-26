@@ -21,10 +21,17 @@ export interface PlaybackState {
  * Không redirect, không throw — `server`/`ep` sai hoặc thiếu đều rơi về fallback im lặng:
  * `server` không hợp lệ (không phải số nguyên trong khoảng hợp lệ) → server đầu tiên (index 0).
  * `ep` không tồn tại trong server hiện tại → tập đầu tiên của server đó.
+ *
+ * Phase 13D: thêm `historyEpisodeSlug` (tuỳ chọn, KHÔNG phải query param URL — do `WatchMovieView`
+ * tự truyền vào từ `History` đã fetch). Thứ tự ưu tiên chọn tập: `ep` trên URL LUÔN thắng (không
+ * bao giờ bị History ghi đè); nếu URL không có `ep`, `historyEpisodeSlug` (nếu có và tồn tại trong
+ * server hiện tại) quyết định tập mặc định; nếu cả 2 đều không có/không khớp, giữ nguyên hành vi
+ * cũ (tập đầu tiên, index 0). Không tự suy ra `server` từ History — chỉ áp dụng cho việc chọn tập,
+ * đúng phạm vi yêu cầu.
  */
 export function resolvePlaybackState(
   film: Pick<FilmDetail, 'episodes'>,
-  searchParams: { ep?: string; server?: string },
+  searchParams: { ep?: string; server?: string; historyEpisodeSlug?: string },
 ): PlaybackState {
   const servers = film.episodes;
 
@@ -38,10 +45,17 @@ export function resolvePlaybackState(
 
   const items = servers[currentServerIndex]?.items ?? [];
 
-  const requestedIndex = searchParams.ep
+  let currentIndex = searchParams.ep
     ? items.findIndex((item) => item.slug === searchParams.ep)
     : -1;
-  const currentIndex = requestedIndex >= 0 ? requestedIndex : 0;
+
+  if (currentIndex === -1 && !searchParams.ep && searchParams.historyEpisodeSlug) {
+    currentIndex = items.findIndex((item) => item.slug === searchParams.historyEpisodeSlug);
+  }
+
+  if (currentIndex === -1) {
+    currentIndex = 0;
+  }
 
   const currentEpisode = items[currentIndex] ?? null;
   const nextEpisode =
