@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { RatingInput } from './RatingInput';
 
 /**
  * FilmHero — khớp phần hero backdrop + poster nổi + panel thông tin trong
@@ -9,6 +10,15 @@ import { Button } from '@/components/ui/Button';
  *
  * Synopsis (D2): KHÔNG có nút "Xem thêm/Thu gọn" — dùng đúng kỹ thuật CSS thuần
  * (`line-clamp-3 lg:line-clamp-none`) mà bản desktop của chính design đã dùng, không cần JS/state.
+ *
+ * Phase 14A: nút "+" nối `isFavorited`/`onToggleFavorite` (logic thật ở `FilmDetailView` qua
+ * `useFavorite`, component này KHÔNG tự gọi API). KHÔNG đổi icon/text — chỉ toggle
+ * `fontVariationSettings` FILL (0↔1) trên CÙNG icon `add`, giống kỹ thuật đã dùng cho icon `star`
+ * ở trên — phản ánh trạng thái mà không đổi thiết kế.
+ *
+ * Phase 14B: thêm `RatingInput` ngay cạnh khối hiển thị điểm trung bình (đúng vị trí rating hiện
+ * tại) — widget MỚI (không có trong Figma, tạo theo yêu cầu tường minh của phase này), logic thật
+ * ở `FilmDetailView` qua `useRating`.
  */
 export function FilmHero({
   title,
@@ -21,6 +31,10 @@ export function FilmHero({
   posterSrc,
   backdropSrc,
   cast,
+  isFavorited,
+  onToggleFavorite,
+  myRating,
+  onSelectRating,
 }: {
   title: string;
   quality: string;
@@ -32,6 +46,10 @@ export function FilmHero({
   posterSrc: string;
   backdropSrc: string;
   cast: Array<{ id: string; name: string; avatarSrc: string }>;
+  isFavorited?: boolean;
+  onToggleFavorite?: () => void;
+  myRating?: number | null;
+  onSelectRating?: (score: number) => void;
 }) {
   return (
     <section className="relative min-h-[600px] lg:h-[870px] w-full overflow-hidden">
@@ -64,6 +82,12 @@ export function FilmHero({
                 <span className="text-on-surface-variant/50 text-label-md">IMDb</span>
               </div>
             </div>
+
+            {onSelectRating ? (
+              <div className="mb-md">
+                <RatingInput myRating={myRating ?? null} onSelect={onSelectRating} />
+              </div>
+            ) : null}
 
             <h1 className="text-display-lg font-display-lg text-white mb-base leading-none">
               {title}
@@ -119,8 +143,17 @@ export function FilmHero({
                 </span>
                 TRAILER
               </Button>
-              <Button variant="secondary" className="w-14 h-14 rounded-xl p-0">
-                <span className="material-symbols-outlined" aria-hidden="true">
+              <Button
+                variant="secondary"
+                className="w-14 h-14 rounded-xl p-0"
+                onClick={onToggleFavorite}
+                aria-pressed={isFavorited}
+              >
+                <span
+                  className="material-symbols-outlined"
+                  aria-hidden="true"
+                  style={{ fontVariationSettings: `'FILL' ${isFavorited ? 1 : 0}` }}
+                >
                   add
                 </span>
               </Button>

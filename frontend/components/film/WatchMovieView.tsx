@@ -4,31 +4,39 @@ import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { Container } from '@/components/layout/Container';
-import { CommentSection, type CommentItem } from '@/components/film/CommentSection';
+import { CommentSection } from '@/components/film/CommentSection';
 import { EpisodeList, type ListEpisodeItem } from '@/components/film/EpisodeList';
 import { HistoryResume } from '@/components/film/HistoryResume';
 import { HistoryWriter } from '@/components/film/HistoryWriter';
+import { RatingInput } from '@/components/film/RatingInput';
 import { RecommendedCard } from '@/components/film/RecommendedCard';
 import { RelatedMovieCard } from '@/components/film/RelatedMovieCard';
 import { VideoPlayer } from '@/components/film/VideoPlayer';
 import { filmInfo, recommendedMovies } from '@/app/(public)/_mock/watchmovie-data';
-import { formatTimeAgo } from '@/lib/utils/format-time-ago';
-import {
-  commentsQueryOptions,
-  filmsQueryOptions,
-  historiesQueryOptions,
-  ratingsQueryOptions,
-} from '@/lib/query/options';
+import { useComment } from '@/hooks/useComment';
+import { useFavorite } from '@/hooks/useFavorite';
+import { useRating } from '@/hooks/useRating';
+import { filmsQueryOptions, historiesQueryOptions } from '@/lib/query/options';
 import { resolvePlaybackState } from '@/lib/watch/playback-state';
 import { buildWatchUrl } from '@/lib/watch/url';
 
 /**
  * WatchMovieView — nội dung trang xem phim, khớp `design/watchmovie.html`. Phase 12A: nối API
  * thật cho Rating Display + Related Movies. Phase 12C: nối API thật cho Comment Section (READ
- * ONLY) qua `commentsQueryOptions.byFilm(film._id)` (dependent query, `enabled: Boolean(film?._id)`
- * — cùng pattern `ratingsQueryOptions.summary`). Video Player/Episode List/Favorite vẫn dùng
- * `_mock/watchmovie-data.ts` — ngoài phạm vi (xem audit Phase 12). Reply/Vote/Send Comment/
- * Pagination/Infinite Scroll KHÔNG làm — `CommentSection` (presentational) không đổi.
+ * ONLY, sau này gộp vào `useComment` ở Phase 14C). Reply/Vote/Edit/Delete/Pagination/Infinite
+ * Scroll KHÔNG làm — `CommentSection` (presentational) không đổi cấu trúc.
+ *
+ * Phase 14A: 2 nút Favorite (mobile "Lưu lại", desktop "Thêm vào danh sách") nối thật qua
+ * `useFavorite('film', film._id)` — dùng CHUNG hook với Movie Detail (`FilmHero`). KHÔNG đổi
+ * icon/text — chỉ toggle `fontVariationSettings` FILL trên cùng icon để phản ánh trạng thái.
+ *
+ * Phase 14B: Rating summary đã gộp vào `useRating(film._id)` (thay `ratingsQueryOptions.summary`
+ * gọi trực tiếp) — cùng hook với Movie Detail. Thêm `RatingInput` (component MỚI dùng chung, xem
+ * `RatingInput.tsx`) ở cả khối mobile lẫn desktop. Playlist vẫn NGOÀI phạm vi.
+ *
+ * Phase 14C: gửi bình luận đã hoạt động thật qua `useComment(film._id)` (thay
+ * `commentsQueryOptions.byFilm` gọi trực tiếp) — cùng hook với Movie Detail, `onSubmit={sendComment}`
+ * truyền xuống `CommentSection`. Reply/Vote/Edit/Delete vẫn NGOÀI phạm vi.
  *
  * Phase 13A: nhận thêm `episodeSlug`/`serverIndex` (đọc từ `?ep=&server=` ở page.tsx, xem
  * `lib/watch/playback-state.ts`) — derive `PlaybackState` từ `film.episodes` + 2 param này (không
@@ -79,17 +87,12 @@ export function WatchMovieView({
 }) {
   const { data: film } = useQuery(filmsQueryOptions.detail(slug));
   const { data: related } = useQuery(filmsQueryOptions.related(slug));
-  const { data: ratingSummary } = useQuery({
-    ...ratingsQueryOptions.summary(film?._id ?? ''),
-    enabled: Boolean(film?._id),
-  });
-  const { data: commentsData } = useQuery({
-    ...commentsQueryOptions.byFilm(film?._id ?? ''),
-    enabled: Boolean(film?._id),
-  });
   const { data: session } = useSession();
   const accessToken = session?.accessToken;
   const [videoElement, setVideoElement] = useState<HTMLVideoElement | null>(null);
+  const { isFavorited, toggle: toggleFavorite } = useFavorite('film', film?._id ?? '');
+  const { average: ratingAverage, myRating, setRating } = useRating(film?._id ?? '');
+  const { comments, sendComment, totalLabel: commentTotalLabel } = useComment(film?._id ?? '');
 
   // Pass 1 (provisional) — chưa tính History, chỉ dùng để quyết định có đủ điều kiện fetch
   // History hay không (yêu cầu 1: đã đăng nhập + playerType 'hls').
@@ -122,17 +125,8 @@ export function WatchMovieView({
     href: buildWatchUrl(slug, episode.slug, playbackState?.currentServerIndex ?? 0),
   }));
 
-  const rating = ratingSummary ? ratingSummary.average.toFixed(1) : '—';
+  const rating = ratingAverage !== null ? ratingAverage.toFixed(1) : '—';
   const relatedMovies = related ?? [];
-  const comments: CommentItem[] = (commentsData?.items ?? []).map((comment) => ({
-    id: comment._id,
-    author: comment.user.name,
-    timeAgo: formatTimeAgo(comment.createdAt),
-    content: comment.content,
-    likeCount: comment.upVoteCount,
-    avatarSrc: comment.user.avatar ?? '',
-  }));
-  const commentTotalLabel = String(commentsData?.meta.totalItems ?? 0);
 
   return (
     <div className="flex flex-col">
@@ -187,14 +181,21 @@ export function WatchMovieView({
                 type="button"
                 className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary"
                 aria-label="Lưu lại"
+                aria-pressed={isFavorited}
+                onClick={toggleFavorite}
               >
-                <span className="material-symbols-outlined" aria-hidden="true">
+                <span
+                  className="material-symbols-outlined"
+                  aria-hidden="true"
+                  style={{ fontVariationSettings: `'FILL' ${isFavorited ? 1 : 0}` }}
+                >
                   bookmark
                 </span>
               </button>
               <span className="text-[10px] text-on-surface-variant">Lưu lại</span>
             </div>
           </div>
+          <RatingInput myRating={myRating} onSelect={setRating} />
           <p className="text-on-surface-variant text-body-md line-clamp-2 opacity-80">
             {filmInfo.description}
           </p>
@@ -246,14 +247,23 @@ export function WatchMovieView({
                       <span className="text-label-md">{rating}</span>
                     </span>
                   </div>
+                  <div className="mt-sm">
+                    <RatingInput myRating={myRating} onSelect={setRating} />
+                  </div>
                 </div>
                 <div className="flex gap-sm">
                   <button
                     type="button"
                     className="w-12 h-12 rounded-full bg-white/[0.03] backdrop-blur-xl border border-white/10 flex items-center justify-center hover:text-primary transition-colors"
                     aria-label="Thêm vào danh sách"
+                    aria-pressed={isFavorited}
+                    onClick={toggleFavorite}
                   >
-                    <span className="material-symbols-outlined" aria-hidden="true">
+                    <span
+                      className="material-symbols-outlined"
+                      aria-hidden="true"
+                      style={{ fontVariationSettings: `'FILL' ${isFavorited ? 1 : 0}` }}
+                    >
                       add
                     </span>
                   </button>
@@ -295,7 +305,11 @@ export function WatchMovieView({
               </div>
             </section>
 
-            <CommentSection comments={comments} totalLabel={commentTotalLabel} />
+            <CommentSection
+              comments={comments}
+              totalLabel={commentTotalLabel}
+              onSubmit={sendComment}
+            />
           </div>
 
           <div className="col-span-4 flex flex-col gap-md">

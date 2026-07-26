@@ -1,4 +1,7 @@
+'use client';
+
 import Image from 'next/image';
+import { useState } from 'react';
 
 export interface CommentItem {
   id: string;
@@ -10,16 +13,31 @@ export interface CommentItem {
 }
 
 /**
- * CommentSection — khớp "Bình luận" trong `design/watchmovie.html`. D6: mock hoàn toàn — ô nhập
- * là `readOnly`, nút "Gửi"/"Phản hồi"/thumb_up không có `onClick`, không submit, không API.
+ * CommentSection — khớp "Bình luận" trong `design/watchmovie.html`.
+ *
+ * Phase 14C: ô nhập + nút "Gửi" đã hoạt động thật qua `onSubmit` (logic gửi/validate thật ở
+ * `useComment`, component này KHÔNG tự gọi API) — CHỈ bỏ `readOnly`, gắn `value`/`onChange`/
+ * `onClick` vào ĐÚNG phần tử tĩnh đã có, không đổi class/layout (không redesign, không animation).
+ * `draft` (text đang gõ) là state UI thuần tuý, tự xoá sau khi bấm Gửi — không phải state
+ * nghiệp vụ nên không đặt trong hook dùng chung. "Phản hồi"/`thumb_up` vẫn KHÔNG có `onClick` —
+ * Reply/Vote ngoài phạm vi Phase 14C.
  */
 export function CommentSection({
   comments,
   totalLabel,
+  onSubmit,
 }: {
   comments: CommentItem[];
   totalLabel: string;
+  onSubmit?: (content: string) => void;
 }) {
+  const [draft, setDraft] = useState('');
+
+  const handleSubmit = () => {
+    onSubmit?.(draft);
+    setDraft('');
+  };
+
   return (
     <section className="bg-white/[0.03] backdrop-blur-xl border border-white/10 p-lg rounded-[20px]">
       <h3 className="text-headline-md font-headline-md mb-lg">Bình luận ({totalLabel})</h3>
@@ -32,13 +50,15 @@ export function CommentSection({
         </div>
         <div className="flex-grow">
           <textarea
-            readOnly
+            value={draft}
+            onChange={(event) => setDraft(event.target.value)}
             placeholder="Chia sẻ cảm nghĩ của bạn..."
             className="w-full bg-surface-container-highest/30 border-none rounded-xl p-md text-body-md h-24 resize-none"
           />
           <div className="flex justify-end mt-sm">
             <button
               type="button"
+              onClick={handleSubmit}
               className="bg-primary text-on-primary px-lg py-xs rounded-full font-label-md text-label-md"
             >
               Gửi
