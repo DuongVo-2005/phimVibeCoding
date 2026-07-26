@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useCallback, useRef, useState } from 'react';
+import { createContext, useCallback, useMemo, useRef, useState } from 'react';
 
 export type NotificationType = 'success' | 'error' | 'info';
 
@@ -56,11 +56,19 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     [dismiss],
   );
 
-  const api: NotificationApi = {
-    success: (message) => push('success', message),
-    error: (message) => push('error', message),
-    info: (message) => push('info', message),
-  };
+  // Phase 18: memo hoá — trước đây `api` là object literal mới mỗi render, khiến MỌI component gọi
+  // `useNotification()` (Header, useFavorite, useRating, useComment, ChangePasswordForm,
+  // HistoryListView, FavoriteListView...) re-render theo mỗi khi có toast mới/tự biến mất (audit
+  // Phase 18 phát hiện — Provider bọc toàn app nên ảnh hưởng rộng). Chỉ phụ thuộc `push` (đã
+  // `useCallback`), không đổi theo `items`.
+  const api: NotificationApi = useMemo(
+    () => ({
+      success: (message: string) => push('success', message),
+      error: (message: string) => push('error', message),
+      info: (message: string) => push('info', message),
+    }),
+    [push],
+  );
 
   return (
     <NotificationContext.Provider value={api}>

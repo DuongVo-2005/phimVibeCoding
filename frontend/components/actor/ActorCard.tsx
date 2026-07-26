@@ -32,7 +32,7 @@ export function ActorCard({
           sizes="(max-width: 1280px) 25vw, 20vw"
           className="object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-md opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-md opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 group-focus-visible:opacity-100 group-focus-visible:translate-y-0 transition-all duration-300">
           <span className="text-xs uppercase tracking-widest text-primary font-bold mb-1">
             {country}
           </span>

@@ -59,7 +59,7 @@ export function LatestMoviesSection() {
     <Section title="Phim Lẻ Mới">
       <Carousel
         ariaLabel="Phim Lẻ Mới"
-        items={films.map((film) => ({
+        items={films.map((film, index) => ({
           key: film._id,
           content: (
             <MovieCard
@@ -67,6 +67,8 @@ export function LatestMoviesSection() {
               href={`/phim/${film.slug}`}
               imageSrc={film.posterUrl ?? film.thumbUrl}
               sizes="(min-width: 1024px) 240px, 200px"
+              // Phase 18: xem ghi chú `priority` ở `MovieCard.tsx`/`TrendingSection.tsx`.
+              priority={index === 0}
               badges={
                 film.quality ? (
                   <Badge variant="primary" className="border-none">

@@ -30,7 +30,7 @@ export function FilmographyCard({
       {/* Desktop: overlay chỉ hiện khi hover, không badge rating */}
       <div className="hidden md:block relative aspect-[2/3] rounded-xl overflow-hidden transition-transform duration-300 group-hover:scale-105">
         <Image src={imageSrc} alt={title} fill sizes="200px" className="object-cover" />
-        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-md backdrop-blur-sm">
+        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity flex flex-col justify-end p-md backdrop-blur-sm">
           <h3 className="text-label-md font-bold text-on-surface">{title}</h3>
           <p className="text-xs text-on-surface/70">
             {year} • {genre}

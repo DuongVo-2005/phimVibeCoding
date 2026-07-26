@@ -55,7 +55,7 @@ export function LatestSeriesSection() {
     <Section title="Phim Bộ Mới">
       <Carousel
         ariaLabel="Phim Bộ Mới"
-        items={films.map((film) => ({
+        items={films.map((film, index) => ({
           key: film._id,
           content: (
             <MovieCard
@@ -63,6 +63,10 @@ export function LatestSeriesSection() {
               href={`/phim/${film.slug}`}
               imageSrc={film.posterUrl ?? film.thumbUrl}
               sizes="(min-width: 1024px) 240px, 200px"
+              // Phase 18: xem ghi chú `priority` ở `MovieCard.tsx`/`TrendingSection.tsx` — carousel
+              // NÀY có thể là carousel ĐẦU TIÊN thật sự render (khi Hero/Trending rỗng), đã xác nhận
+              // bằng console warning LCP thật (Playwright), không đoán.
+              priority={index === 0}
               badges={
                 film.quality ? (
                   <Badge variant="primary" className="border-none">

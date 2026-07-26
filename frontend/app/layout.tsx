@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { Providers } from '@/components/providers';
+import { env } from '@/lib/env';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -13,8 +14,17 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 });
 
+// Phase 18: `metadataBase` — trước đây thiếu dù `NEXT_PUBLIC_SITE_URL` đã khai báo sẵn ở
+// `lib/env.ts`/`.env.local` nhưng chưa nơi nào dùng tới (audit phát hiện). Cần cho các route con
+// dùng `generateMetadata` trả OpenGraph URL tương đối (`images`, `url`) resolve đúng domain đầy
+// đủ thay vì lỗi/bỏ qua. Fallback `http://localhost:3000` chỉ để không throw khi biến môi trường
+// trống lúc build — không phải giá trị production thật.
 export const metadata: Metadata = {
-  title: 'RoPhim',
+  metadataBase: new URL(env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
+  title: {
+    default: 'RoPhim',
+    template: '%s | RoPhim',
+  },
   description: 'RoPhim — xem phim trực tuyến',
 };
 

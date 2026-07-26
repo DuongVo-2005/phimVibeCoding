@@ -109,13 +109,16 @@ export function MovieListing({
         ) : (
           <>
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-md pb-xl">
-              {films.map((film) => (
+              {films.map((film, index) => (
                 <MovieCard
                   key={film._id}
                   title={film.title}
                   href={`/phim/${film.slug}`}
                   imageSrc={film.posterUrl ?? film.thumbUrl}
                   sizes="(max-width: 768px) 45vw, (max-width: 1280px) 30vw, (max-width: 1536px) 20vw, 16vw"
+                  // Phase 18: chỉ thẻ ĐẦU (luôn above-the-fold, khác carousel homepage có thể rỗng)
+                  // — xác nhận bằng console warning LCP thật trên `/phim-le` (Playwright).
+                  priority={index === 0}
                   rating={film.ratingCount > 0 ? film.ratingAvg.toFixed(1) : undefined}
                   genreLine={film.categories.map((category) => category.name).join(', ')}
                   showActions

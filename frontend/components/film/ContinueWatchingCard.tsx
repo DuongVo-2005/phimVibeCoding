@@ -31,14 +31,16 @@ export function ContinueWatchingCard({
       href={href}
       className="block bg-surface-container/60 p-base rounded-[20px] group hover:bg-white/5 hover:shadow-lg hover:shadow-black/30 transition-all duration-300 ease-out"
     >
-      <div className="relative aspect-video rounded-xl overflow-hidden mb-base">
-        <Image
-          src={imageSrc}
-          alt={title}
-          fill
-          sizes="(max-width: 768px) 280px, 25vw"
-          className="object-cover group-hover:scale-105 transition-transform duration-300 ease-out"
-        />
+      <div className="relative aspect-video rounded-xl overflow-hidden mb-base bg-surface-container-high">
+        {imageSrc ? (
+          <Image
+            src={imageSrc}
+            alt={title}
+            fill
+            sizes="(max-width: 768px) 280px, 25vw"
+            className="object-cover group-hover:scale-105 transition-transform duration-300 ease-out"
+          />
+        ) : null}
         <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out">
           <span className="material-symbols-outlined text-white text-[48px]" aria-hidden="true">
             play_circle

@@ -9,6 +9,9 @@ const SCORES = Array.from({ length: 10 }, (_, index) => index + 1);
  * Phase 15A: `disabled` (đã có sẵn prop từ Phase 14B, giờ mới thật sự được nơi gọi truyền vào lúc
  * mutation đang pending) thêm `disabled:opacity-50 disabled:cursor-not-allowed` — chỉ là utility
  * class chuẩn cho trạng thái disabled, KHÔNG phải animation, KHÔNG đổi layout/icon/text.
+ *
+ * Phase 18: thêm `focus-visible:outline-primary` (audit phát hiện thiếu — các nút khác cùng trang
+ * như `CommentItem`/`Pagination` đều đã có ring này).
  */
 export function RatingInput({
   myRating,
@@ -30,8 +33,8 @@ export function RatingInput({
           onClick={() => onSelect(score)}
           className={
             myRating === score
-              ? 'w-7 h-7 rounded text-label-md font-bold bg-primary text-on-primary disabled:opacity-50 disabled:cursor-not-allowed'
-              : 'w-7 h-7 rounded text-label-md font-bold bg-surface-container text-on-surface-variant hover:bg-surface-container-high disabled:opacity-50 disabled:cursor-not-allowed'
+              ? 'w-7 h-7 rounded text-label-md font-bold bg-primary text-on-primary disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary'
+              : 'w-7 h-7 rounded text-label-md font-bold bg-surface-container text-on-surface-variant hover:bg-surface-container-high disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary'
           }
         >
           {score}

@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { MovieListing } from '@/components/film/MovieListing';
 
 /**
@@ -9,6 +10,21 @@ function formatGenreTitle(slug: string): string {
     .split('-')
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
+}
+
+// Phase 18: dùng lại ĐÚNG `formatGenreTitle` (không tính lại theo cách khác) — xem ghi chú
+// `app/(public)/phim-le/page.tsx`.
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const genreTitle = formatGenreTitle(slug);
+  return {
+    title: `Thể Loại: ${genreTitle}`,
+    description: `Danh sách phim thuộc thể loại ${genreTitle} được chọn lọc cho bạn.`,
+  };
 }
 
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {

@@ -61,7 +61,10 @@ export function AccountSidebar({
             </span>
             <span className="text-label-md font-label-md">Yêu thích</span>
           </Link>
-          <span className="flex items-center gap-sm px-sm py-xs bg-primary/10 text-primary border-r-4 border-primary">
+          <span
+            aria-current="page"
+            className="flex items-center gap-sm px-sm py-xs bg-primary/10 text-primary border-r-4 border-primary"
+          >
             <span className="material-symbols-outlined" aria-hidden="true">
               person
             </span>

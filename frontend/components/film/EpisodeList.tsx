@@ -6,10 +6,14 @@
  */
 import Link from 'next/link';
 
-/** `layout="grid"` — Movie Detail. Khớp `EpisodeItem` thật (`film.episodes[server].items[]`). */
+/** `layout="grid"` — Movie Detail. Khớp `EpisodeItem` thật (`film.episodes[server].items[]`).
+ * Phase 18: thêm `href` (dựng sẵn qua `buildWatchUrl()` ở `FilmDetailView.tsx`, cùng quy ước với
+ * `ListEpisodeItem` bên dưới — KHÔNG hardcode URL ở đây) — trước đó mỗi ô tập chỉ là `<div
+ * cursor-pointer>` KHÔNG có điều hướng thật, bấm vào không làm gì (audit Phase 18 phát hiện). */
 export interface GridEpisodeItem {
   slug: string;
   name: string;
+  href: string;
 }
 
 /**
@@ -105,7 +109,11 @@ export function EpisodeList(props: EpisodeListProps) {
           dùng icon play tĩnh thay ảnh. */}
       <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-md">
         {episodes.map((episode) => (
-          <div key={episode.slug} className="group cursor-pointer">
+          <Link
+            key={episode.slug}
+            href={episode.href}
+            className="group focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary rounded-xl"
+          >
             <div className="relative aspect-video rounded-xl overflow-hidden mb-sm border border-white/5 bg-surface-container-high flex items-center justify-center">
               <span className="material-symbols-outlined text-primary text-5xl" aria-hidden="true">
                 play_circle
@@ -114,16 +122,17 @@ export function EpisodeList(props: EpisodeListProps) {
             <h3 className="text-label-md font-bold text-on-surface group-hover:text-primary transition-colors">
               {episode.name}
             </h3>
-          </div>
+          </Link>
         ))}
       </div>
 
       {/* Mobile: danh sách hàng ngang — không có thumbnail riêng từng tập (backend không có). */}
       <div className="md:hidden flex flex-col gap-4">
         {episodes.map((episode) => (
-          <div
+          <Link
             key={episode.slug}
-            className="flex gap-4 p-3 bg-surface-container/40 rounded-2xl border border-white/5"
+            href={episode.href}
+            className="flex gap-4 p-3 bg-surface-container/40 rounded-2xl border border-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
           >
             <div className="relative w-32 aspect-video rounded-xl overflow-hidden shrink-0 bg-surface-container-high flex items-center justify-center">
               <span className="material-symbols-outlined text-white text-3xl" aria-hidden="true">
@@ -133,7 +142,7 @@ export function EpisodeList(props: EpisodeListProps) {
             <div className="flex flex-col justify-center gap-1">
               <span className="text-sm text-on-surface line-clamp-1">{episode.name}</span>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </section>

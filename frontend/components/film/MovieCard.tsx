@@ -26,10 +26,15 @@ const DEFAULT_SIZES = '(max-width: 768px) 140px, 240px';
  *   phân giải thấp hơn kích thước hiển thị thật (1 nguyên nhân gây "mờ"). Giờ là prop, mỗi nơi gọi
  *   tự truyền giá trị khớp layout của nó — giữ `DEFAULT_SIZES` (giá trị cũ) làm mặc định để không
  *   đổi hành vi nơi chưa được cập nhật.
- * - `quality`/`priority`/`loading`: đã audit — không đổi. Không có nơi gọi `MovieCard` nào ĐẢM BẢO
- *   luôn nằm trên "above the fold" (vị trí trong carousel/grid thay đổi tuỳ trang) nên giữ mặc
- *   định Next.js (`loading="lazy"`, không `priority`) — chỉ `HeroBanner` (khối cố định luôn ở đầu
- *   trang) mới dùng `priority`, đã có sẵn từ trước, không thuộc component này.
+ * - `quality`/`loading`: đã audit — không đổi.
+ * - `priority` (Phase 18): quyết định cũ ở đây là KHÔNG thêm prop này (không nơi gọi nào đảm bảo
+ *   "above the fold"). Audit Phase 18 xác nhận THẬT bằng console warning thật (Playwright, không
+ *   đoán): khi `films/hot` rỗng (không phim nào `isHot`), `HeroSection` ẩn hẳn (`return null`) —
+ *   Next.js khi đó phát hiện ảnh MovieCard ĐẦU TIÊN của `TrendingSection` (carousel ngay sau Hero)
+ *   là LCP thật nhưng thiếu `priority`. Thêm prop tuỳ chọn `priority` (mặc định `false` — MỌI nơi
+ *   gọi khác giữ nguyên hành vi cũ), CHỈ `TrendingSection` truyền `true` cho phần tử đầu tiên (xem
+ *   `TrendingSection.tsx`) — carousel luôn render ngay sau Hero, gần "above the fold" nhất trong
+ *   các MovieCard trên trang chủ.
  * - `placeholder="blur"`: KHÔNG áp dụng — cần `blurDataURL` (ảnh base64 độ phân giải cực thấp),
  *   backend hiện không trả field này cho `posterUrl`/`thumbUrl`, và ảnh là remote URL (không phải
  *   static import) nên Next.js không tự sinh được. Thêm hạ tầng tạo blurDataURL (vd. dịch vụ riêng
@@ -54,6 +59,7 @@ export function MovieCard({
   genreLine,
   showActions = false,
   sizes = DEFAULT_SIZES,
+  priority = false,
 }: {
   title: string;
   href?: string;
@@ -65,6 +71,7 @@ export function MovieCard({
   genreLine?: string;
   showActions?: boolean;
   sizes?: string;
+  priority?: boolean;
 }) {
   const [imageError, setImageError] = useState(false);
   const showImage = Boolean(imageSrc) && !imageError;
@@ -81,6 +88,8 @@ export function MovieCard({
           alt={title}
           fill
           sizes={sizes}
+          priority={priority}
+          loading={priority ? 'eager' : undefined}
           className="object-cover transition-transform duration-300 ease-out group-hover:scale-105"
           onError={() => setImageError(true)}
         />
@@ -95,7 +104,7 @@ export function MovieCard({
       {cornerBadge ? <div className="absolute top-md right-md z-20">{cornerBadge}</div> : null}
 
       {showTitle ? (
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out flex flex-col justify-end p-md">
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity duration-300 ease-out flex flex-col justify-end p-md">
           <h3 className="font-bold text-headline-md text-white line-clamp-2">{title}</h3>
           {rating || genreLine ? (
             <div className="flex items-center gap-base mb-sm mt-1 text-xs">

@@ -3,13 +3,15 @@
 import { useQuery } from '@tanstack/react-query';
 import { Container } from '@/components/layout/Container';
 import { CommentSection } from '@/components/film/CommentSection';
-import { EpisodeList } from '@/components/film/EpisodeList';
+import { EpisodeList, type GridEpisodeItem } from '@/components/film/EpisodeList';
 import { FilmHero } from '@/components/film/FilmHero';
 import { SimilarMovieCard } from '@/components/film/SimilarMovieCard';
+import { ErrorState } from '@/components/ui/ErrorState';
 import { useComment } from '@/hooks/useComment';
 import { useFavorite } from '@/hooks/useFavorite';
 import { useRating } from '@/hooks/useRating';
 import { filmsQueryOptions } from '@/lib/query/options';
+import { buildWatchUrl } from '@/lib/watch/url';
 
 /**
  * FilmDetailView — Phase 11.6A: nối API thật cho phần ĐỌC (Hero/Poster/Metadata/Description/
@@ -33,9 +35,17 @@ import { filmsQueryOptions } from '@/lib/query/options';
  *
  * `FilmHero`/`SimilarMovieCard`/`CommentSection` (presentational) không đổi cấu trúc nội bộ, chỉ
  * nhận thêm prop tuỳ chọn hoặc được mount thêm.
+ *
+ * Phase 17B.4: Reply/Edit/Delete/Vote + Loading/Error/Empty đã nối thật, cùng `useComment(film._id)`
+ * mở rộng (xem `hooks/useComment.ts`) — không đổi cách mount `CommentSection` ở đây, chỉ truyền
+ * thêm props.
  */
 export function FilmDetailView({ slug }: { slug: string }) {
-  const { data: film } = useQuery(filmsQueryOptions.detail(slug));
+  const {
+    data: film,
+    isError: isFilmError,
+    refetch: refetchFilm,
+  } = useQuery(filmsQueryOptions.detail(slug));
   const { data: related } = useQuery(filmsQueryOptions.related(slug));
   const {
     isFavorited,
@@ -53,16 +63,42 @@ export function FilmDetailView({ slug }: { slug: string }) {
     sendComment,
     totalLabel: commentTotalLabel,
     isPending: isCommentPending,
+    isLoading: isCommentsLoading,
+    isError: isCommentsError,
+    refetch: refetchComments,
+    sendReply,
+    editComment,
+    deleteComment,
+    voteComment,
+    isUpdatePending: isCommentUpdatePending,
+    isRemovePending: isCommentRemovePending,
+    isVotePending: isCommentVotePending,
   } = useComment(film?._id ?? '');
 
-  // Chưa có dữ liệu phim (đang tải hoặc không tồn tại) — ẩn toàn bộ trang, đúng pattern đã dùng ở
-  // Homepage Phase 11.4 (không skeleton, không UX mới).
+  // Phase 18: phân biệt "đang tải" (ẩn khối, giữ nguyên pattern Homepage Phase 11.4 — không
+  // skeleton/UX mới) với "tải lỗi thật" (trước đây gộp chung, lỗi mạng cũng ẩn trang vĩnh viễn
+  // không có cách thử lại — audit Phase 18 phát hiện, khác mọi component khác trong app đều có
+  // `ErrorState`).
+  if (isFilmError) {
+    return (
+      <Container maxWidth="max-w-screen-2xl" className="py-xl">
+        <ErrorState message="Không tải được thông tin phim." onRetry={() => refetchFilm()} />
+      </Container>
+    );
+  }
+
   if (!film) {
     return null;
   }
 
   const similarMovies = related ?? [];
-  const primaryServerEpisodes = film.episodes[0]?.items ?? [];
+  const primaryServerEpisodes: GridEpisodeItem[] = (film.episodes[0]?.items ?? []).map(
+    (episode) => ({
+      slug: episode.slug,
+      name: episode.name,
+      href: buildWatchUrl(film.slug, episode.slug, 0),
+    }),
+  );
 
   return (
     <div className="flex flex-col gap-xl">
@@ -119,6 +155,17 @@ export function FilmDetailView({ slug }: { slug: string }) {
           totalLabel={commentTotalLabel}
           onSubmit={sendComment}
           disabled={isCommentPending}
+          isLoading={isCommentsLoading}
+          isError={isCommentsError}
+          onRetry={() => refetchComments()}
+          onReply={sendReply}
+          onEdit={editComment}
+          onDelete={deleteComment}
+          onVote={voteComment}
+          isReplyPending={isCommentPending}
+          isEditPending={isCommentUpdatePending}
+          isDeletePending={isCommentRemovePending}
+          isVotePending={isCommentVotePending}
         />
       </Container>
     </div>

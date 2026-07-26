@@ -42,6 +42,11 @@ const useIsomorphicLayoutEffect = typeof window === 'undefined' ? useEffect : us
  * Auto-slide 4s (`AUTO_PLAY_MS`), dừng khi hover (`isHovering`) — không dừng khi bàn phím
  * focus/dots/nút prev-next đang tương tác vì đó là hành động chủ động của người dùng, không cần
  * thêm điều kiện riêng (rời chuột ra là chạy tiếp, đúng kỳ vọng thông thường).
+ *
+ * Phase 18: dots đổi `role="tablist"`/`role="tab"`+`aria-selected` → `role="group"`+`aria-current`
+ * (audit phát hiện dùng SAI ngữ nghĩa ARIA tab pattern cho pagination dots — dots không có hành vi
+ * điều hướng bằng phím mũi tên trong nội bộ tablist như APG yêu cầu, dễ gây hiểu nhầm cho screen
+ * reader). Chỉ đổi ARIA, KHÔNG đổi giao diện/hành vi click.
  */
 export function Carousel({ items, ariaLabel }: { items: CarouselItem[]; ariaLabel: string }) {
   const count = items.length;
@@ -201,15 +206,14 @@ export function Carousel({ items, ariaLabel }: { items: CarouselItem[]; ariaLabe
           </button>
           <div
             className="flex justify-center flex-wrap gap-xs mt-base"
-            role="tablist"
+            role="group"
             aria-label="Chọn slide"
           >
             {items.map((item, index) => (
               <button
                 key={item.key}
                 type="button"
-                role="tab"
-                aria-selected={index === activeDot}
+                aria-current={index === activeDot ? 'true' : undefined}
                 aria-label={`Tới slide ${index + 1}`}
                 onClick={() => goTo(index + 1)}
                 className={`w-2 h-2 rounded-full transition-colors duration-300 ease-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary ${

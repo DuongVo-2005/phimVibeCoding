@@ -61,7 +61,7 @@ export function TrendingSection() {
     <Section title="Đang thịnh hành">
       <Carousel
         ariaLabel="Đang thịnh hành"
-        items={films.map((film) => ({
+        items={films.map((film, index) => ({
           key: film._id,
           content: (
             <MovieCard
@@ -69,6 +69,8 @@ export function TrendingSection() {
               href={`/phim/${film.slug}`}
               imageSrc={film.posterUrl ?? film.thumbUrl}
               sizes="(min-width: 1024px) 240px, 200px"
+              // Phase 18: chỉ phần tử ĐẦU (index 0) — xem ghi chú `priority` ở `MovieCard.tsx`.
+              priority={index === 0}
               badges={
                 film.quality ? (
                   <Badge variant="primary" className="border-none">

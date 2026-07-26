@@ -31,8 +31,12 @@ type ButtonAsLink = CommonProps & {
 
 export type ButtonProps = ButtonAsButton | ButtonAsLink;
 
+// Phase 18: thêm focus-visible:outline-primary — trước đây thiếu (audit phát hiện), khác các nút
+// khác trong app (Pagination/CommentItem/Carousel...) đều đã có ring này. `Button` là component
+// dùng nhiều nhất (FilmHero/HeroBanner/LoginForm/RegisterForm/ChangePasswordForm/ErrorState...) nên
+// thiếu focus ring chuẩn ảnh hưởng rộng nhất.
 const BASE_CLASSES =
-  'inline-flex items-center justify-center gap-base rounded-lg px-md py-base text-label-md font-label-md font-bold transition-all duration-300 ease-out';
+  'inline-flex items-center justify-center gap-base rounded-lg px-md py-base text-label-md font-label-md font-bold transition-all duration-300 ease-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary';
 
 export function Button(props: ButtonProps) {
   const { variant = 'primary', children, className = '' } = props;

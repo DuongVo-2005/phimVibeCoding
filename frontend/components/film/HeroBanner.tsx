@@ -15,6 +15,10 @@ import { buildWatchUrl } from '@/lib/watch/url';
  *
  * Phase 16C: `description` rỗng → ẩn hẳn `<p>` (trước đây luôn render dù rỗng, để lại khoảng trắng
  * vô nghĩa — KHÔNG gọi thêm API lấy mô tả thật, theo đúng yêu cầu).
+ *
+ * Phase 18: `imageSrc` rỗng (phim không có cả `posterUrl` lẫn `thumbUrl`) → ẩn hẳn `<Image>`, thay
+ * bằng nền màu token có sẵn — trước đây luôn render `<Image src="">` (audit phát hiện: Next/Image
+ * cảnh báo "empty string" khi cả 2 field backend đều rỗng).
  */
 export function HeroBanner({
   title,
@@ -36,7 +40,19 @@ export function HeroBanner({
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent z-10" />
         <div className="absolute inset-0 bg-gradient-to-r from-background via-background/40 to-transparent z-10" />
-        <Image src={imageSrc} alt={title} fill priority sizes="100vw" className="object-cover" />
+        {imageSrc ? (
+          <Image
+            src={imageSrc}
+            alt={title}
+            fill
+            priority
+            loading="eager"
+            sizes="100vw"
+            className="object-cover"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-surface-container" />
+        )}
       </div>
       <div className="relative z-20 max-w-3xl space-y-md">
         <div className="flex items-center gap-base flex-wrap">

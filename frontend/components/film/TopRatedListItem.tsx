@@ -28,8 +28,10 @@ export function TopRatedListItem({
       href={`/phim/${slug}`}
       className="flex items-center gap-md bg-surface-container/60 p-base rounded-xl hover:translate-x-2 transition-transform duration-300 ease-out"
     >
-      <div className="w-16 h-20 rounded-lg overflow-hidden flex-shrink-0 relative">
-        <Image src={imageSrc} alt={title} fill sizes="64px" className="object-cover" />
+      <div className="w-16 h-20 rounded-lg overflow-hidden flex-shrink-0 relative bg-surface-container-high">
+        {imageSrc ? (
+          <Image src={imageSrc} alt={title} fill sizes="64px" className="object-cover" />
+        ) : null}
       </div>
       <div className="flex-grow">
         <h4 className="font-bold text-body-lg">{title}</h4>

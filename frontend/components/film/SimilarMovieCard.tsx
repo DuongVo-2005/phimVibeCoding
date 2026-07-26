@@ -26,15 +26,17 @@ export function SimilarMovieCard({
   return (
     <Link
       href={href}
-      className="group relative aspect-[2/3] rounded-[20px] overflow-hidden border border-white/5 block movie-card-glow transition-shadow duration-300 ease-out"
+      className="group relative aspect-[2/3] rounded-[20px] overflow-hidden border border-white/5 block movie-card-glow transition-shadow duration-300 ease-out bg-surface-container-high"
     >
-      <Image
-        src={imageSrc}
-        alt={title}
-        fill
-        sizes="(max-width: 768px) 50vw, (max-width: 1024px) 25vw, 16vw"
-        className="object-cover transition-transform duration-300 ease-out group-hover:scale-105"
-      />
+      {imageSrc ? (
+        <Image
+          src={imageSrc}
+          alt={title}
+          fill
+          sizes="(max-width: 768px) 50vw, (max-width: 1024px) 25vw, 16vw"
+          className="object-cover transition-transform duration-300 ease-out group-hover:scale-105"
+        />
+      ) : null}
 
       {/* Mobile: label luôn hiện, không cần hover */}
       <div className="md:hidden absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-4">
@@ -42,7 +44,7 @@ export function SimilarMovieCard({
       </div>
 
       {/* Desktop: overlay đầy đủ, chỉ hiện khi hover */}
-      <div className="hidden md:flex absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out flex-col justify-end p-md">
+      <div className="hidden md:flex absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity duration-300 ease-out flex-col justify-end p-md">
         <p className="text-primary font-bold text-label-md mb-1">{rating} IMDb</p>
         <h4 className="text-white font-bold leading-tight">{title}</h4>
         <span className="mt-sm w-full py-2 bg-white/20 backdrop-blur-md rounded-lg text-xs font-bold text-white text-center">

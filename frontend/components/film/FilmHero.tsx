@@ -24,6 +24,10 @@ import { RatingInput } from './RatingInput';
  * mutation tương ứng đang chạy (chống double-click + phản hồi trạng thái loading). Chỉ thêm
  * `disabled` + class `disabled:opacity-50 disabled:cursor-not-allowed` (utility chuẩn, không phải
  * spinner/animation mới) trên ĐÚNG phần tử đã có.
+ *
+ * Phase 18: `backdropSrc`/`posterSrc`/`actor.avatarSrc` rỗng (phim/diễn viên thiếu ảnh thật) → ẩn
+ * `<Image>`, thay bằng nền màu/icon "person" thay thế (audit phát hiện: Next/Image cảnh báo "empty
+ * string" khi field backend rỗng, `FilmDetailView.tsx` vẫn truyền `?? ''` cho các field optional).
  */
 export function FilmHero({
   title,
@@ -63,7 +67,11 @@ export function FilmHero({
   return (
     <section className="relative min-h-[600px] lg:h-[870px] w-full overflow-hidden">
       <div className="absolute inset-0 z-0">
-        <Image src={backdropSrc} alt="" fill priority sizes="100vw" className="object-cover" />
+        {backdropSrc ? (
+          <Image src={backdropSrc} alt="" fill priority sizes="100vw" className="object-cover" />
+        ) : (
+          <div className="absolute inset-0 bg-surface-container" />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
       </div>
 
@@ -71,8 +79,10 @@ export function FilmHero({
         <div className="flex flex-col lg:flex-row gap-lg items-end lg:items-start">
           {/* Poster nổi — chỉ desktop, khớp design (`hidden lg:block`) */}
           <div className="hidden lg:block w-72 shrink-0">
-            <div className="aspect-[2/3] rounded-[20px] overflow-hidden shadow-2xl shadow-black/50 border border-white/10 relative">
-              <Image src={posterSrc} alt={title} fill sizes="288px" className="object-cover" />
+            <div className="aspect-[2/3] rounded-[20px] overflow-hidden shadow-2xl shadow-black/50 border border-white/10 relative bg-surface-container-high">
+              {posterSrc ? (
+                <Image src={posterSrc} alt={title} fill sizes="288px" className="object-cover" />
+              ) : null}
             </div>
           </div>
 
@@ -126,14 +136,23 @@ export function FilmHero({
               <div className="flex gap-md overflow-x-auto pb-base">
                 {cast.map((actor) => (
                   <div key={actor.id} className="flex flex-col items-center gap-xs shrink-0">
-                    <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-transparent relative">
-                      <Image
-                        src={actor.avatarSrc}
-                        alt={actor.name}
-                        fill
-                        sizes="56px"
-                        className="object-cover"
-                      />
+                    <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-transparent relative bg-surface-container-high flex items-center justify-center">
+                      {actor.avatarSrc ? (
+                        <Image
+                          src={actor.avatarSrc}
+                          alt={actor.name}
+                          fill
+                          sizes="56px"
+                          className="object-cover"
+                        />
+                      ) : (
+                        <span
+                          className="material-symbols-outlined text-on-surface-variant text-[20px]"
+                          aria-hidden="true"
+                        >
+                          person
+                        </span>
+                      )}
                     </div>
                     <span className="text-label-md font-label-md text-on-surface-variant">
                       {actor.name}
