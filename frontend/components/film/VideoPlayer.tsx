@@ -71,7 +71,7 @@ export function VideoPlayer({
 
       {/* Nút phát trung tâm */}
       <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-        <div className="w-16 h-16 md:w-24 md:h-24 rounded-full bg-white/[0.03] backdrop-blur-xl border border-white/10 flex items-center justify-center transition-all duration-500 md:group-hover:scale-110">
+        <div className="w-16 h-16 md:w-24 md:h-24 rounded-full bg-white/[0.03] backdrop-blur-xl border border-white/10 flex items-center justify-center transition-transform duration-300 ease-out md:group-hover:scale-110">
           <span
             className="material-symbols-outlined text-primary text-4xl md:text-[48px]"
             style={{ fontVariationSettings: "'FILL' 1" }}
@@ -83,7 +83,7 @@ export function VideoPlayer({
       </div>
 
       {/* Thanh điều khiển dưới cùng — desktop chỉ hiện khi hover, mobile luôn hiện */}
-      <div className="absolute bottom-0 left-0 w-full p-4 md:p-md z-20 md:translate-y-4 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 transition-all duration-300">
+      <div className="absolute bottom-0 left-0 w-full p-4 md:p-md z-20 md:translate-y-4 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 transition-all duration-300 ease-out">
         <div className="md:bg-white/[0.03] md:backdrop-blur-xl md:border md:border-white/10 rounded-xl md:p-base flex flex-col gap-2 md:gap-xs">
           <div className="relative w-full h-1 bg-white/10 rounded-full">
             <div className="absolute top-0 left-0 h-full w-1/3 bg-primary rounded-full" />

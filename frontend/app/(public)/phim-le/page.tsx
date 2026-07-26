@@ -5,6 +5,7 @@ export default function PhimLePage() {
     <MovieListing
       title="Phim Lẻ"
       description="Những bộ phim điện ảnh chọn lọc, cập nhật liên tục dành cho bạn."
+      filter={{ format: 'single' }}
     />
   );
 }

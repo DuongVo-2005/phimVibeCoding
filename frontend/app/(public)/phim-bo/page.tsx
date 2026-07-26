@@ -5,6 +5,7 @@ export default function PhimBoPage() {
     <MovieListing
       title="Phim Bộ"
       description="Những bộ phim truyền hình nhiều tập đang được yêu thích nhất."
+      filter={{ format: 'series' }}
     />
   );
 }

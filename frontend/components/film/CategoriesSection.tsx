@@ -1,6 +1,8 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { ErrorState } from '@/components/ui/ErrorState';
+import { SkeletonBlock } from '@/components/ui/SkeletonBlock';
 import { categoriesQueryOptions } from '@/lib/query/options';
 import { CategoryTile } from './CategoryTile';
 
@@ -49,11 +51,36 @@ const CATEGORY_TILE_STYLES = [
 ] as const;
 
 export function CategoriesSection() {
-  const { data } = useQuery(categoriesQueryOptions.list());
+  const { data, isLoading, isError, refetch } = useQuery(categoriesQueryOptions.list());
   const categories = (data ?? []).slice(0, CATEGORY_TILE_STYLES.length);
 
-  // Rỗng/loading: không có thiết kế placeholder riêng cho khối này — ẩn khối cho tới khi có dữ
-  // liệu.
+  if (isError) {
+    return (
+      <div className="lg:col-span-8 space-y-md">
+        <h2 className="text-headline-lg font-headline-lg">Khám phá Thể loại</h2>
+        <ErrorState message="Không tải được danh sách thể loại." onRetry={() => refetch()} />
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="lg:col-span-8 space-y-md">
+        <h2 className="text-headline-lg font-headline-lg">Khám phá Thể loại</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-base">
+          {CATEGORY_TILE_STYLES.map((style, index) => (
+            <SkeletonBlock
+              key={index}
+              className={`rounded-xl ${style.size === 'large' ? 'col-span-2 row-span-2 h-64' : 'h-32'}`}
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Rỗng thật (đã tải xong, backend không có category nào): không có thiết kế placeholder riêng
+  // cho khối này — ẩn khối.
   if (categories.length === 0) {
     return null;
   }
@@ -61,13 +88,14 @@ export function CategoriesSection() {
   return (
     <div className="lg:col-span-8 space-y-md">
       <h2 className="text-headline-lg font-headline-lg">Khám phá Thể loại</h2>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-base">
+      <div className="grid grid-cols-2 md:grid-cols-4 auto-rows-[8rem] gap-base">
         {categories.map((category, index) => {
           const style = CATEGORY_TILE_STYLES[index];
           return (
             <CategoryTile
               key={category._id}
               label={category.name}
+              slug={category.slug}
               imageSrc={style.imageSrc}
               size={style.size}
               overlayClassName={style.overlayClassName}

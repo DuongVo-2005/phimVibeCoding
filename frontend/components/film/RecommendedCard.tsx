@@ -20,7 +20,7 @@ export function RecommendedCard({
   return (
     <Link
       href={href}
-      className="group relative aspect-video rounded-xl overflow-hidden block bg-white/[0.03] backdrop-blur-xl border border-white/10 scale-100 hover:scale-[1.02] transition-all duration-300"
+      className="group relative aspect-video rounded-xl overflow-hidden block bg-white/[0.03] backdrop-blur-xl border border-white/10 scale-100 hover:scale-[1.02] transition-transform duration-300 ease-out"
     >
       <Image
         src={imageSrc}

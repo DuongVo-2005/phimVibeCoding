@@ -19,6 +19,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
     <MovieListing
       title={`Thể Loại: ${genreTitle}`}
       description={`Danh sách phim thuộc thể loại ${genreTitle} được chọn lọc cho bạn.`}
+      filter={{ category: slug }}
     />
   );
 }

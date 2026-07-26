@@ -1,8 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import { useNotification } from '@/hooks/useNotification';
+import { useMovieSearch } from '@/hooks/useMovieSearch';
 import { Navigation } from './Navigation';
+
+const LOGIN_REQUIRED_MESSAGE = 'Bạn cần đăng nhập để sử dụng chức năng này.';
 
 /**
  * Route nào cần biến thể "quay lại" — khớp `design/moviedentail.html` (`/phim/[slug]`). Phase
@@ -30,9 +35,15 @@ const BACK_BUTTON_ROUTES: Array<{ prefix: string; backHref: string }> = [
  * đúng cách `Navigation.tsx` đã làm để biết link nào đang active. `(public)/layout.tsx` và
  * `MainLayout` giữ nguyên Server Component như trước Phase 10.4, không đổi hành vi UI.
  *
- * Search input / nút thông báo / nút "Thành viên" / avatar: chỉ dựng UI tĩnh theo đúng thiết kế,
- * KHÔNG gắn state/onChange/onClick nào. Avatar dùng icon "person" thay vì ảnh thật (design dùng
- * ảnh mẫu AI-generated, không phải asset của dự án).
+ * Avatar dùng icon "person" thay vì ảnh thật (design dùng ảnh mẫu AI-generated, không phải asset
+ * của dự án).
+ *
+ * Phase 16A: Search input nối `useMovieSearch()` (dùng chung với `MovieListing`) — submit điều
+ * hướng `/tim-kiem?q=...`, không tự lọc tại chỗ. Nút thông báo: chưa đăng nhập → `notify.info()`
+ * (KHÔNG làm Notification Center — ngoài phạm vi). Nút "Thành viên": chưa đăng nhập →
+ * `/dang-nhap`, đã đăng nhập → `/user/profile` (KHÔNG làm dropdown menu — ngoài phạm vi, quyết
+ * định đã chốt). Icon avatar (`Link href="/user/profile"`) giữ nguyên hành vi cũ — route đã được
+ * middleware bảo vệ sẵn (tự redirect `/dang-nhap` nếu chưa đăng nhập), không cần sửa.
  *
  * Mọi icon Material Symbols thuần trang trí đều gắn `aria-hidden="true"` — icon font dùng chính
  * text content ("movie", "search"...) làm ligature, nếu không ẩn sẽ bị đọc/nhận diện nhầm thành
@@ -40,7 +51,21 @@ const BACK_BUTTON_ROUTES: Array<{ prefix: string; backHref: string }> = [
  */
 export function Header() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { data: session } = useSession();
+  const notify = useNotification();
+  const { value, setValue, handleSubmit } = useMovieSearch();
   const backHref = BACK_BUTTON_ROUTES.find((route) => pathname.startsWith(route.prefix))?.backHref;
+
+  const handleNotificationClick = () => {
+    if (!session) {
+      notify.info(LOGIN_REQUIRED_MESSAGE);
+    }
+  };
+
+  const handleMemberClick = () => {
+    router.push(session ? '/user/profile' : '/dang-nhap');
+  };
 
   return (
     <header className="fixed top-0 w-full flex justify-between items-center px-gutter py-base bg-surface/80 backdrop-blur-xl z-50 border-b border-white/10 shadow-xl h-20">
@@ -86,30 +111,39 @@ export function Header() {
       </div>
 
       <div className="flex items-center gap-md">
-        <div className="relative hidden lg:block">
+        <form role="search" onSubmit={handleSubmit} className="relative hidden lg:block">
           <input
-            type="text"
+            type="search"
+            value={value}
+            onChange={(event) => setValue(event.target.value)}
             placeholder="Tìm kiếm phim..."
-            readOnly
+            aria-label="Tìm kiếm phim"
             className="bg-surface-container-high border-none rounded-full py-base px-lg w-64 text-label-md focus:ring-2 focus:ring-primary/50 transition-all"
           />
-          <span
-            className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant"
-            aria-hidden="true"
+          <button
+            type="submit"
+            aria-label="Tìm kiếm"
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant"
           >
-            search
-          </span>
-        </div>
+            <span className="material-symbols-outlined" aria-hidden="true">
+              search
+            </span>
+          </button>
+        </form>
         {backHref ? (
-          <span
-            className="material-symbols-outlined text-on-surface-variant md:hidden"
-            aria-hidden="true"
+          <Link
+            href="/tim-kiem"
+            aria-label="Tìm kiếm"
+            className="text-on-surface-variant md:hidden"
           >
-            search
-          </span>
+            <span className="material-symbols-outlined" aria-hidden="true">
+              search
+            </span>
+          </Link>
         ) : null}
         <button
           type="button"
+          onClick={handleNotificationClick}
           className="p-2 hover:bg-white/5 rounded-full transition-all scale-95 active:scale-90"
           aria-label="Thông báo"
         >
@@ -119,6 +153,7 @@ export function Header() {
         </button>
         <button
           type="button"
+          onClick={handleMemberClick}
           className="hidden md:inline-flex bg-primary text-on-primary font-bold px-md py-base rounded-lg text-label-md transition-transform scale-95 active:scale-90 shadow-lg shadow-primary/20"
         >
           Thành viên

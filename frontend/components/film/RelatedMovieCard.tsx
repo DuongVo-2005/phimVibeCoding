@@ -26,9 +26,9 @@ export function RelatedMovieCard({
           alt={title}
           fill
           sizes="(max-width: 768px) 40vw, 192px"
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
+          className="object-cover transition-transform duration-300 ease-out group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-base backdrop-blur-sm">
+        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out flex flex-col justify-end p-base backdrop-blur-sm">
           <span className="bg-primary text-on-primary w-full py-xs rounded-lg font-bold text-sm mb-xs text-center">
             Xem ngay
           </span>

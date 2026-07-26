@@ -2,17 +2,26 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
+import { ErrorState } from '@/components/ui/ErrorState';
 import { Section } from '@/components/ui/Section';
 import type { History } from '@/lib/types/history';
 import { historiesQueryOptions } from '@/lib/query/options';
+import { buildWatchUrl } from '@/lib/watch/url';
 import { ContinueWatchingCard } from './ContinueWatchingCard';
 
 /**
  * Phase 11.4A: wiring `GET /histories/recent` cho khối "Tiếp tục xem" — thay
- * `_mock/homepage-data.ts`'s `continueWatching`. `ContinueWatchingCard` (presentational) không đổi.
+ * `_mock/homepage-data.ts`'s `continueWatching`.
  *
  * `progressPercent`/`subtitle` không phải field server (xem ghi chú `lib/types/history.ts`) — tự
  * tính ở đây từ `progressSeconds`/`totalDurationSeconds`/`film.episodeCurrent`.
+ *
+ * Phase 16A: truyền `href={buildWatchUrl(history.film.slug)}` (KHÔNG kèm `ep`/`server` — trang
+ * xem phim tự đọc History thật để resolve đúng tập đang xem dở, xem `WatchMovieView.tsx`'s
+ * "Pass 2 (final)": không cần lặp lại logic resolve tập ở đây).
+ *
+ * Phase 16C: rỗng vẫn ẨN khối (nhóm A trong audit — khác nhóm B "Search/MovieListing/Category/
+ * Country" phải hiện EmptyState). Thêm `isError` → `ErrorState` (nút "Thử lại" gọi `refetch()`).
  */
 function toProgressPercent(history: History): number {
   if (!history.totalDurationSeconds) return 0;
@@ -30,12 +39,22 @@ function toSubtitle(history: History): string {
 export function ContinueWatchingSection() {
   const { data: session, status: sessionStatus } = useSession();
   const accessToken = session?.accessToken;
-  const { data, isLoading } = useQuery(historiesQueryOptions.recent(undefined, accessToken));
+  const { data, isLoading, isError, refetch } = useQuery(
+    historiesQueryOptions.recent(undefined, accessToken),
+  );
 
   // Chưa đăng nhập: route yêu cầu accessToken (không có route Public tương đương) — ẩn hẳn khối,
   // không có thiết kế "khách chưa đăng nhập" nào cho section này ở design/homepage.html.
   if (sessionStatus === 'unauthenticated') {
     return null;
+  }
+
+  if (isError) {
+    return (
+      <Section title="Tiếp tục xem">
+        <ErrorState message="Không tải được lịch sử xem." onRetry={() => refetch()} />
+      </Section>
+    );
   }
 
   // Loading: session đang resolve hoặc query đang fetch lần đầu — placeholder tĩnh, KHÔNG dùng
@@ -88,6 +107,7 @@ export function ContinueWatchingSection() {
             subtitle={toSubtitle(history)}
             imageSrc={history.film.posterUrl ?? history.film.thumbUrl ?? ''}
             progressPercent={toProgressPercent(history)}
+            href={buildWatchUrl(history.film.slug)}
           />
         ))}
       </div>

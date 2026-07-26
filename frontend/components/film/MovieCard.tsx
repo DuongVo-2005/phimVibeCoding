@@ -1,6 +1,10 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
+
+const DEFAULT_SIZES = '(max-width: 768px) 140px, 240px';
 
 /**
  * MovieCard (placeholder) — khớp pattern poster `aspect-[2/3] rounded-xl overflow-hidden` lặp
@@ -15,6 +19,29 @@ import type { ReactNode } from 'react';
  *   tiêu đề + điểm đánh giá + dòng thể loại + nút hành động (`showActions`). `cornerBadge` là nhãn
  *   luôn hiển thị góc phải trên (vd. "4K HDR"), khác vị trí với `badges` (chỉ hiện trong overlay
  *   khi hover, dùng ở homepage).
+ *
+ * Phase 16C (audit poster quality):
+ * - `sizes`: trước đây hardcode 1 giá trị chung cho MỌI nơi gọi dù layout thật khác nhau (carousel
+ *   cố định 200/240px vs grid `MovieListing` nhiều cột) — sai `sizes` khiến trình duyệt tải ảnh độ
+ *   phân giải thấp hơn kích thước hiển thị thật (1 nguyên nhân gây "mờ"). Giờ là prop, mỗi nơi gọi
+ *   tự truyền giá trị khớp layout của nó — giữ `DEFAULT_SIZES` (giá trị cũ) làm mặc định để không
+ *   đổi hành vi nơi chưa được cập nhật.
+ * - `quality`/`priority`/`loading`: đã audit — không đổi. Không có nơi gọi `MovieCard` nào ĐẢM BẢO
+ *   luôn nằm trên "above the fold" (vị trí trong carousel/grid thay đổi tuỳ trang) nên giữ mặc
+ *   định Next.js (`loading="lazy"`, không `priority`) — chỉ `HeroBanner` (khối cố định luôn ở đầu
+ *   trang) mới dùng `priority`, đã có sẵn từ trước, không thuộc component này.
+ * - `placeholder="blur"`: KHÔNG áp dụng — cần `blurDataURL` (ảnh base64 độ phân giải cực thấp),
+ *   backend hiện không trả field này cho `posterUrl`/`thumbUrl`, và ảnh là remote URL (không phải
+ *   static import) nên Next.js không tự sinh được. Thêm hạ tầng tạo blurDataURL (vd. dịch vụ riêng
+ *   hoặc xử lý ở backend) nằm ngoài phạm vi phase này.
+ * - `fetchPriority`: Next.js tự set `fetchpriority="high"` khi `priority=true` — không cần khai
+ *   báo thủ công thêm ở đây.
+ *
+ * Phase 16C (image fallback + hover chuẩn hoá): ảnh lỗi (`onError`) → chuyển sang icon "movie"
+ * trang trí (cùng UI với trường hợp không có `imageSrc`) thay vì để `next/image` vỡ ảnh im lặng.
+ * Hover chuẩn hoá `scale-105` (nhẹ hơn `scale-110` cũ) + `duration-300 ease-out` dùng chung cho mọi
+ * "Movie Card" (khớp yêu cầu Phase 16C: image scale nhẹ + overlay + shadow, KHÔNG nhiều kiểu khác
+ * nhau nữa).
  */
 export function MovieCard({
   title,
@@ -26,6 +53,7 @@ export function MovieCard({
   rating,
   genreLine,
   showActions = false,
+  sizes = DEFAULT_SIZES,
 }: {
   title: string;
   href?: string;
@@ -36,19 +64,25 @@ export function MovieCard({
   rating?: string;
   genreLine?: string;
   showActions?: boolean;
+  sizes?: string;
 }) {
+  const [imageError, setImageError] = useState(false);
+  const showImage = Boolean(imageSrc) && !imageError;
+
   return (
     <Link
       href={href}
-      className="block min-w-[140px] aspect-[2/3] relative rounded-[20px] overflow-hidden group movie-card-glow transition-all duration-300 bg-surface-container-high"
+      aria-label={title}
+      className="block min-w-[140px] aspect-[2/3] relative rounded-[20px] overflow-hidden group movie-card-glow transition-shadow duration-300 ease-out bg-surface-container-high"
     >
-      {imageSrc ? (
+      {showImage ? (
         <Image
-          src={imageSrc}
+          src={imageSrc as string}
           alt={title}
           fill
-          sizes="(max-width: 768px) 140px, 240px"
-          className="object-cover transition-transform duration-700 group-hover:scale-110"
+          sizes={sizes}
+          className="object-cover transition-transform duration-300 ease-out group-hover:scale-105"
+          onError={() => setImageError(true)}
         />
       ) : (
         <div className="absolute inset-0 flex items-center justify-center text-on-surface-variant">
@@ -61,7 +95,7 @@ export function MovieCard({
       {cornerBadge ? <div className="absolute top-md right-md z-20">{cornerBadge}</div> : null}
 
       {showTitle ? (
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-end p-md">
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out flex flex-col justify-end p-md">
           <h3 className="font-bold text-headline-md text-white line-clamp-2">{title}</h3>
           {rating || genreLine ? (
             <div className="flex items-center gap-base mb-sm mt-1 text-xs">
@@ -92,11 +126,10 @@ export function MovieCard({
           ) : null}
         </div>
       ) : (
-        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out flex items-center justify-center">
           <span className="material-symbols-outlined text-white text-[32px]" aria-hidden="true">
             play_circle
           </span>
-          <span className="sr-only">{title}</span>
         </div>
       )}
     </Link>

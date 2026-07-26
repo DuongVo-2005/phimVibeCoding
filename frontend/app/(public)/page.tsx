@@ -36,7 +36,12 @@ export default function HomePage() {
 
       <LatestMoviesSection />
 
-      <section className="px-gutter grid grid-cols-1 lg:grid-cols-12 gap-lg">
+      {/* Phase 16C: `lg:items-start` — mặc định CSS Grid `align-items: stretch` kéo giãn
+          `CategoriesSection` theo chiều cao `TopRatedSection` (danh sách, chiều cao phụ thuộc số
+          lượng phim trả về), để lại khoảng trống dưới bento grid cố định của `CategoriesSection`.
+          `items-start` giữ mỗi khối đúng chiều cao nội dung thật của nó, không khối nào bị kéo
+          giãn theo khối kia. */}
+      <section className="px-gutter grid grid-cols-1 lg:grid-cols-12 gap-lg lg:items-start">
         <CategoriesSection />
         <TopRatedSection />
       </section>
@@ -49,6 +54,7 @@ export default function HomePage() {
               title={item.title}
               imageSrc={item.imageSrc}
               showTitle={false}
+              sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 16vw"
             />
           ))}
         </div>

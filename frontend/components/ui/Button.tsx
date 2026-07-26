@@ -32,7 +32,7 @@ type ButtonAsLink = CommonProps & {
 export type ButtonProps = ButtonAsButton | ButtonAsLink;
 
 const BASE_CLASSES =
-  'inline-flex items-center justify-center gap-base rounded-lg px-md py-base text-label-md font-label-md font-bold transition-all duration-300';
+  'inline-flex items-center justify-center gap-base rounded-lg px-md py-base text-label-md font-label-md font-bold transition-all duration-300 ease-out';
 
 export function Button(props: ButtonProps) {
   const { variant = 'primary', children, className = '' } = props;
