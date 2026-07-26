@@ -6,14 +6,19 @@ import Link from 'next/link';
 import { Container } from '@/components/layout/Container';
 import { AccountSidebar } from '@/components/account/AccountSidebar';
 import { FavoriteListItem } from '@/components/account/FavoriteListItem';
-import { HistoryCard } from '@/components/account/HistoryCard';
 import { ProfileHero } from '@/components/account/ProfileHero';
 import { WatchlistThumb } from '@/components/account/WatchlistThumb';
+import { ContinueWatchingSection } from '@/components/film/ContinueWatchingSection';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { SkeletonBlock } from '@/components/ui/SkeletonBlock';
 import { logoutUser } from '@/lib/auth/logout';
-import { usersQueryOptions } from '@/lib/query/options';
-import { favorites, watchHistory, watchlist } from '@/app/(account)/_mock/user-dashboard-data';
+import { favoritesQueryOptions, usersQueryOptions } from '@/lib/query/options';
+import type { FilmSummary } from '@/lib/types/film';
+import { watchlist } from '@/app/(account)/_mock/user-dashboard-data';
+
+const FAVORITES_PREVIEW_LIMIT = 5;
+const HISTORY_PREVIEW_LIMIT = 5;
 
 /** Khớp format mock cũ ("Tháng 1, 2024") — chỉ đổi nguồn dữ liệu (`user.createdAt` thật). */
 function toMemberSinceLabel(createdAt: string): string {
@@ -26,9 +31,23 @@ function toMemberSinceLabel(createdAt: string): string {
  *
  * Phase 17A: `AccountSidebar`/`ProfileHero` giờ nhận dữ liệu THẬT từ `GET /users/me`
  * (`usersQueryOptions.me`) — thay hoàn toàn mock `userProfile` (đã xoá khỏi
- * `_mock/user-dashboard-data.ts`). "Xem tiếp"/"Yêu thích"/"Danh sách xem" (watchHistory/favorites/
- * watchlist) VẪN dùng mock — xây dựng list thật cho 3 mục này thuộc phase sau (ngoài phạm vi
- * 17A, xem audit Phase 17: "Do NOT build Favorite list/History").
+ * `_mock/user-dashboard-data.ts`). "Danh sách xem" (watchlist) VẪN dùng mock — Watchlist thuộc
+ * phase sau, ngoài phạm vi 17B.2 (xem audit Phase 17: "Do NOT implement Favorite/Rating/Comment/
+ * Notification" — Watchlist tương tự chưa nằm trong phạm vi History).
+ *
+ * Phase 17B.1: "Yêu thích" nối API thật (`favoritesQueryOptions.mine`, `targetType:'film'`,
+ * `limit:5` — chỉ xem trước, danh sách đầy đủ + phân trang + xoá ở trang riêng `/user/yeu-thich`,
+ * xem `FavoriteListView.tsx`). Widget này CHỈ xem, không có nút xoá. Loading/Error/Empty riêng cho
+ * đúng khối này — không chặn cả trang khi favorites đang tải/lỗi (profile vẫn hiện bình thường).
+ *
+ * Phase 17B.2: "Xem tiếp" tái dùng NGUYÊN `ContinueWatchingSection` thật (`limit=5`, `action=` link
+ * "Xem tất cả" → `/user/lich-su` — trang quản lý đầy đủ, xem `HistoryListView.tsx`), thay
+ * `HistoryCard`+mock `watchHistory` (đã xoá khỏi `_mock/user-dashboard-data.ts`). Component này tự
+ * ẩn khi chưa đăng nhập/chưa có lịch sử (hành vi sẵn có, không viết logic riêng ở đây). Bọc
+ * `-mx-[24px]` để triệt tiêu `px-gutter` riêng của `Section` bên trong (tránh lệch padding gấp đôi
+ * so với `Container` đã bọc ngoài — xem TECH-DEBT-001 ghi chú token `--spacing-*` tuỳ biến, dùng giá
+ * trị tuỳ ý thay vì tên scale để tránh phụ thuộc việc Tailwind có tự sinh utility âm cho token tên
+ * riêng hay không).
  *
  * Bỏ Stats Row (favoritesCount/watchHistoryCount) — 2 con số này lấy từ mock `userProfile` cũ,
  * không có nguồn dữ liệu thật tương ứng trong `GET /users/me` (và tính đúng số thật đòi hỏi gọi
@@ -40,8 +59,7 @@ function toMemberSinceLabel(createdAt: string): string {
  * Quyết định A: layout Header/Footer do `app/(account)/layout.tsx` cung cấp qua `MainLayout`,
  * component này chỉ chứa nội dung canvas (sidebar + main content), không tự dựng Header/Footer.
  *
- * Quyết định B: "Xem tiếp" dùng `HistoryCard` (component mới) — chỉ hiện ở desktop (`hidden
- * md:block`).
+ * Quyết định B: "Xem tiếp" chỉ hiện ở desktop (`hidden md:block`).
  *
  * Quyết định D: "Danh sách xem" dùng `WatchlistThumb` với 1 mô hình dữ liệu duy nhất — ô "Thêm
  * mới" là UI tĩnh không gắn dữ liệu, hiện ở mọi kích thước.
@@ -53,6 +71,19 @@ export function UserDashboardView() {
   const { data: session } = useSession();
   const accessToken = session?.accessToken;
   const { data: user, isLoading, isError, refetch } = useQuery(usersQueryOptions.me(accessToken));
+
+  const {
+    data: favoritesData,
+    isLoading: isFavoritesLoading,
+    isError: isFavoritesError,
+    refetch: refetchFavorites,
+  } = useQuery(
+    favoritesQueryOptions.mine({ targetType: 'film', limit: FAVORITES_PREVIEW_LIMIT }, accessToken),
+  );
+  const favoriteFilms = (favoritesData?.items ?? []).filter(
+    (favorite): favorite is typeof favorite & { target: FilmSummary } =>
+      favorite.targetType === 'film' && favorite.target !== null,
+  );
 
   const handleLogout = () => {
     void logoutUser(accessToken);
@@ -85,31 +116,16 @@ export function UserDashboardView() {
         <ProfileHero name={user.name} memberSinceLabel={toMemberSinceLabel(user.createdAt)} />
 
         {/* Xem tiếp — chỉ desktop */}
-        <section className="hidden md:block">
-          <div className="flex justify-between items-center mb-md">
-            <h2 className="text-headline-md font-bold text-on-surface flex items-center gap-sm">
-              <span className="material-symbols-outlined text-primary" aria-hidden="true">
-                history
-              </span>
-              Xem tiếp
-            </h2>
-            <button type="button" className="text-primary hover:underline text-label-md">
-              Xem tất cả
-            </button>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-md">
-            {watchHistory.map((item) => (
-              <HistoryCard
-                key={item.id}
-                title={item.title}
-                badge={item.badge}
-                rating={item.rating}
-                progressPercent={item.progressPercent}
-                imageSrc={item.imageSrc}
-              />
-            ))}
-          </div>
-        </section>
+        <div className="hidden md:block -mx-[24px]">
+          <ContinueWatchingSection
+            limit={HISTORY_PREVIEW_LIMIT}
+            action={
+              <Link href="/user/lich-su" className="text-primary hover:underline text-label-md">
+                Xem tất cả
+              </Link>
+            }
+          />
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-lg">
           <section className="bg-surface-container rounded-xl p-md shadow-lg flex flex-col gap-md">
@@ -131,17 +147,39 @@ export function UserDashboardView() {
                 more_horiz
               </button>
             </div>
-            <div className="flex gap-4 overflow-x-auto md:flex-col md:gap-sm md:overflow-visible">
-              {favorites.map((item) => (
-                <FavoriteListItem
-                  key={item.id}
-                  title={item.title}
-                  genre={item.genre}
-                  year={item.year}
-                  imageSrc={item.imageSrc}
-                />
-              ))}
-            </div>
+            {isFavoritesError ? (
+              <ErrorState
+                message="Không tải được danh sách yêu thích."
+                onRetry={() => refetchFavorites()}
+              />
+            ) : isFavoritesLoading ? (
+              <div className="flex gap-4 overflow-x-auto md:flex-col md:gap-sm md:overflow-visible">
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <SkeletonBlock
+                    key={index}
+                    className="w-32 h-44 shrink-0 rounded-xl md:w-full md:h-20"
+                  />
+                ))}
+              </div>
+            ) : favoriteFilms.length === 0 ? (
+              <EmptyState icon="favorite" message="Chưa có phim yêu thích." />
+            ) : (
+              <div className="flex gap-4 overflow-x-auto md:flex-col md:gap-sm md:overflow-visible">
+                {favoriteFilms.map((favorite) => {
+                  const film = favorite.target as FilmSummary;
+                  return (
+                    <FavoriteListItem
+                      key={favorite._id}
+                      title={film.title}
+                      genre={film.category === 'series' ? 'Phim Bộ' : 'Phim Lẻ'}
+                      year={film.releaseYear ? String(film.releaseYear) : ''}
+                      imageSrc={film.posterUrl ?? film.thumbUrl ?? ''}
+                      href={`/phim/${film.slug}`}
+                    />
+                  );
+                })}
+              </div>
+            )}
           </section>
 
           <section className="bg-surface-container rounded-xl p-md shadow-lg flex flex-col gap-md">

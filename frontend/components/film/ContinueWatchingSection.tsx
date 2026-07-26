@@ -2,6 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
+import type { ReactNode } from 'react';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { Section } from '@/components/ui/Section';
 import type { History } from '@/lib/types/history';
@@ -22,8 +23,14 @@ import { ContinueWatchingCard } from './ContinueWatchingCard';
  *
  * Phase 16C: rỗng vẫn ẨN khối (nhóm A trong audit — khác nhóm B "Search/MovieListing/Category/
  * Country" phải hiện EmptyState). Thêm `isError` → `ErrorState` (nút "Thử lại" gọi `refetch()`).
+ *
+ * Phase 17B.2: thêm `limit`/`action` (tuỳ chọn, mặc định `undefined` = giữ NGUYÊN hành vi cũ ở
+ * trang chủ — không đổi gì nơi gọi hiện có). `UserDashboardView` tái dùng component NÀY (không
+ * viết lại query/formatter riêng) với `limit={5}` (xem trước) + `action` (link "Xem tất cả" tới
+ * `/user/lich-su`). `toProgressPercent` export để `HistoryListView.tsx` (trang lịch sử đầy đủ)
+ * dùng lại đúng công thức, không tính lại theo cách khác.
  */
-function toProgressPercent(history: History): number {
+export function toProgressPercent(history: History): number {
   if (!history.totalDurationSeconds) return 0;
   return Math.min(100, Math.round((history.progressSeconds / history.totalDurationSeconds) * 100));
 }
@@ -36,11 +43,17 @@ function toSubtitle(history: History): string {
     : remainingLabel;
 }
 
-export function ContinueWatchingSection() {
+export function ContinueWatchingSection({
+  limit,
+  action,
+}: {
+  limit?: number;
+  action?: ReactNode;
+} = {}) {
   const { data: session, status: sessionStatus } = useSession();
   const accessToken = session?.accessToken;
   const { data, isLoading, isError, refetch } = useQuery(
-    historiesQueryOptions.recent(undefined, accessToken),
+    historiesQueryOptions.recent(limit ? { limit } : undefined, accessToken),
   );
 
   // Chưa đăng nhập: route yêu cầu accessToken (không có route Public tương đương) — ẩn hẳn khối,
@@ -51,7 +64,7 @@ export function ContinueWatchingSection() {
 
   if (isError) {
     return (
-      <Section title="Tiếp tục xem">
+      <Section title="Tiếp tục xem" action={action}>
         <ErrorState message="Không tải được lịch sử xem." onRetry={() => refetch()} />
       </Section>
     );
@@ -65,9 +78,9 @@ export function ContinueWatchingSection() {
   // chữ thành trong suốt + nền màu) nên line-height đảm bảo khớp tuyệt đối, không cần đoán px.
   if (sessionStatus === 'loading' || isLoading) {
     return (
-      <Section title="Tiếp tục xem">
+      <Section title="Tiếp tục xem" action={action}>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-md">
-          {Array.from({ length: 4 }).map((_, index) => (
+          {Array.from({ length: limit ?? 4 }).map((_, index) => (
             <div
               key={index}
               className="bg-surface-container/60 p-base rounded-[20px]"
@@ -98,7 +111,7 @@ export function ContinueWatchingSection() {
   }
 
   return (
-    <Section title="Tiếp tục xem">
+    <Section title="Tiếp tục xem" action={action}>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-md">
         {items.map((history) => (
           <ContinueWatchingCard

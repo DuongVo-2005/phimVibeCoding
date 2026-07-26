@@ -6,11 +6,11 @@ import Link from 'next/link';
  * desktop (`hidden md:flex`) — mobile dùng section "Subscription & Settings" riêng trong
  * `UserDashboardView`.
  *
- * "Tài khoản" là mục active tĩnh (route hiện tại), không phải `<a>` — Yêu thích/Danh sách/Xem
- * tiếp/Thông báo/Subscription vẫn `href="#"` (chưa xây ở Phase 17A, thuộc phase sau — xem audit
- * Phase 17). "Settings" (Phase 17A) đổi thành link thật tới `/user/doi-mat-khau` — trang cài đặt
- * đầy đủ chưa tồn tại, đây là hành động cài đặt DUY NHẤT đã xây trong phase này nên trỏ thẳng vào
- * đó thay vì giữ placeholder.
+ * "Tài khoản" là mục active tĩnh (route hiện tại), không phải `<a>` — Danh sách/Thông báo/
+ * Subscription vẫn `href="#"` (Watchlist/Notification ngoài phạm vi Phase 17B.2, thuộc phase sau —
+ * xem audit Phase 17). "Settings" (Phase 17A) → `/user/doi-mat-khau`. "Yêu thích" (Phase 17B.1) →
+ * `/user/yeu-thich`. "Xem tiếp" (Phase 17B.2) → `/user/lich-su` — trang danh sách đầy đủ
+ * (`HistoryListView.tsx`), tránh để trang mới không có lối vào từ UI.
  *
  * `avatarSrc` optional — `GET /users/me` không trả URL avatar thật (xem ghi chú `ProfileHero.tsx`),
  * hiện icon "person" thay thế khi không có. Nút "Thoát": `onLogout` do `UserDashboardView` truyền
@@ -52,15 +52,15 @@ export function AccountSidebar({
         <div className="h-px bg-white/5 mx-2" />
 
         <nav className="flex flex-col gap-xs" aria-label="Điều hướng tài khoản">
-          <a
-            href="#"
+          <Link
+            href="/user/yeu-thich"
             className="flex items-center gap-sm px-sm py-xs text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-all duration-200 rounded-lg"
           >
             <span className="material-symbols-outlined" aria-hidden="true">
               favorite
             </span>
             <span className="text-label-md font-label-md">Yêu thích</span>
-          </a>
+          </Link>
           <span className="flex items-center gap-sm px-sm py-xs bg-primary/10 text-primary border-r-4 border-primary">
             <span className="material-symbols-outlined" aria-hidden="true">
               person
@@ -76,15 +76,15 @@ export function AccountSidebar({
             </span>
             <span className="text-label-md font-label-md">Danh sách</span>
           </a>
-          <a
-            href="#"
+          <Link
+            href="/user/lich-su"
             className="flex items-center gap-sm px-sm py-xs text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-all duration-200 rounded-lg"
           >
             <span className="material-symbols-outlined" aria-hidden="true">
               history
             </span>
             <span className="text-label-md font-label-md">Xem tiếp</span>
-          </a>
+          </Link>
           <a
             href="#"
             className="flex items-center gap-sm px-sm py-xs text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-all duration-200 rounded-lg"

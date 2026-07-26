@@ -1,12 +1,15 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
+import type { PaginationQueryParams } from '@/lib/api/types';
 import { commentsApi } from '@/lib/api/comments';
 import type { FavoritesQueryParams } from '@/lib/api/favorites';
 import { favoritesApi } from '@/lib/api/favorites';
+import { historiesApi } from '@/lib/api/histories';
 import { ratingsApi } from '@/lib/api/ratings';
 import type { Comment } from '@/lib/types/comment';
 import type { PaginatedResponse } from '@/lib/types/common';
 import type { Favorite, FavoriteTargetType } from '@/lib/types/favorite';
+import type { History } from '@/lib/types/history';
 import type { Rating, RatingSummary } from '@/lib/types/rating';
 import { queryKeys } from './keys';
 
@@ -262,6 +265,74 @@ export function useCommentMutation() {
 
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.comments.all() });
+    },
+  });
+}
+
+interface RemoveHistoryVariables {
+  filmId: string;
+  /** Params ĐÚNG bằng params của `useQuery(historiesQueryOptions.recent(listParams, ...))` đang
+   * đọc ở nơi gọi — dùng để optimistic-patch/rollback ĐÚNG cache entry đó, cùng nguyên tắc
+   * `useFavoriteMutation` (`listParams`) — homepage/dashboard/trang `/user/lich-su` mỗi nơi đọc 1
+   * `queryKey` khác nhau (limit khác nhau) nên phải khớp chính xác, không đoán. */
+  listParams: PaginationQueryParams | undefined;
+}
+
+interface RemoveHistoryContext {
+  previousData: PaginatedResponse<History> | undefined;
+  listParams: PaginationQueryParams | undefined;
+}
+
+/**
+ * Phase 17B.2: mutation ĐẦU TIÊN cho domain `histories` — trước đó `historiesApi.remove()` tồn
+ * tại ở tầng API client (Phase 11.2) nhưng chưa có nơi nào gọi tới. Cùng pattern
+ * `useFavoriteMutation`/`useCommentMutation`: optimistic lọc bỏ khỏi cache
+ * `historiesQueryOptions.recent(listParams)` đang đọc, rollback bằng `previousData` nếu lỗi,
+ * `onSettled` luôn `invalidateQueries` theo `queryKeys.histories.all()` (mọi listParams khác nhau
+ * — homepage/dashboard/trang lịch sử đầy đủ — đều được làm mới, không cần `refetch()` thủ công ở
+ * bất kỳ nơi gọi nào).
+ */
+export function useRemoveHistoryMutation() {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
+
+  return useMutation<null, Error, RemoveHistoryVariables, RemoveHistoryContext>({
+    mutationFn: async ({ filmId }) => {
+      if (!accessToken) {
+        throw new Error('Yêu cầu đăng nhập để xoá lịch sử xem.');
+      }
+
+      return historiesApi.remove(filmId, accessToken);
+    },
+
+    onMutate: async ({ filmId, listParams }) => {
+      const queryKey = queryKeys.histories.recent(listParams);
+      await queryClient.cancelQueries({ queryKey });
+
+      const previousData = queryClient.getQueryData<PaginatedResponse<History>>(queryKey);
+
+      if (previousData) {
+        queryClient.setQueryData<PaginatedResponse<History>>(queryKey, {
+          ...previousData,
+          items: previousData.items.filter((history) => history.film._id !== filmId),
+        });
+      }
+
+      return { previousData, listParams };
+    },
+
+    onError: (_error, _variables, context) => {
+      if (context?.previousData) {
+        queryClient.setQueryData(
+          queryKeys.histories.recent(context.listParams),
+          context.previousData,
+        );
+      }
+    },
+
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.histories.all() });
     },
   });
 }
