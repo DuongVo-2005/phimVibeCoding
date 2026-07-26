@@ -37,9 +37,23 @@ import { filmsQueryOptions } from '@/lib/query/options';
 export function FilmDetailView({ slug }: { slug: string }) {
   const { data: film } = useQuery(filmsQueryOptions.detail(slug));
   const { data: related } = useQuery(filmsQueryOptions.related(slug));
-  const { isFavorited, toggle: toggleFavorite } = useFavorite('film', film?._id ?? '');
-  const { average: ratingAverage, myRating, setRating } = useRating(film?._id ?? '');
-  const { comments, sendComment, totalLabel: commentTotalLabel } = useComment(film?._id ?? '');
+  const {
+    isFavorited,
+    toggle: toggleFavorite,
+    isPending: isFavoritePending,
+  } = useFavorite('film', film?._id ?? '');
+  const {
+    average: ratingAverage,
+    myRating,
+    setRating,
+    isPending: isRatingPending,
+  } = useRating(film?._id ?? '');
+  const {
+    comments,
+    sendComment,
+    totalLabel: commentTotalLabel,
+    isPending: isCommentPending,
+  } = useComment(film?._id ?? '');
 
   // Chưa có dữ liệu phim (đang tải hoặc không tồn tại) — ẩn toàn bộ trang, đúng pattern đã dùng ở
   // Homepage Phase 11.4 (không skeleton, không UX mới).
@@ -69,8 +83,10 @@ export function FilmDetailView({ slug }: { slug: string }) {
         }))}
         isFavorited={isFavorited}
         onToggleFavorite={toggleFavorite}
+        isFavoritePending={isFavoritePending}
         myRating={myRating}
         onSelectRating={setRating}
+        isRatingPending={isRatingPending}
       />
 
       <Container maxWidth="max-w-screen-2xl" className="flex flex-col gap-xl">
@@ -98,7 +114,12 @@ export function FilmDetailView({ slug }: { slug: string }) {
           </section>
         ) : null}
 
-        <CommentSection comments={comments} totalLabel={commentTotalLabel} onSubmit={sendComment} />
+        <CommentSection
+          comments={comments}
+          totalLabel={commentTotalLabel}
+          onSubmit={sendComment}
+          disabled={isCommentPending}
+        />
       </Container>
     </div>
   );

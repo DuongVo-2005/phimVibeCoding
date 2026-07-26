@@ -90,9 +90,23 @@ export function WatchMovieView({
   const { data: session } = useSession();
   const accessToken = session?.accessToken;
   const [videoElement, setVideoElement] = useState<HTMLVideoElement | null>(null);
-  const { isFavorited, toggle: toggleFavorite } = useFavorite('film', film?._id ?? '');
-  const { average: ratingAverage, myRating, setRating } = useRating(film?._id ?? '');
-  const { comments, sendComment, totalLabel: commentTotalLabel } = useComment(film?._id ?? '');
+  const {
+    isFavorited,
+    toggle: toggleFavorite,
+    isPending: isFavoritePending,
+  } = useFavorite('film', film?._id ?? '');
+  const {
+    average: ratingAverage,
+    myRating,
+    setRating,
+    isPending: isRatingPending,
+  } = useRating(film?._id ?? '');
+  const {
+    comments,
+    sendComment,
+    totalLabel: commentTotalLabel,
+    isPending: isCommentPending,
+  } = useComment(film?._id ?? '');
 
   // Pass 1 (provisional) — chưa tính History, chỉ dùng để quyết định có đủ điều kiện fetch
   // History hay không (yêu cầu 1: đã đăng nhập + playerType 'hls').
@@ -179,10 +193,11 @@ export function WatchMovieView({
             <div className="flex flex-col items-center gap-1 shrink-0">
               <button
                 type="button"
-                className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary"
+                className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label="Lưu lại"
                 aria-pressed={isFavorited}
                 onClick={toggleFavorite}
+                disabled={isFavoritePending}
               >
                 <span
                   className="material-symbols-outlined"
@@ -195,7 +210,7 @@ export function WatchMovieView({
               <span className="text-[10px] text-on-surface-variant">Lưu lại</span>
             </div>
           </div>
-          <RatingInput myRating={myRating} onSelect={setRating} />
+          <RatingInput myRating={myRating} onSelect={setRating} disabled={isRatingPending} />
           <p className="text-on-surface-variant text-body-md line-clamp-2 opacity-80">
             {filmInfo.description}
           </p>
@@ -248,16 +263,21 @@ export function WatchMovieView({
                     </span>
                   </div>
                   <div className="mt-sm">
-                    <RatingInput myRating={myRating} onSelect={setRating} />
+                    <RatingInput
+                      myRating={myRating}
+                      onSelect={setRating}
+                      disabled={isRatingPending}
+                    />
                   </div>
                 </div>
                 <div className="flex gap-sm">
                   <button
                     type="button"
-                    className="w-12 h-12 rounded-full bg-white/[0.03] backdrop-blur-xl border border-white/10 flex items-center justify-center hover:text-primary transition-colors"
+                    className="w-12 h-12 rounded-full bg-white/[0.03] backdrop-blur-xl border border-white/10 flex items-center justify-center hover:text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     aria-label="Thêm vào danh sách"
                     aria-pressed={isFavorited}
                     onClick={toggleFavorite}
+                    disabled={isFavoritePending}
                   >
                     <span
                       className="material-symbols-outlined"
@@ -309,6 +329,7 @@ export function WatchMovieView({
               comments={comments}
               totalLabel={commentTotalLabel}
               onSubmit={sendComment}
+              disabled={isCommentPending}
             />
           </div>
 

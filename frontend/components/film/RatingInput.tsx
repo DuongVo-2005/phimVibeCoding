@@ -5,6 +5,10 @@ const SCORES = Array.from({ length: 10 }, (_, index) => index + 1);
  * 1 component, không tạo biến thể khác). Không có trong Figma (đã ghi nhận OUT OF SCOPE ở audit
  * Phase 11.6C) — tạo mới theo yêu cầu tường minh của phase này. Chỉ số 1-10, không animation
  * (không dùng class `transition-*`), không popup/modal.
+ *
+ * Phase 15A: `disabled` (đã có sẵn prop từ Phase 14B, giờ mới thật sự được nơi gọi truyền vào lúc
+ * mutation đang pending) thêm `disabled:opacity-50 disabled:cursor-not-allowed` — chỉ là utility
+ * class chuẩn cho trạng thái disabled, KHÔNG phải animation, KHÔNG đổi layout/icon/text.
  */
 export function RatingInput({
   myRating,
@@ -26,8 +30,8 @@ export function RatingInput({
           onClick={() => onSelect(score)}
           className={
             myRating === score
-              ? 'w-7 h-7 rounded text-label-md font-bold bg-primary text-on-primary'
-              : 'w-7 h-7 rounded text-label-md font-bold bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
+              ? 'w-7 h-7 rounded text-label-md font-bold bg-primary text-on-primary disabled:opacity-50 disabled:cursor-not-allowed'
+              : 'w-7 h-7 rounded text-label-md font-bold bg-surface-container text-on-surface-variant hover:bg-surface-container-high disabled:opacity-50 disabled:cursor-not-allowed'
           }
         >
           {score}

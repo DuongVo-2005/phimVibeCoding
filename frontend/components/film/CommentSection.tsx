@@ -21,15 +21,20 @@ export interface CommentItem {
  * `draft` (text đang gõ) là state UI thuần tuý, tự xoá sau khi bấm Gửi — không phải state
  * nghiệp vụ nên không đặt trong hook dùng chung. "Phản hồi"/`thumb_up` vẫn KHÔNG có `onClick` —
  * Reply/Vote ngoài phạm vi Phase 14C.
+ *
+ * Phase 15A: thêm `disabled` — disable CẢ textarea lẫn nút "Gửi" khi mutation đang pending (nơi
+ * gọi truyền vào), `disabled:opacity-50` là utility class chuẩn, không phải redesign/animation.
  */
 export function CommentSection({
   comments,
   totalLabel,
   onSubmit,
+  disabled = false,
 }: {
   comments: CommentItem[];
   totalLabel: string;
   onSubmit?: (content: string) => void;
+  disabled?: boolean;
 }) {
   const [draft, setDraft] = useState('');
 
@@ -52,14 +57,16 @@ export function CommentSection({
           <textarea
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
+            disabled={disabled}
             placeholder="Chia sẻ cảm nghĩ của bạn..."
-            className="w-full bg-surface-container-highest/30 border-none rounded-xl p-md text-body-md h-24 resize-none"
+            className="w-full bg-surface-container-highest/30 border-none rounded-xl p-md text-body-md h-24 resize-none disabled:opacity-50 disabled:cursor-not-allowed"
           />
           <div className="flex justify-end mt-sm">
             <button
               type="button"
               onClick={handleSubmit}
-              className="bg-primary text-on-primary px-lg py-xs rounded-full font-label-md text-label-md"
+              disabled={disabled}
+              className="bg-primary text-on-primary px-lg py-xs rounded-full font-label-md text-label-md disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Gửi
             </button>

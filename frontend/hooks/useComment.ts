@@ -3,9 +3,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import type { CommentItem } from '@/components/film/CommentSection';
+import { useNotification } from '@/hooks/useNotification';
 import { useCommentMutation } from '@/lib/query/mutations';
 import { commentsQueryOptions } from '@/lib/query/options';
 import { formatTimeAgo } from '@/lib/utils/format-time-ago';
+
+const LOGIN_REQUIRED_MESSAGE = 'Bạn cần đăng nhập để sử dụng tính năng này.';
 
 /**
  * useComment — Phase 14C: hook dùng CHUNG cho Movie Detail + Watch Page — tránh lặp logic đọc
@@ -16,12 +19,16 @@ import { formatTimeAgo } from '@/lib/utils/format-time-ago';
  * `meta.totalItems` chính xác hơn `comments.length`, tránh 2 nơi gọi phải tự tính lại) và
  * `isPending` — không phải phần bắt buộc, chỉ tiện ích bổ sung, không thay thế 2 field chính.
  *
- * `sendComment` KHÔNG gọi API nếu: chưa đăng nhập, `filmId` rỗng, hoặc `content` chỉ có khoảng
- * trắng — no-op an toàn, không throw.
+ * Phase 15A: chưa đăng nhập → `notify.info()` (thay no-op im lặng). Chặn double-click bằng
+ * `mutation.isPending` (kiểm tra TRƯỚC — nếu đang gửi thì bỏ qua click/gửi tiếp theo). `content`
+ * rỗng/chỉ khoảng trắng vẫn no-op im lặng (không phải lỗi cần thông báo — nút "Gửi" không nên báo
+ * lỗi chỉ vì người dùng chưa gõ gì). Thành công/lỗi → `notify.success()`/`notify.error()` qua
+ * callback thứ 2 của `mutate()` (không sửa `useCommentMutation`).
  */
 export function useComment(filmId: string) {
   const { data: session } = useSession();
   const accessToken = session?.accessToken;
+  const notify = useNotification();
 
   const { data } = useQuery({
     ...commentsQueryOptions.byFilm(filmId),
@@ -40,11 +47,25 @@ export function useComment(filmId: string) {
   }));
 
   const sendComment = (content: string) => {
-    const trimmed = content.trim();
-    if (!accessToken || !filmId || !trimmed) {
+    if (mutation.isPending) {
       return;
     }
-    mutation.mutate({ filmId, content: trimmed });
+    if (!accessToken) {
+      notify.info(LOGIN_REQUIRED_MESSAGE);
+      return;
+    }
+    const trimmed = content.trim();
+    if (!filmId || !trimmed) {
+      return;
+    }
+
+    mutation.mutate(
+      { filmId, content: trimmed },
+      {
+        onSuccess: () => notify.success('Đã gửi bình luận của bạn.'),
+        onError: () => notify.error('Không thể gửi bình luận, vui lòng thử lại.'),
+      },
+    );
   };
 
   return {

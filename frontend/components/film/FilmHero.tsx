@@ -19,6 +19,11 @@ import { RatingInput } from './RatingInput';
  * Phase 14B: thêm `RatingInput` ngay cạnh khối hiển thị điểm trung bình (đúng vị trí rating hiện
  * tại) — widget MỚI (không có trong Figma, tạo theo yêu cầu tường minh của phase này), logic thật
  * ở `FilmDetailView` qua `useRating`.
+ *
+ * Phase 15A: thêm `isFavoritePending`/`isRatingPending` — disable nút Favorite/`RatingInput` khi
+ * mutation tương ứng đang chạy (chống double-click + phản hồi trạng thái loading). Chỉ thêm
+ * `disabled` + class `disabled:opacity-50 disabled:cursor-not-allowed` (utility chuẩn, không phải
+ * spinner/animation mới) trên ĐÚNG phần tử đã có.
  */
 export function FilmHero({
   title,
@@ -33,8 +38,10 @@ export function FilmHero({
   cast,
   isFavorited,
   onToggleFavorite,
+  isFavoritePending,
   myRating,
   onSelectRating,
+  isRatingPending,
 }: {
   title: string;
   quality: string;
@@ -48,8 +55,10 @@ export function FilmHero({
   cast: Array<{ id: string; name: string; avatarSrc: string }>;
   isFavorited?: boolean;
   onToggleFavorite?: () => void;
+  isFavoritePending?: boolean;
   myRating?: number | null;
   onSelectRating?: (score: number) => void;
+  isRatingPending?: boolean;
 }) {
   return (
     <section className="relative min-h-[600px] lg:h-[870px] w-full overflow-hidden">
@@ -85,7 +94,11 @@ export function FilmHero({
 
             {onSelectRating ? (
               <div className="mb-md">
-                <RatingInput myRating={myRating ?? null} onSelect={onSelectRating} />
+                <RatingInput
+                  myRating={myRating ?? null}
+                  onSelect={onSelectRating}
+                  disabled={isRatingPending}
+                />
               </div>
             ) : null}
 
@@ -145,8 +158,9 @@ export function FilmHero({
               </Button>
               <Button
                 variant="secondary"
-                className="w-14 h-14 rounded-xl p-0"
+                className="w-14 h-14 rounded-xl p-0 disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={onToggleFavorite}
+                disabled={isFavoritePending}
                 aria-pressed={isFavorited}
               >
                 <span
