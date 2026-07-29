@@ -103,6 +103,13 @@ export function LoginForm() {
         {...register('password')}
       />
 
+      <Link
+        href="/quen-mat-khau"
+        className="text-label-md text-primary hover:underline self-end -mt-sm"
+      >
+        Quên mật khẩu?
+      </Link>
+
       {formError ? (
         <p role="alert" className="text-label-md text-error">
           {formError}

@@ -1,5 +1,6 @@
 import type {
   Comment,
+  CommentModerationItem,
   CreateCommentInput,
   SetCommentVisibilityInput,
   UpdateCommentInput,
@@ -37,8 +38,10 @@ export const commentsApi = {
     return request<Comment[]>(COMMENTS_ENDPOINTS.latest, { query });
   },
 
+  /** Trả `CommentModerationItem[]` — KHÁC `Comment` thường, `film` được populate đầy đủ (xem ghi
+   * chú tại type). */
   moderationList(query: CommentsModerationQueryParams | undefined, accessToken: string) {
-    return request<PaginatedResponse<Comment>>(COMMENTS_ENDPOINTS.moderationList, {
+    return request<PaginatedResponse<CommentModerationItem>>(COMMENTS_ENDPOINTS.moderationList, {
       query,
       accessToken,
     });

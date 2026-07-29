@@ -44,3 +44,24 @@ export const changePasswordSchema = z
   });
 
 export type ChangePasswordFormValues = z.infer<typeof changePasswordSchema>;
+
+/** Phase 19B.11 (Forgot/Reset Password): `authApi.forgotPassword`/`resetPassword` đã có sẵn từ
+ * Phase 11.1 (quyết định D) nhưng chưa từng có UI — khớp `ForgotPasswordDto`/`ResetPasswordDto`
+ * thật (backend/src/auth/dto/*.dto.ts). */
+export const forgotPasswordSchema = z.object({
+  email: z.string().min(1, 'Vui lòng nhập email').email('Email không hợp lệ'),
+});
+
+export type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
+
+export const resetPasswordSchema = z
+  .object({
+    newPassword: z.string().min(8, 'Mật khẩu mới tối thiểu 8 ký tự'),
+    confirmNewPassword: z.string().min(1, 'Vui lòng xác nhận mật khẩu mới'),
+  })
+  .refine((data) => data.newPassword === data.confirmNewPassword, {
+    message: 'Mật khẩu xác nhận không khớp',
+    path: ['confirmNewPassword'],
+  });
+
+export type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>;

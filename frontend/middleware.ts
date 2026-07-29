@@ -10,6 +10,11 @@ import type { NextRequest } from 'next/server';
  * ở Frontend Planning (mục 19): backend hiện chưa expose permission set đã resolve cho chính
  * client đang đăng nhập (AuthTokens/GET /users/me chỉ có `role` enum thô), nên FE chưa có căn cứ
  * để gate chi tiết hơn mức này.
+ *
+ * Admin Foundation: đã đăng nhập nhưng không phải admin cố vào `/admin/**` → `/khong-co-quyen`
+ * (trước đây redirect thẳng về `/`, không có thông báo gì). Route đích nằm NGOÀI `/admin/**`
+ * (route group `(public)`) — nếu đặt trong `/admin/**` sẽ bị matcher CHÍNH khớp lại, tạo vòng lặp
+ * redirect vô hạn cho user không phải admin.
  */
 const USER_AREA_PREFIX = '/user';
 const ADMIN_AREA_PREFIX = '/admin';
@@ -32,7 +37,7 @@ export async function middleware(request: NextRequest) {
   }
 
   if (isAdminArea && token.user?.role !== 'admin') {
-    return NextResponse.redirect(new URL('/', request.url));
+    return NextResponse.redirect(new URL('/khong-co-quyen', request.url));
   }
 
   return NextResponse.next();

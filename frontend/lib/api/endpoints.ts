@@ -77,6 +77,12 @@ export const USERS_ENDPOINTS = {
   me: '/users/me',
   updateProfile: '/users/me',
   updatePassword: '/users/me/password',
+  // Phase 19B.8 (Admin User Management): nhóm route quản trị — trước đây bỏ ngoài phạm vi
+  // 11.2 (chỉ 7 màn hình public), khớp `users.controller.ts` thật.
+  list: '/users',
+  byId: (id: string) => `/users/${id}`,
+  updateRole: (id: string) => `/users/${id}/role`,
+  updateStatus: (id: string) => `/users/${id}/status`,
 } as const;
 
 export const HISTORIES_ENDPOINTS = {
@@ -98,6 +104,36 @@ export const COUNTRIES_ENDPOINTS = {
   byId: (id: string) => `/countries/${id}`,
 } as const;
 
+/** Phase 19B.2 (Admin Movie Create/Edit): trước đây `directors` chưa có client (audit Phase 11.2,
+ * nhóm C — chưa có UI dùng). Khớp `directors.controller.ts` thật. */
+export const DIRECTORS_ENDPOINTS = {
+  list: '/directors',
+  bySlug: (slug: string) => `/directors/${slug}`,
+  byId: (id: string) => `/directors/${id}`,
+} as const;
+
+/** Phase 19B.9 (Admin Role/Permission Management): khớp `roles.controller.ts` thật. */
+export const ROLES_ENDPOINTS = {
+  list: '/roles',
+  byId: (id: string) => `/roles/${id}`,
+  permissions: (id: string) => `/roles/${id}/permissions`,
+  users: (id: string) => `/roles/${id}/users`,
+} as const;
+
+/** Khớp `permissions.controller.ts` thật — CHỈ dùng `list` (đọc, làm nguồn checklist khi gán
+ * quyền cho role); Create/Update/Delete permission KHÔNG có UI (xem ghi chú `AdminRoleListView`). */
+export const PERMISSIONS_ENDPOINTS = {
+  list: '/permissions',
+} as const;
+
+/** Phase 19B.10 (Admin Avatar Management): khớp `avatars.controller.ts` thật. */
+export const AVATARS_ENDPOINTS = {
+  types: '/avatars/types',
+  typeById: (id: string) => `/avatars/types/${id}`,
+  images: '/avatars/images',
+  imageById: (id: string) => `/avatars/images/${id}`,
+} as const;
+
 export const ENDPOINTS = {
   auth: AUTH_ENDPOINTS,
   films: FILMS_ENDPOINTS,
@@ -110,4 +146,8 @@ export const ENDPOINTS = {
   histories: HISTORIES_ENDPOINTS,
   ratings: RATINGS_ENDPOINTS,
   countries: COUNTRIES_ENDPOINTS,
+  directors: DIRECTORS_ENDPOINTS,
+  roles: ROLES_ENDPOINTS,
+  permissions: PERMISSIONS_ENDPOINTS,
+  avatars: AVATARS_ENDPOINTS,
 } as const;

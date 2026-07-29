@@ -62,8 +62,12 @@ export function HeroBanner({
           <span className="text-on-surface-variant text-label-md">{meta}</span>
         </div>
         <h1 className="font-display-lg text-display-lg text-white leading-tight">{title}</h1>
+        {/* max-w-[36rem] (giá trị tường minh) thay vì `max-w-xl` — TECH-DEBT-001: token
+            `--spacing-xl` tự định nghĩa trong globals.css đè lên scale `max-w-*` mặc định của
+            Tailwind, khiến `max-w-xl` chỉ ra 80px thay vì 36rem. Bug đã ghi nhận ở nhiều nơi khác
+            (`notification-provider.tsx`, `app/(auth)/layout.tsx`, `ConfirmDialog.tsx`). */}
         {description ? (
-          <p className="text-body-lg font-body-lg text-on-surface-variant max-w-xl">
+          <p className="text-body-lg font-body-lg text-on-surface-variant max-w-[36rem]">
             {description}
           </p>
         ) : null}

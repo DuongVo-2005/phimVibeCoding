@@ -2,6 +2,7 @@ import { ConflictException, Injectable, NotFoundException } from '@nestjs/common
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
 import { PaginatedResponseDto } from '../common/dto/paginated-response.dto';
+import { escapeRegExp } from '../common/utils/regex-escape.util';
 import { toSlug } from '../common/utils/slugify.util';
 import { CreateActorDto } from './dto/create-actor.dto';
 import { QueryActorDto } from './dto/query-actor.dto';
@@ -20,7 +21,7 @@ export class ActorsService {
     }
 
     if (query.letter) {
-      filter.name = new RegExp(`^${query.letter}`, 'i');
+      filter.name = new RegExp(`^${escapeRegExp(query.letter)}`, 'i');
     }
 
     const sortField = query.sortBy ?? 'name';

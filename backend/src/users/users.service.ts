@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
 import { FilterQuery, Model, Types } from 'mongoose';
 import { PaginatedResponseDto } from '../common/dto/paginated-response.dto';
+import { escapeRegExp } from '../common/utils/regex-escape.util';
 import { PermissionResolverService } from '../role-permissions/permission-resolver.service';
 import { RoleDocument } from '../roles/schemas/role.schema';
 import { RolesService, USER_ROLE_NAME } from '../roles/roles.service';
@@ -73,7 +74,7 @@ export class UsersService {
     const filter: FilterQuery<UserDocument> = {};
 
     if (query.search) {
-      const search = new RegExp(query.search, 'i');
+      const search = new RegExp(escapeRegExp(query.search), 'i');
       filter.$or = [{ name: search }, { email: search }];
     }
     if (query.role) {

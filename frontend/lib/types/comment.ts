@@ -42,3 +42,20 @@ export interface VoteCommentInput {
 export interface SetCommentVisibilityInput {
   isHidden: boolean;
 }
+
+/**
+ * Phase 19B.7 (Admin Comment Moderation): shape THẬT KHÁC của `GET /comments` (moderation, admin-
+ * only) — `comments.service.ts`'s `findAllForModeration()` populate CẢ `user` (name,avatar, giống
+ * `Comment` thường) LẪN `film` (title,slug,posterUrl — khác hẳn `Comment.film` là chuỗi ID trần ở
+ * `byFilm`/`replies`/`topVoted`/`latest`). Tách riêng type thay vì sửa `Comment.film` thành union —
+ * đúng nguyên tắc đã áp dụng cho `FilmRef`/`FilmSummary` (Phase 11.2): shape khác nhau thật sự giữa
+ * các endpoint thì tách type riêng, không gộp.
+ */
+export interface CommentModerationItem extends Omit<Comment, 'film'> {
+  film: {
+    _id: string;
+    title: string;
+    slug: string;
+    posterUrl?: string;
+  };
+}

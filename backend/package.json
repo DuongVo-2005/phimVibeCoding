@@ -22,7 +22,8 @@
     "migrate:categories": "ts-node -r tsconfig-paths/register src/database/migrations/migrate-types-to-categories.ts",
     "migrate:film-refs": "ts-node -r tsconfig-paths/register src/database/migrations/migrate-film-country-director-refs.ts",
     "migrate:films-stabilization": "ts-node -r tsconfig-paths/register src/database/migrations/migrate-films-categories-published.ts",
-    "migrate:comments-hidden": "ts-node -r tsconfig-paths/register src/database/migrations/migrate-comments-hidden.ts"
+    "migrate:comments-hidden": "ts-node -r tsconfig-paths/register src/database/migrations/migrate-comments-hidden.ts",
+    "migrate:categories-source-slug": "ts-node -r tsconfig-paths/register src/database/migrations/migrate-categories-source-slug.ts"
   },
   "dependencies": {
     "@nestjs/axios": "^3.0.2",

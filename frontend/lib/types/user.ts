@@ -37,3 +37,20 @@ export interface UpdatePasswordInput {
   currentPassword: string;
   newPassword: string;
 }
+
+/** Phase 19B.8 (Admin User Management): khớp `CreateUserByAdminDto` thật — `roleIds` bỏ trống
+ * (mặc định role "user") vì việc chọn RBAC role cụ thể thuộc phạm vi phase Role/Permission Management
+ * riêng; sau khi tạo, admin vẫn đổi được `role` (user/admin) qua `UpdateUserRoleInput`. */
+export interface CreateUserByAdminInput {
+  email: string;
+  password: string;
+  name?: string;
+}
+
+export interface UpdateUserRoleInput {
+  role: AppUserRole;
+}
+
+export interface UpdateUserStatusInput {
+  isActive: boolean;
+}

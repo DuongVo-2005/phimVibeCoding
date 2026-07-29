@@ -1,7 +1,9 @@
 import type { ActorsQueryParams } from '@/lib/api/actors';
 import type { CategoriesQueryParams } from '@/lib/api/categories';
 import type { CommentsByFilmQueryParams, CommentsModerationQueryParams } from '@/lib/api/comments';
+import type { DirectorsQueryParams } from '@/lib/api/directors';
 import type { FavoritesQueryParams } from '@/lib/api/favorites';
+import type { UsersQueryParams } from '@/lib/api/users';
 import type { FilmsQueryParams, FilmsTopQueryParams } from '@/lib/api/films';
 import type { LimitQueryParams, PaginationQueryParams } from '@/lib/api/types';
 
@@ -53,6 +55,14 @@ export const queryKeys = {
     detail: (slug: string) => [...queryKeys.countries.details(), slug] as const,
   },
 
+  directors: {
+    all: () => ['directors'] as const,
+    lists: () => [...queryKeys.directors.all(), 'list'] as const,
+    list: (params?: DirectorsQueryParams) => [...queryKeys.directors.lists(), params] as const,
+    details: () => [...queryKeys.directors.all(), 'detail'] as const,
+    detail: (slug: string) => [...queryKeys.directors.details(), slug] as const,
+  },
+
   comments: {
     all: () => ['comments'] as const,
     byFilm: (filmId: string, params?: CommentsByFilmQueryParams) =>
@@ -94,5 +104,29 @@ export const queryKeys = {
   users: {
     all: () => ['users'] as const,
     me: () => [...queryKeys.users.all(), 'me'] as const,
+    lists: () => [...queryKeys.users.all(), 'list'] as const,
+    list: (params?: UsersQueryParams) => [...queryKeys.users.lists(), params] as const,
+    details: () => [...queryKeys.users.all(), 'detail'] as const,
+    detail: (id: string) => [...queryKeys.users.details(), id] as const,
+  },
+
+  roles: {
+    all: () => ['roles'] as const,
+    list: () => [...queryKeys.roles.all(), 'list'] as const,
+    details: () => [...queryKeys.roles.all(), 'detail'] as const,
+    detail: (id: string) => [...queryKeys.roles.details(), id] as const,
+    users: (id: string, params?: PaginationQueryParams) =>
+      [...queryKeys.roles.all(), 'users', id, params] as const,
+  },
+
+  permissions: {
+    all: () => ['permissions'] as const,
+    list: () => [...queryKeys.permissions.all(), 'list'] as const,
+  },
+
+  avatars: {
+    all: () => ['avatars'] as const,
+    types: () => [...queryKeys.avatars.all(), 'types'] as const,
+    images: (typeId?: string) => [...queryKeys.avatars.all(), 'images', typeId] as const,
   },
 } as const;

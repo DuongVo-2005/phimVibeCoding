@@ -76,7 +76,10 @@ export function ActorHero({
             {roleLabel}
           </span>
           <h1 className="font-headline-xl text-headline-xl text-on-surface leading-none">{name}</h1>
-          <p className="font-body-md text-body-md text-on-surface-variant max-w-md line-clamp-2">
+          {/* max-w-[28rem] (giá trị tường minh) thay vì `max-w-md` — TECH-DEBT-001: token
+              `--spacing-md` tự định nghĩa trong globals.css đè lên scale `max-w-*` mặc định của
+              Tailwind, khiến `max-w-md` chỉ ra 24px thay vì 28rem. */}
+          <p className="font-body-md text-body-md text-on-surface-variant max-w-[28rem] line-clamp-2">
             {shortBio}
           </p>
           <div className="flex gap-4 mt-4">

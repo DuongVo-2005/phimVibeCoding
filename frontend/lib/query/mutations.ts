@@ -1,16 +1,42 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import type { PaginationQueryParams } from '@/lib/api/types';
+import { actorsApi } from '@/lib/api/actors';
+import { categoriesApi } from '@/lib/api/categories';
 import { commentsApi } from '@/lib/api/comments';
+import { countriesApi } from '@/lib/api/countries';
+import { directorsApi } from '@/lib/api/directors';
 import type { FavoritesQueryParams } from '@/lib/api/favorites';
 import { favoritesApi } from '@/lib/api/favorites';
+import { filmsApi } from '@/lib/api/films';
 import { historiesApi } from '@/lib/api/histories';
 import { ratingsApi } from '@/lib/api/ratings';
+import type { ActorDetail, CreateActorInput, UpdateActorInput } from '@/lib/types/actor';
+import type { Category, CreateCategoryInput, UpdateCategoryInput } from '@/lib/types/category';
 import type { Comment, CommentVoteType } from '@/lib/types/comment';
 import type { PaginatedResponse } from '@/lib/types/common';
+import type { Country, CreateCountryInput, UpdateCountryInput } from '@/lib/types/country';
+import type {
+  CreateDirectorInput,
+  DirectorDetail,
+  UpdateDirectorInput,
+} from '@/lib/types/director';
 import type { Favorite, FavoriteTargetType } from '@/lib/types/favorite';
+import type { CreateFilmInput, FilmDetail, UpdateFilmInput } from '@/lib/types/film';
 import type { History } from '@/lib/types/history';
 import type { Rating, RatingSummary } from '@/lib/types/rating';
+import type { AppUserRole, CreateUserByAdminInput, UserProfile } from '@/lib/types/user';
+import { usersApi } from '@/lib/api/users';
+import { rolesApi } from '@/lib/api/roles';
+import type { CreateRoleInput, Role, UpdateRoleInput } from '@/lib/types/role';
+import type { Permission } from '@/lib/types/permission';
+import { avatarsApi } from '@/lib/api/avatars';
+import type {
+  CreateImgAvatarInput,
+  CreateTypeAvatarInput,
+  ImgAvatar,
+  TypeAvatar,
+} from '@/lib/types/avatar';
 import { queryKeys } from './keys';
 
 interface ToggleFavoriteVariables {
@@ -464,6 +490,29 @@ export function useCommentVoteMutation() {
   });
 }
 
+/** Phase 19B.7 (Admin Comment Moderation): mutation MỚI cho `commentsApi.setVisibility` —
+ * `PATCH /comments/:id/visibility`, admin-only, đã có sẵn API client từ Phase 17B.4 nhưng chưa có
+ * UI gọi tới. KHÔNG optimistic — chỉ invalidate `comments.all()` (phủ cả cache
+ * `comments.moderation(...)` lẫn `comments.byFilm(...)` vì cùng tiền tố, xem `queryKeys.ts`), khớp
+ * đúng việc ẩn/hiện phải phản ánh ở CẢ trang quản trị lẫn trang phim công khai. */
+export function useCommentVisibilityMutation() {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
+
+  return useMutation<Comment, Error, { id: string; isHidden: boolean }>({
+    mutationFn: async ({ id, isHidden }) => {
+      if (!accessToken) {
+        throw new Error('Yêu cầu đăng nhập admin để ẩn/hiện bình luận.');
+      }
+      return commentsApi.setVisibility(id, { isHidden }, accessToken);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.comments.all() });
+    },
+  });
+}
+
 interface RemoveHistoryVariables {
   filmId: string;
   /** Params ĐÚNG bằng params của `useQuery(historiesQueryOptions.recent(listParams, ...))` đang
@@ -528,6 +577,516 @@ export function useRemoveHistoryMutation() {
 
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.histories.all() });
+    },
+  });
+}
+
+/**
+ * Phase 19B.2 (Admin Movie Create/Edit/Delete): 3 mutation MỚI cho `filmsApi.create/update/remove`
+ * — API client đã có sẵn từ Phase 11.2 nhưng chưa có UI nào gọi tới. KHÔNG optimistic (khác
+ * favorite/rating/comment ở trên) — đây là thao tác quản trị tần suất thấp, sau khi submit luôn
+ * điều hướng đi (về danh sách) chứ không cần phản hồi tức thời tại chỗ; `onSuccess` chỉ
+ * `invalidateQueries(films.all())` để danh sách/chi tiết đọc lại đúng dữ liệu thật.
+ */
+export function useCreateFilmMutation() {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
+
+  return useMutation<FilmDetail, Error, CreateFilmInput>({
+    mutationFn: async (body) => {
+      if (!accessToken) {
+        throw new Error('Yêu cầu đăng nhập admin để tạo phim.');
+      }
+      return filmsApi.create(body, accessToken);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.films.all() });
+    },
+  });
+}
+
+export function useUpdateFilmMutation() {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
+
+  return useMutation<FilmDetail, Error, { id: string; body: UpdateFilmInput }>({
+    mutationFn: async ({ id, body }) => {
+      if (!accessToken) {
+        throw new Error('Yêu cầu đăng nhập admin để cập nhật phim.');
+      }
+      return filmsApi.update(id, body, accessToken);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.films.all() });
+    },
+  });
+}
+
+export function useDeleteFilmMutation() {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
+
+  return useMutation<null, Error, { id: string }>({
+    mutationFn: async ({ id }) => {
+      if (!accessToken) {
+        throw new Error('Yêu cầu đăng nhập admin để xoá phim.');
+      }
+      return filmsApi.remove(id, accessToken);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.films.all() });
+    },
+  });
+}
+
+/** Phase 19B.3 (Admin Category Management): cùng nguyên tắc `useCreateFilmMutation` ở trên — KHÔNG
+ * optimistic (thao tác quản trị tần suất thấp), `onSuccess` chỉ invalidate `categories.all()`. */
+export function useCreateCategoryMutation() {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
+
+  return useMutation<Category, Error, CreateCategoryInput>({
+    mutationFn: async (body) => {
+      if (!accessToken) {
+        throw new Error('Yêu cầu đăng nhập admin để tạo thể loại.');
+      }
+      return categoriesApi.create(body, accessToken);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.categories.all() });
+    },
+  });
+}
+
+export function useUpdateCategoryMutation() {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
+
+  return useMutation<Category, Error, { id: string; body: UpdateCategoryInput }>({
+    mutationFn: async ({ id, body }) => {
+      if (!accessToken) {
+        throw new Error('Yêu cầu đăng nhập admin để cập nhật thể loại.');
+      }
+      return categoriesApi.update(id, body, accessToken);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.categories.all() });
+    },
+  });
+}
+
+export function useDeleteCategoryMutation() {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
+
+  return useMutation<null, Error, { id: string }>({
+    mutationFn: async ({ id }) => {
+      if (!accessToken) {
+        throw new Error('Yêu cầu đăng nhập admin để xoá thể loại.');
+      }
+      return categoriesApi.remove(id, accessToken);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.categories.all() });
+    },
+  });
+}
+
+/** Phase 19B.4 (Admin Country Management): cùng nguyên tắc `useCreateCategoryMutation` ở trên. */
+export function useCreateCountryMutation() {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
+
+  return useMutation<Country, Error, CreateCountryInput>({
+    mutationFn: async (body) => {
+      if (!accessToken) {
+        throw new Error('Yêu cầu đăng nhập admin để tạo quốc gia.');
+      }
+      return countriesApi.create(body, accessToken);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.countries.all() });
+    },
+  });
+}
+
+export function useUpdateCountryMutation() {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
+
+  return useMutation<Country, Error, { id: string; body: UpdateCountryInput }>({
+    mutationFn: async ({ id, body }) => {
+      if (!accessToken) {
+        throw new Error('Yêu cầu đăng nhập admin để cập nhật quốc gia.');
+      }
+      return countriesApi.update(id, body, accessToken);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.countries.all() });
+    },
+  });
+}
+
+export function useDeleteCountryMutation() {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
+
+  return useMutation<null, Error, { id: string }>({
+    mutationFn: async ({ id }) => {
+      if (!accessToken) {
+        throw new Error('Yêu cầu đăng nhập admin để xoá quốc gia.');
+      }
+      return countriesApi.remove(id, accessToken);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.countries.all() });
+    },
+  });
+}
+
+/** Phase 19B.5 (Admin Actor Management): cùng nguyên tắc `useCreateCountryMutation` ở trên. */
+export function useCreateActorMutation() {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
+
+  return useMutation<ActorDetail, Error, CreateActorInput>({
+    mutationFn: async (body) => {
+      if (!accessToken) {
+        throw new Error('Yêu cầu đăng nhập admin để tạo diễn viên.');
+      }
+      return actorsApi.create(body, accessToken);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.actors.all() });
+    },
+  });
+}
+
+export function useUpdateActorMutation() {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
+
+  return useMutation<ActorDetail, Error, { id: string; body: UpdateActorInput }>({
+    mutationFn: async ({ id, body }) => {
+      if (!accessToken) {
+        throw new Error('Yêu cầu đăng nhập admin để cập nhật diễn viên.');
+      }
+      return actorsApi.update(id, body, accessToken);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.actors.all() });
+    },
+  });
+}
+
+export function useDeleteActorMutation() {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
+
+  return useMutation<null, Error, { id: string }>({
+    mutationFn: async ({ id }) => {
+      if (!accessToken) {
+        throw new Error('Yêu cầu đăng nhập admin để xoá diễn viên.');
+      }
+      return actorsApi.remove(id, accessToken);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.actors.all() });
+    },
+  });
+}
+
+/** Phase 19B.6 (Admin Director Management): cùng nguyên tắc `useCreateActorMutation` ở trên.
+ * `directorsApi` đã có sẵn từ Phase 19B.2 (ô chọn đạo diễn trong `MovieForm`). */
+export function useCreateDirectorMutation() {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
+
+  return useMutation<DirectorDetail, Error, CreateDirectorInput>({
+    mutationFn: async (body) => {
+      if (!accessToken) {
+        throw new Error('Yêu cầu đăng nhập admin để tạo đạo diễn.');
+      }
+      return directorsApi.create(body, accessToken);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.directors.all() });
+    },
+  });
+}
+
+export function useUpdateDirectorMutation() {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
+
+  return useMutation<DirectorDetail, Error, { id: string; body: UpdateDirectorInput }>({
+    mutationFn: async ({ id, body }) => {
+      if (!accessToken) {
+        throw new Error('Yêu cầu đăng nhập admin để cập nhật đạo diễn.');
+      }
+      return directorsApi.update(id, body, accessToken);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.directors.all() });
+    },
+  });
+}
+
+export function useDeleteDirectorMutation() {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
+
+  return useMutation<null, Error, { id: string }>({
+    mutationFn: async ({ id }) => {
+      if (!accessToken) {
+        throw new Error('Yêu cầu đăng nhập admin để xoá đạo diễn.');
+      }
+      return directorsApi.remove(id, accessToken);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.directors.all() });
+    },
+  });
+}
+
+/** Phase 19B.8 (Admin User Management): `updateRole`/`updateStatus`/`remove` đều tự chặn admin
+ * thao tác lên CHÍNH TÀI KHOẢN đang đăng nhập ở backend (`ensureNotSelf()`, ném `ConflictException`
+ * — xem `users.service.ts`) — UI vẫn nên tự vô hiệu hoá nút ở dòng của chính admin (so sánh
+ * `session.user.id`) để tránh round-trip lỗi, nhưng KHÔNG bỏ qua guard backend (defense-in-depth,
+ * cùng nguyên tắc `RoleGuard` + middleware ở Admin Foundation). */
+export function useCreateUserMutation() {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
+
+  return useMutation<UserProfile, Error, CreateUserByAdminInput>({
+    mutationFn: async (body) => {
+      if (!accessToken) {
+        throw new Error('Yêu cầu đăng nhập admin để tạo người dùng.');
+      }
+      return usersApi.create(body, accessToken);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.users.all() });
+    },
+  });
+}
+
+export function useUpdateUserRoleMutation() {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
+
+  return useMutation<UserProfile, Error, { id: string; role: AppUserRole }>({
+    mutationFn: async ({ id, role }) => {
+      if (!accessToken) {
+        throw new Error('Yêu cầu đăng nhập admin để đổi role.');
+      }
+      return usersApi.updateRole(id, { role }, accessToken);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.users.all() });
+    },
+  });
+}
+
+export function useUpdateUserStatusMutation() {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
+
+  return useMutation<UserProfile, Error, { id: string; isActive: boolean }>({
+    mutationFn: async ({ id, isActive }) => {
+      if (!accessToken) {
+        throw new Error('Yêu cầu đăng nhập admin để đổi trạng thái.');
+      }
+      return usersApi.updateStatus(id, { isActive }, accessToken);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.users.all() });
+    },
+  });
+}
+
+export function useDeleteUserMutation() {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
+
+  return useMutation<null, Error, { id: string }>({
+    mutationFn: async ({ id }) => {
+      if (!accessToken) {
+        throw new Error('Yêu cầu đăng nhập admin để xoá người dùng.');
+      }
+      return usersApi.remove(id, accessToken);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.users.all() });
+    },
+  });
+}
+
+/** Phase 19B.9 (Admin Role/Permission Management): cùng nguyên tắc các mutation admin khác ở
+ * trên. `useSetRolePermissionsMutation` invalidate riêng `roles.detail(id)` (chứa
+ * `permissionKeys`) THAY VÌ toàn bộ `roles.all()` — đủ và hẹp hơn, tránh refetch lại `roles.list()`
+ * không cần thiết (list không hiển thị chi tiết quyền). */
+export function useCreateRoleMutation() {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
+
+  return useMutation<Role, Error, CreateRoleInput>({
+    mutationFn: async (body) => {
+      if (!accessToken) {
+        throw new Error('Yêu cầu đăng nhập admin để tạo role.');
+      }
+      return rolesApi.create(body, accessToken);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.roles.all() });
+    },
+  });
+}
+
+export function useUpdateRoleMutation() {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
+
+  return useMutation<Role, Error, { id: string; body: UpdateRoleInput }>({
+    mutationFn: async ({ id, body }) => {
+      if (!accessToken) {
+        throw new Error('Yêu cầu đăng nhập admin để cập nhật role.');
+      }
+      return rolesApi.update(id, body, accessToken);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.roles.all() });
+    },
+  });
+}
+
+export function useDeleteRoleMutation() {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
+
+  return useMutation<null, Error, { id: string }>({
+    mutationFn: async ({ id }) => {
+      if (!accessToken) {
+        throw new Error('Yêu cầu đăng nhập admin để xoá role.');
+      }
+      return rolesApi.remove(id, accessToken);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.roles.all() });
+    },
+  });
+}
+
+export function useSetRolePermissionsMutation() {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
+
+  return useMutation<Permission[], Error, { id: string; permissionIds: string[] }>({
+    mutationFn: async ({ id, permissionIds }) => {
+      if (!accessToken) {
+        throw new Error('Yêu cầu đăng nhập admin để gán quyền.');
+      }
+      return rolesApi.setPermissions(id, permissionIds, accessToken);
+    },
+    onSuccess: (_data, { id }) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.roles.detail(id) });
+    },
+  });
+}
+
+/** Phase 19B.10 (Admin Avatar Management): cùng nguyên tắc các mutation admin khác — không
+ * optimistic, chỉ invalidate sau khi thành công. */
+export function useCreateAvatarTypeMutation() {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
+
+  return useMutation<TypeAvatar, Error, CreateTypeAvatarInput>({
+    mutationFn: async (body) => {
+      if (!accessToken) {
+        throw new Error('Yêu cầu đăng nhập admin để tạo loại avatar.');
+      }
+      return avatarsApi.createType(body, accessToken);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.avatars.all() });
+    },
+  });
+}
+
+export function useCreateAvatarImageMutation() {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
+
+  return useMutation<ImgAvatar, Error, CreateImgAvatarInput>({
+    mutationFn: async (body) => {
+      if (!accessToken) {
+        throw new Error('Yêu cầu đăng nhập admin để thêm avatar.');
+      }
+      return avatarsApi.createImage(body, accessToken);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.avatars.all() });
+    },
+  });
+}
+
+export function useDeleteAvatarTypeMutation() {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
+
+  return useMutation<null, Error, { id: string }>({
+    mutationFn: async ({ id }) => {
+      if (!accessToken) {
+        throw new Error('Yêu cầu đăng nhập admin để xoá loại avatar.');
+      }
+      return avatarsApi.removeType(id, accessToken);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.avatars.all() });
+    },
+  });
+}
+
+export function useDeleteAvatarImageMutation() {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
+
+  return useMutation<null, Error, { id: string }>({
+    mutationFn: async ({ id }) => {
+      if (!accessToken) {
+        throw new Error('Yêu cầu đăng nhập admin để xoá avatar.');
+      }
+      return avatarsApi.removeImage(id, accessToken);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.avatars.all() });
     },
   });
 }

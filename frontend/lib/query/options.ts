@@ -1,5 +1,6 @@
 import { queryOptions } from '@tanstack/react-query';
 import { actorsApi, type ActorsQueryParams } from '@/lib/api/actors';
+import { avatarsApi } from '@/lib/api/avatars';
 import { categoriesApi, type CategoriesQueryParams } from '@/lib/api/categories';
 import {
   commentsApi,
@@ -7,13 +8,16 @@ import {
   type CommentsModerationQueryParams,
 } from '@/lib/api/comments';
 import { countriesApi } from '@/lib/api/countries';
+import { directorsApi, type DirectorsQueryParams } from '@/lib/api/directors';
 import { favoritesApi, type FavoritesQueryParams } from '@/lib/api/favorites';
 import { filmsApi, type FilmsQueryParams, type FilmsTopQueryParams } from '@/lib/api/films';
 import { historiesApi } from '@/lib/api/histories';
 import { playlistsApi } from '@/lib/api/playlists';
 import { ratingsApi } from '@/lib/api/ratings';
 import type { LimitQueryParams, PaginationQueryParams } from '@/lib/api/types';
-import { usersApi } from '@/lib/api/users';
+import { permissionsApi } from '@/lib/api/permissions';
+import { rolesApi } from '@/lib/api/roles';
+import { usersApi, type UsersQueryParams } from '@/lib/api/users';
 import {
   PRIVATE_QUERY_OPTIONS,
   PUBLIC_CONTENT_QUERY_OPTIONS,
@@ -135,6 +139,25 @@ export const countriesQueryOptions = {
     }),
 };
 
+/** Phase 19B.2: `directors` có phân trang + `search` (khác `categories`/`countries`) — dùng
+ * `PUBLIC_CONTENT_QUERY_OPTIONS` (staleTime ngắn hơn `STATIC_QUERY_OPTIONS`) vì kết quả phụ thuộc
+ * trực tiếp vào `search` do người dùng gõ, không phải danh sách gần-tĩnh như thể loại/quốc gia. */
+export const directorsQueryOptions = {
+  list: (params?: DirectorsQueryParams) =>
+    queryOptions({
+      queryKey: queryKeys.directors.list(params),
+      queryFn: () => directorsApi.list(params),
+      ...PUBLIC_CONTENT_QUERY_OPTIONS,
+    }),
+
+  detail: (slug: string) =>
+    queryOptions({
+      queryKey: queryKeys.directors.detail(slug),
+      queryFn: () => directorsApi.bySlug(slug),
+      ...STATIC_QUERY_OPTIONS,
+    }),
+};
+
 export const commentsQueryOptions = {
   byFilm: (filmId: string, params?: CommentsByFilmQueryParams) =>
     queryOptions({
@@ -249,5 +272,77 @@ export const usersQueryOptions = {
       queryFn: () => usersApi.me(accessToken as string),
       enabled: Boolean(accessToken),
       ...PRIVATE_QUERY_OPTIONS,
+    }),
+
+  /** Phase 19B.8: nhóm quản trị — yêu cầu access token admin. */
+  list: (params: UsersQueryParams | undefined, accessToken?: string) =>
+    queryOptions({
+      queryKey: queryKeys.users.list(params),
+      queryFn: () => usersApi.list(params, accessToken as string),
+      enabled: Boolean(accessToken),
+      ...PRIVATE_QUERY_OPTIONS,
+    }),
+
+  detail: (id: string, accessToken?: string) =>
+    queryOptions({
+      queryKey: queryKeys.users.detail(id),
+      queryFn: () => usersApi.byId(id, accessToken as string),
+      enabled: Boolean(accessToken),
+      ...PRIVATE_QUERY_OPTIONS,
+    }),
+};
+
+/** Phase 19B.9 (Admin Role/Permission Management): yêu cầu access token admin. */
+export const rolesQueryOptions = {
+  list: (accessToken?: string) =>
+    queryOptions({
+      queryKey: queryKeys.roles.list(),
+      queryFn: () => rolesApi.list(accessToken as string),
+      enabled: Boolean(accessToken),
+      ...PRIVATE_QUERY_OPTIONS,
+    }),
+
+  detail: (id: string, accessToken?: string) =>
+    queryOptions({
+      queryKey: queryKeys.roles.detail(id),
+      queryFn: () => rolesApi.byId(id, accessToken as string),
+      enabled: Boolean(accessToken),
+      ...PRIVATE_QUERY_OPTIONS,
+    }),
+
+  users: (id: string, params: PaginationQueryParams | undefined, accessToken?: string) =>
+    queryOptions({
+      queryKey: queryKeys.roles.users(id, params),
+      queryFn: () => rolesApi.users(id, params, accessToken as string),
+      enabled: Boolean(accessToken),
+      ...PRIVATE_QUERY_OPTIONS,
+    }),
+};
+
+export const permissionsQueryOptions = {
+  list: (accessToken?: string) =>
+    queryOptions({
+      queryKey: queryKeys.permissions.list(),
+      queryFn: () => permissionsApi.list(accessToken as string),
+      enabled: Boolean(accessToken),
+      ...PRIVATE_QUERY_OPTIONS,
+    }),
+};
+
+/** Phase 19B.10 (Admin Avatar Management): `GET /avatars/types|images` là `@Public()` — không cần
+ * accessToken để đọc (chỉ Create/Delete mới cần, xử lý ở `mutations.ts`). */
+export const avatarsQueryOptions = {
+  types: () =>
+    queryOptions({
+      queryKey: queryKeys.avatars.types(),
+      queryFn: () => avatarsApi.types(),
+      ...STATIC_QUERY_OPTIONS,
+    }),
+
+  images: (typeId?: string) =>
+    queryOptions({
+      queryKey: queryKeys.avatars.images(typeId),
+      queryFn: () => avatarsApi.images(typeId),
+      ...STATIC_QUERY_OPTIONS,
     }),
 };

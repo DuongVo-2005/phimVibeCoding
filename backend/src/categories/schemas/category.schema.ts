@@ -26,9 +26,15 @@ export class Category {
   @Prop({ type: String, default: null })
   source: string | null;
 
-  /** Slug gốc bên Ophim — khoá để khớp khi đồng bộ lại (không dùng `slug` vì slug có thể bị admin đổi). */
-  @Prop({ type: String, default: null })
-  sourceSlug: string | null;
+  /** Slug gốc bên Ophim — khoá để khớp khi đồng bộ lại (không dùng `slug` vì slug có thể bị admin đổi).
+   * KHÔNG đặt `default: null` — field này có unique+sparse index bên dưới; `sparse` chỉ loại trừ
+   * document THIẾU HẲN field, không loại trừ field có giá trị `null` tường minh. `default: null`
+   * khiến Mongoose luôn ghi field này (giá trị null) trên MỌI category tạo tay, khiến category tạo
+   * tay thứ 2 trở đi vi phạm unique index (đã xác nhận bằng lỗi E11000 thật, Phase 19B.3 QA) — category
+   * tạo tay giờ không set field này nên nó vắng mặt hẳn, đúng ý nghĩa `sparse` ban đầu. `source`/
+   * `sourceUpdatedAt` không có unique index nên giữ nguyên `default: null` (không có xung đột). */
+  @Prop({ type: String })
+  sourceSlug?: string | null;
 
   @Prop({ type: Date, default: null })
   sourceUpdatedAt: Date | null;
