@@ -23,6 +23,9 @@ export interface UserProfile {
   role: AppUserRole;
   roleIds: string[];
   isActive: boolean;
+  /** Phase 33 (Verify Email) — khớp `user.schema.ts` thật (`isEmailVerified`/`emailVerifiedAt`). */
+  isEmailVerified: boolean;
+  emailVerifiedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }

@@ -16,18 +16,22 @@ import { ThrottleConfig } from './config/configuration';
 import { CountriesModule } from './countries/countries.module';
 import { CrawlerHistoryModule } from './crawler-history/crawler-history.module';
 import { CrawlerModule } from './crawler/crawler.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 import { DatabaseModule } from './database/database.module';
 import { DirectorsModule } from './directors/directors.module';
+import { EpisodesModule } from './episodes/episodes.module';
 import { FavoritesModule } from './favorites/favorites.module';
 import { FilmReportsModule } from './film-reports/film-reports.module';
 import { FilmsModule } from './films/films.module';
 import { HealthModule } from './health/health.module';
 import { HistoriesModule } from './histories/histories.module';
+import { NotificationsModule } from './notifications/notifications.module';
 import { PermissionsModule } from './permissions/permissions.module';
 import { PlaylistsModule } from './playlists/playlists.module';
 import { RatingsModule } from './ratings/ratings.module';
 import { RolePermissionsModule } from './role-permissions/role-permissions.module';
 import { RolesModule } from './roles/roles.module';
+import { UploadsModule } from './uploads/uploads.module';
 import { UsersModule } from './users/users.module';
 
 @Module({
@@ -55,6 +59,7 @@ import { UsersModule } from './users/users.module';
     DirectorsModule,
     ActorsModule,
     FilmsModule,
+    EpisodesModule,
     CommentsModule,
     RatingsModule,
     FavoritesModule,
@@ -64,6 +69,9 @@ import { UsersModule } from './users/users.module';
     FilmReportsModule,
     CrawlerModule,
     CrawlerHistoryModule,
+    UploadsModule,
+    DashboardModule,
+    NotificationsModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },

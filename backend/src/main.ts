@@ -1,11 +1,13 @@
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { getModelToken } from '@nestjs/mongoose';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { Model } from 'mongoose';
+import { join } from 'path';
 import { AppModule } from './app.module';
 import { AppConfig } from './config/configuration';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
@@ -14,7 +16,7 @@ import { ParseObjectIdPipe } from './common/pipes/parse-object-id.pipe';
 import { FILM_TEXT_INDEX_LANGUAGE_OVERRIDE, Film, FilmDocument } from './films/schemas/film.schema';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const configService = app.get(ConfigService);
   const appConfig = configService.get<AppConfig>('app')!;
 
@@ -22,12 +24,26 @@ async function bootstrap() {
     await syncDevelopmentIndexes(app);
   }
 
-  app.use(helmet());
+  // Phase 31 (Upload Module): `helmet()` mặc định set `Cross-Origin-Resource-Policy: same-origin`
+  // trên MỌI response — chặn hẳn browser load ảnh tĩnh `/uploads/...` từ frontend (origin khác,
+  // vd localhost:3001 khi backend chạy localhost:3000), dù response vẫn 200 (curl không bị chặn vì
+  // CORP là chính sách phía TRÌNH DUYỆT, không phải mã trạng thái HTTP) — lỗi thật `net::
+  // ERR_BLOCKED_BY_RESPONSE.NotSameOrigin`, phát hiện qua Manual QA thật bằng Playwright (curl-only
+  // test trước đó không bắt được vì không mô phỏng hành vi trình duyệt). API JSON của app này vốn
+  // đã cho phép gọi cross-origin có chủ đích (`enableCors` bên dưới) — đổi `crossOriginResourcePolicy`
+  // thành `cross-origin` cho khớp, không tắt hẳn helmet.
+  app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
   app.use(cookieParser());
   app.enableCors({
     origin: appConfig.corsOrigin === '*' ? true : appConfig.corsOrigin.split(','),
     credentials: true,
   });
+
+  // Phase 31 (Upload Module): serve file đã upload tĩnh tại `/uploads/...` — CỐ Ý đặt NGOÀI
+  // `apiPrefix` (setGlobalPrefix bên dưới chỉ áp dụng cho route NestJS, không ảnh hưởng static
+  // middleware của Express) để URL trả về từ `UploadsService.save()` khớp đúng những gì file thật
+  // được serve ở đó — `PUBLIC_BASE_URL` + `/uploads/...`, không có `/api/v1` xen giữa.
+  app.useStaticAssets(join(process.cwd(), 'uploads'), { prefix: '/uploads/' });
 
   app.setGlobalPrefix(appConfig.apiPrefix);
 
@@ -54,7 +70,9 @@ async function bootstrap() {
 
   await app.listen(appConfig.port);
   // eslint-disable-next-line no-console
-  console.log(`🚀 RoPhim API is running on: http://localhost:${appConfig.port}/${appConfig.apiPrefix}`);
+  console.log(
+    `🚀 RoPhim API is running on: http://localhost:${appConfig.port}/${appConfig.apiPrefix}`,
+  );
   // eslint-disable-next-line no-console
   console.log(`📚 Swagger docs: http://localhost:${appConfig.port}/api/docs`);
 }

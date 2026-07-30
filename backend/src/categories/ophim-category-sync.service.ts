@@ -84,7 +84,7 @@ export class OphimCategorySyncService {
       throw new NotFoundException('Không tìm thấy danh mục để đồng bộ');
     }
 
-    let added = 0;
+    const added = 0;
     let updated = 0;
     let failed = 0;
     let errorMessage: string | null = null;

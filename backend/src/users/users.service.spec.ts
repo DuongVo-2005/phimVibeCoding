@@ -1,5 +1,5 @@
 import { getModelToken } from '@nestjs/mongoose';
-import { ConflictException, NotFoundException } from '@nestjs/common';
+import { ConflictException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Types } from 'mongoose';
 import { UserRole } from '../common/constants';
@@ -74,9 +74,9 @@ describe('UsersService', () => {
     });
 
     it('setRoles ném ConflictException khi actingUserId === targetId', async () => {
-      await expect(
-        service.setRoles('user-1', 'user-1', { roleIds: ['role-1'] }),
-      ).rejects.toThrow(ConflictException);
+      await expect(service.setRoles('user-1', 'user-1', { roleIds: ['role-1'] })).rejects.toThrow(
+        ConflictException,
+      );
     });
 
     it('removeRole ném ConflictException khi actingUserId === targetId', async () => {
@@ -154,7 +154,12 @@ describe('UsersService', () => {
       rolesService.findByName.mockResolvedValue({ _id: defaultRoleId });
       // Refetch qua findById sau save() — mô phỏng Mongoose tự loại password (select:false).
       userModel.findById.mockReturnValue(
-        execResolves({ _id: 'new-user-id', email: dto.email, name: dto.name, roleIds: [defaultRoleId] }),
+        execResolves({
+          _id: 'new-user-id',
+          email: dto.email,
+          name: dto.name,
+          roleIds: [defaultRoleId],
+        }),
       );
 
       const result = await service.createByAdmin(dto);
@@ -187,9 +192,7 @@ describe('UsersService', () => {
       await service.createByAdmin({ ...dto, roleIds: [roleId.toString()] });
 
       expect(rolesService.findByName).not.toHaveBeenCalled();
-      expect(userModel).toHaveBeenCalledWith(
-        expect.objectContaining({ roleIds: [roleId] }),
-      );
+      expect(userModel).toHaveBeenCalledWith(expect.objectContaining({ roleIds: [roleId] }));
     });
 
     it('ném NotFoundException khi có roleId trong dto không tồn tại', async () => {
@@ -237,10 +240,7 @@ describe('UsersService', () => {
       await service.findAll(buildQuery({ search: 'nguyen' }) as any);
 
       const filterArg = userModel.find.mock.calls[0][0];
-      expect(filterArg.$or).toEqual([
-        { name: expect.any(RegExp) },
-        { email: expect.any(RegExp) },
-      ]);
+      expect(filterArg.$or).toEqual([{ name: expect.any(RegExp) }, { email: expect.any(RegExp) }]);
       expect(filterArg.$or[0].name.test('Nguyen Van A')).toBe(true);
     });
 
@@ -327,6 +327,36 @@ describe('UsersService', () => {
       userModel.findById.mockReturnValue(chain);
 
       await expect(service.findRoles('khong-ton-tai')).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('markEmailVerified (Phase 33 — Verify Email)', () => {
+    it('set isEmailVerified=true và emailVerifiedAt = thời điểm hiện tại', async () => {
+      userModel.findByIdAndUpdate.mockReturnValue(execResolves({ _id: 'user-1' }));
+
+      await service.markEmailVerified('user-1');
+
+      expect(userModel.findByIdAndUpdate).toHaveBeenCalledWith('user-1', {
+        isEmailVerified: true,
+        emailVerifiedAt: expect.any(Date),
+      });
+    });
+  });
+
+  describe('updatePassword', () => {
+    it('ném UnauthorizedException (không phải ConflictException) khi currentPassword không đúng — khớp cách AuthService.login phân loại lỗi sai mật khẩu', async () => {
+      const chain = { select: jest.fn() };
+      chain.select.mockReturnValue(
+        execResolves({ _id: 'user-1', password: 'not-a-real-bcrypt-hash' }),
+      );
+      userModel.findById.mockReturnValue(chain);
+
+      await expect(
+        service.updatePassword('user-1', {
+          currentPassword: 'wrong-password',
+          newPassword: 'NewPassword123',
+        }),
+      ).rejects.toThrow(UnauthorizedException);
     });
   });
 });

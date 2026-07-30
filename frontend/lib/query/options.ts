@@ -8,10 +8,13 @@ import {
   type CommentsModerationQueryParams,
 } from '@/lib/api/comments';
 import { countriesApi } from '@/lib/api/countries';
+import { dashboardApi, type DashboardChartsQueryParams } from '@/lib/api/dashboard';
 import { directorsApi, type DirectorsQueryParams } from '@/lib/api/directors';
+import { episodesApi } from '@/lib/api/episodes';
 import { favoritesApi, type FavoritesQueryParams } from '@/lib/api/favorites';
 import { filmsApi, type FilmsQueryParams, type FilmsTopQueryParams } from '@/lib/api/films';
 import { historiesApi } from '@/lib/api/histories';
+import { notificationsApi, type NotificationsQueryParams } from '@/lib/api/notifications';
 import { playlistsApi } from '@/lib/api/playlists';
 import { ratingsApi } from '@/lib/api/ratings';
 import type { LimitQueryParams, PaginationQueryParams } from '@/lib/api/types';
@@ -344,5 +347,68 @@ export const avatarsQueryOptions = {
       queryKey: queryKeys.avatars.images(typeId),
       queryFn: () => avatarsApi.images(typeId),
       ...STATIC_QUERY_OPTIONS,
+    }),
+};
+
+/** Phase 32 (v1.1 — Dashboard API): toàn bộ 4 route đều yêu cầu admin + `dashboard:view`, không
+ * có route Public — cùng nhóm `PRIVATE_QUERY_OPTIONS` với `rolesQueryOptions`/`usersQueryOptions`
+ * (yêu cầu access token admin). */
+export const dashboardQueryOptions = {
+  overview: (accessToken?: string) =>
+    queryOptions({
+      queryKey: queryKeys.dashboard.overview(),
+      queryFn: () => dashboardApi.overview(accessToken as string),
+      enabled: Boolean(accessToken),
+      ...PRIVATE_QUERY_OPTIONS,
+    }),
+
+  charts: (params: DashboardChartsQueryParams | undefined, accessToken?: string) =>
+    queryOptions({
+      queryKey: queryKeys.dashboard.charts(params),
+      queryFn: () => dashboardApi.charts(params, accessToken as string),
+      enabled: Boolean(accessToken),
+      ...PRIVATE_QUERY_OPTIONS,
+    }),
+
+  topLists: (params: LimitQueryParams | undefined, accessToken?: string) =>
+    queryOptions({
+      queryKey: queryKeys.dashboard.topLists(params),
+      queryFn: () => dashboardApi.topLists(params, accessToken as string),
+      enabled: Boolean(accessToken),
+      ...PRIVATE_QUERY_OPTIONS,
+    }),
+
+  recentActivity: (params: LimitQueryParams | undefined, accessToken?: string) =>
+    queryOptions({
+      queryKey: queryKeys.dashboard.recentActivity(params),
+      queryFn: () => dashboardApi.recentActivity(params, accessToken as string),
+      enabled: Boolean(accessToken),
+      ...PRIVATE_QUERY_OPTIONS,
+    }),
+};
+
+/** Phase 34 (Notification Center) — không có route Public, cùng nhóm `PRIVATE_QUERY_OPTIONS`
+ * (staleTime:0) như favorites/histories/playlists — dữ liệu cá nhân, refetch khi focus lại tab để
+ * badge chuông không hiện số cũ. */
+export const notificationsQueryOptions = {
+  list: (params: NotificationsQueryParams | undefined, accessToken?: string) =>
+    queryOptions({
+      queryKey: queryKeys.notifications.list(params),
+      queryFn: () => notificationsApi.list(params, accessToken as string),
+      enabled: Boolean(accessToken),
+      ...PRIVATE_QUERY_OPTIONS,
+    }),
+};
+
+/** Phase 35 (Episode Management API) — admin-only, không có route Public. `staleTime:0`
+ * (`PRIVATE_QUERY_OPTIONS`) — danh sách tập cần luôn khớp thao tác vừa thực hiện (thêm/sửa/xoá/sắp
+ * xếp lại), không nên hiện dữ liệu cache cũ trong màn hình quản trị. */
+export const episodesQueryOptions = {
+  byFilm: (filmId: string, accessToken?: string) =>
+    queryOptions({
+      queryKey: queryKeys.episodes.byFilm(filmId),
+      queryFn: () => episodesApi.listByFilm(filmId, accessToken as string),
+      enabled: Boolean(accessToken) && Boolean(filmId),
+      ...PRIVATE_QUERY_OPTIONS,
     }),
 };

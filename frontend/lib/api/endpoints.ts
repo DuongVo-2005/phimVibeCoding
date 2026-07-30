@@ -19,6 +19,10 @@ export const AUTH_ENDPOINTS = {
   logout: '/auth/logout',
   forgotPassword: '/auth/forgot-password',
   resetPassword: '/auth/reset-password',
+  // Phase 33 (v1.1 — Verify Email): khớp `auth.controller.ts` thật.
+  sendVerificationEmail: '/auth/send-verification-email',
+  resendVerificationEmail: '/auth/resend-verification-email',
+  verifyEmail: '/auth/verify-email',
 } as const;
 
 export const FILMS_ENDPOINTS = {
@@ -126,12 +130,46 @@ export const PERMISSIONS_ENDPOINTS = {
   list: '/permissions',
 } as const;
 
+/** Phase 31 (v1.1 — Upload Module): khớp `uploads.controller.ts` thật (`api_design.md` §24). */
+export const UPLOADS_ENDPOINTS = {
+  image: '/uploads/image',
+  base: '/uploads',
+} as const;
+
+/** Phase 32 (v1.1 — Dashboard API): khớp `dashboard.controller.ts` thật. */
+export const DASHBOARD_ENDPOINTS = {
+  overview: '/dashboard/overview',
+  charts: '/dashboard/charts',
+  topLists: '/dashboard/top-lists',
+  recentActivity: '/dashboard/recent-activity',
+} as const;
+
 /** Phase 19B.10 (Admin Avatar Management): khớp `avatars.controller.ts` thật. */
 export const AVATARS_ENDPOINTS = {
   types: '/avatars/types',
   typeById: (id: string) => `/avatars/types/${id}`,
   images: '/avatars/images',
   imageById: (id: string) => `/avatars/images/${id}`,
+} as const;
+
+/** Phase 34 (v1.1 — Notification Center): khớp `notifications.controller.ts` thật — không có
+ * route tạo thông báo (chỉ đọc/quản lý, xem ghi chú `NotificationsService.create` — nội bộ, chưa
+ * có trigger nào gọi tới ở phase này). */
+export const NOTIFICATIONS_ENDPOINTS = {
+  list: '/notifications',
+  markRead: (id: string) => `/notifications/${id}/read`,
+  markAllRead: '/notifications/read-all',
+  remove: (id: string) => `/notifications/${id}`,
+} as const;
+
+/** Phase 35 (v1.1 — Episode Management API): khớp `film-episodes.controller.ts` (base
+ * `/films/:filmId/episodes`) + `episodes.controller.ts` (base `/episodes`) — 2 controller riêng ở
+ * backend cho đúng 2 base path literal theo yêu cầu phase, cùng dùng chung `EpisodesService`. */
+export const EPISODES_ENDPOINTS = {
+  byFilm: (filmId: string) => `/films/${filmId}/episodes`,
+  update: (id: string) => `/episodes/${id}`,
+  remove: (id: string) => `/episodes/${id}`,
+  updateOrder: (id: string) => `/episodes/${id}/order`,
 } as const;
 
 export const ENDPOINTS = {
@@ -150,4 +188,8 @@ export const ENDPOINTS = {
   roles: ROLES_ENDPOINTS,
   permissions: PERMISSIONS_ENDPOINTS,
   avatars: AVATARS_ENDPOINTS,
+  uploads: UPLOADS_ENDPOINTS,
+  dashboard: DASHBOARD_ENDPOINTS,
+  notifications: NOTIFICATIONS_ENDPOINTS,
+  episodes: EPISODES_ENDPOINTS,
 } as const;

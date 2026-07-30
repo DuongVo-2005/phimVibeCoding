@@ -7,7 +7,18 @@
       "Bash(awk '/<script id=\"tailwind-config\">/,/<\\\\/script>/' moviedentail.html)",
       "Bash(node \"C:\\\\Users\\\\THAI DUONG\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\f--BE-phim-vibe-coding\\\\7cb008d0-0870-4d6a-8c4c-331745e43304\\\\scratchpad\\\\merge_config.js\" moviecategory.html moviecategoryMobile.html)",
       "Bash(node \"C:\\\\Users\\\\THAI DUONG\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\f--BE-phim-vibe-coding\\\\7cb008d0-0870-4d6a-8c4c-331745e43304\\\\scratchpad\\\\merge_config.js\" homepage.html homepageMobile.html)",
-      "Bash(node \"C:\\\\Users\\\\THAI DUONG\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\f--BE-phim-vibe-coding\\\\7cb008d0-0870-4d6a-8c4c-331745e43304\\\\scratchpad\\\\merge_config.js\" userdasboard.html userdasboardMobile.html)"
+      "Bash(node \"C:\\\\Users\\\\THAI DUONG\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\f--BE-phim-vibe-coding\\\\7cb008d0-0870-4d6a-8c4c-331745e43304\\\\scratchpad\\\\merge_config.js\" userdasboard.html userdasboardMobile.html)",
+      "Bash(node e2e/_qa-category-crud.mjs)",
+      "Bash(node -e ' *)",
+      "Bash(npm run *)",
+      "Bash(npx jest *)",
+      "Bash(node e2e/_qa-country-crud.mjs)",
+      "Bash(node e2e/_qa-avatar-management.mjs)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" \"http://localhost:3000/uploads/poster/b0c1ad58-54de-40bf-b0b5-c3c3c18ce72e.png\")",
+      "Bash(node e2e/_qa-upload-module.mjs)",
+      "Bash(npx prettier *)",
+      "Bash(npx eslint *)",
+      "Bash(echo \"exit: $?\")"
     ]
   }
 }

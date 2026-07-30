@@ -11,6 +11,7 @@ import { ApiRequestError } from '@/lib/api/client';
 import { useUpdateFilmMutation } from '@/lib/query/mutations';
 import { filmsQueryOptions } from '@/lib/query/options';
 import type { CreateFilmInput, UpdateFilmInput } from '@/lib/types/film';
+import { EpisodeManagement } from './EpisodeManagement';
 import { MovieForm } from './MovieForm';
 
 /**
@@ -93,6 +94,7 @@ export function EditMovieView({ slug }: { slug: string }) {
         isSubmitting={updateMutation.isPending}
         submitError={submitError}
       />
+      <EpisodeManagement filmId={film._id} filmTitle={film.title} />
     </div>
   );
 }

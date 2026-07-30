@@ -6,10 +6,12 @@ import { categoriesApi } from '@/lib/api/categories';
 import { commentsApi } from '@/lib/api/comments';
 import { countriesApi } from '@/lib/api/countries';
 import { directorsApi } from '@/lib/api/directors';
+import { episodesApi } from '@/lib/api/episodes';
 import type { FavoritesQueryParams } from '@/lib/api/favorites';
 import { favoritesApi } from '@/lib/api/favorites';
 import { filmsApi } from '@/lib/api/films';
 import { historiesApi } from '@/lib/api/histories';
+import { notificationsApi } from '@/lib/api/notifications';
 import { ratingsApi } from '@/lib/api/ratings';
 import type { ActorDetail, CreateActorInput, UpdateActorInput } from '@/lib/types/actor';
 import type { Category, CreateCategoryInput, UpdateCategoryInput } from '@/lib/types/category';
@@ -22,8 +24,10 @@ import type {
   UpdateDirectorInput,
 } from '@/lib/types/director';
 import type { Favorite, FavoriteTargetType } from '@/lib/types/favorite';
+import type { CreateEpisodeInput, Episode, UpdateEpisodeInput } from '@/lib/types/episode';
 import type { CreateFilmInput, FilmDetail, UpdateFilmInput } from '@/lib/types/film';
 import type { History } from '@/lib/types/history';
+import type { Notification } from '@/lib/types/notification';
 import type { Rating, RatingSummary } from '@/lib/types/rating';
 import type { AppUserRole, CreateUserByAdminInput, UserProfile } from '@/lib/types/user';
 import { usersApi } from '@/lib/api/users';
@@ -1087,6 +1091,140 @@ export function useDeleteAvatarImageMutation() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.avatars.all() });
+    },
+  });
+}
+
+/** Phase 34 (Notification Center) — cả 3 mutation dưới đây đều invalidate NGUYÊN `notifications.
+ * all()` (không hẹp theo từng `list(params)`) — badge chuông (dropdown, `limit` nhỏ) và trang đầy
+ * đủ (`/user/thong-bao`, có phân trang/filter riêng) dùng 2 query key khác nhau nhưng cùng cần cập
+ * nhật lại `unreadCount` sau bất kỳ thao tác đọc/xoá nào — invalidate hẹp sẽ bỏ sót 1 trong 2 nơi. */
+export function useMarkNotificationReadMutation() {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
+
+  return useMutation<Notification, Error, { id: string }>({
+    mutationFn: async ({ id }) => {
+      if (!accessToken) {
+        throw new Error('Yêu cầu đăng nhập để đánh dấu đã đọc.');
+      }
+      return notificationsApi.markRead(id, accessToken);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all() });
+    },
+  });
+}
+
+export function useMarkAllNotificationsReadMutation() {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
+
+  return useMutation<{ updated: number }, Error, void>({
+    mutationFn: async () => {
+      if (!accessToken) {
+        throw new Error('Yêu cầu đăng nhập để đánh dấu đã đọc.');
+      }
+      return notificationsApi.markAllRead(accessToken);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all() });
+    },
+  });
+}
+
+export function useDeleteNotificationMutation() {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
+
+  return useMutation<null, Error, { id: string }>({
+    mutationFn: async ({ id }) => {
+      if (!accessToken) {
+        throw new Error('Yêu cầu đăng nhập để xoá thông báo.');
+      }
+      return notificationsApi.remove(id, accessToken);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all() });
+    },
+  });
+}
+
+/** Phase 35 (Episode Management API) — cả 4 mutation dưới đây nhận `filmId` tường minh trong
+ * variables (không suy ra từ response, `remove`/`updateOrder` có thể không trả đủ) để invalidate
+ * ĐÚNG `queryKeys.episodes.byFilm(filmId)` — danh sách tập của đúng phim đang sửa tự refetch ngay
+ * sau mỗi thao tác, khớp yêu cầu "Reload persistence" (không cần F5 thủ công mới thấy thay đổi). */
+export function useCreateEpisodeMutation() {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
+
+  return useMutation<Episode, Error, { filmId: string; body: CreateEpisodeInput }>({
+    mutationFn: async ({ filmId, body }) => {
+      if (!accessToken) {
+        throw new Error('Yêu cầu đăng nhập admin để thêm tập phim.');
+      }
+      return episodesApi.create(filmId, body, accessToken);
+    },
+    onSuccess: (_result, { filmId }) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.episodes.byFilm(filmId) });
+    },
+  });
+}
+
+export function useUpdateEpisodeMutation() {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
+
+  return useMutation<Episode, Error, { id: string; filmId: string; body: UpdateEpisodeInput }>({
+    mutationFn: async ({ id, body }) => {
+      if (!accessToken) {
+        throw new Error('Yêu cầu đăng nhập admin để sửa tập phim.');
+      }
+      return episodesApi.update(id, body, accessToken);
+    },
+    onSuccess: (_result, { filmId }) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.episodes.byFilm(filmId) });
+    },
+  });
+}
+
+export function useDeleteEpisodeMutation() {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
+
+  return useMutation<null, Error, { id: string; filmId: string }>({
+    mutationFn: async ({ id }) => {
+      if (!accessToken) {
+        throw new Error('Yêu cầu đăng nhập admin để xoá tập phim.');
+      }
+      return episodesApi.remove(id, accessToken);
+    },
+    onSuccess: (_result, { filmId }) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.episodes.byFilm(filmId) });
+    },
+  });
+}
+
+export function useUpdateEpisodeOrderMutation() {
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const accessToken = session?.accessToken;
+
+  return useMutation<Episode, Error, { id: string; filmId: string; displayOrder: number }>({
+    mutationFn: async ({ id, displayOrder }) => {
+      if (!accessToken) {
+        throw new Error('Yêu cầu đăng nhập admin để sắp xếp lại tập phim.');
+      }
+      return episodesApi.updateOrder(id, displayOrder, accessToken);
+    },
+    onSuccess: (_result, { filmId }) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.episodes.byFilm(filmId) });
     },
   });
 }

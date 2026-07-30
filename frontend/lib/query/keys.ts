@@ -1,8 +1,10 @@
 import type { ActorsQueryParams } from '@/lib/api/actors';
 import type { CategoriesQueryParams } from '@/lib/api/categories';
 import type { CommentsByFilmQueryParams, CommentsModerationQueryParams } from '@/lib/api/comments';
+import type { DashboardChartsQueryParams } from '@/lib/api/dashboard';
 import type { DirectorsQueryParams } from '@/lib/api/directors';
 import type { FavoritesQueryParams } from '@/lib/api/favorites';
+import type { NotificationsQueryParams } from '@/lib/api/notifications';
 import type { UsersQueryParams } from '@/lib/api/users';
 import type { FilmsQueryParams, FilmsTopQueryParams } from '@/lib/api/films';
 import type { LimitQueryParams, PaginationQueryParams } from '@/lib/api/types';
@@ -128,5 +130,27 @@ export const queryKeys = {
     all: () => ['avatars'] as const,
     types: () => [...queryKeys.avatars.all(), 'types'] as const,
     images: (typeId?: string) => [...queryKeys.avatars.all(), 'images', typeId] as const,
+  },
+
+  notifications: {
+    all: () => ['notifications'] as const,
+    list: (params?: NotificationsQueryParams) =>
+      [...queryKeys.notifications.all(), 'list', params] as const,
+  },
+
+  dashboard: {
+    all: () => ['dashboard'] as const,
+    overview: () => [...queryKeys.dashboard.all(), 'overview'] as const,
+    charts: (params?: DashboardChartsQueryParams) =>
+      [...queryKeys.dashboard.all(), 'charts', params] as const,
+    topLists: (params?: LimitQueryParams) =>
+      [...queryKeys.dashboard.all(), 'top-lists', params] as const,
+    recentActivity: (params?: LimitQueryParams) =>
+      [...queryKeys.dashboard.all(), 'recent-activity', params] as const,
+  },
+
+  episodes: {
+    all: () => ['episodes'] as const,
+    byFilm: (filmId: string) => [...queryKeys.episodes.all(), 'byFilm', filmId] as const,
   },
 } as const;

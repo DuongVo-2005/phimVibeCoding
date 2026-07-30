@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { Container } from '@/components/layout/Container';
 import { AccountSidebar } from '@/components/account/AccountSidebar';
+import { EmailVerificationStatus } from '@/components/account/EmailVerificationStatus';
 import { FavoriteListItem } from '@/components/account/FavoriteListItem';
 import { ProfileHero } from '@/components/account/ProfileHero';
 import { WatchlistThumb } from '@/components/account/WatchlistThumb';
@@ -66,6 +67,10 @@ function toMemberSinceLabel(createdAt: string): string {
  *
  * "Subscription & Settings" (mobile) là bản thay thế của 2 mục cùng tên trong `AccountSidebar`
  * (desktop) — sidebar ẩn ở mobile (`hidden md:flex`), section này ẩn ở desktop (`md:hidden`).
+ *
+ * Phase 33 (v1.1 — Verify Email): thêm `EmailVerificationStatus` ngay dưới `ProfileHero` — nhận
+ * thẳng `user` đã fetch ở đây (không tự query riêng), hiện trạng thái + nút Xác thực/Gửi lại theo
+ * `user.isEmailVerified`.
  */
 export function UserDashboardView() {
   const { data: session } = useSession();
@@ -114,6 +119,8 @@ export function UserDashboardView() {
 
       <div className="flex-1 flex flex-col gap-xl">
         <ProfileHero name={user.name} memberSinceLabel={toMemberSinceLabel(user.createdAt)} />
+
+        <EmailVerificationStatus user={user} />
 
         {/* Xem tiếp — chỉ desktop */}
         <div className="hidden md:block -mx-[24px]">

@@ -31,6 +31,14 @@ export class User {
   @Prop({ default: true })
   isActive: boolean;
 
+  /** Phase 33 (Verify Email). Token xác thực là JWT ký riêng (không lưu DB — xem
+   * `AuthService.verifyEmail`), 2 field này chỉ lưu KẾT QUẢ xác thực. */
+  @Prop({ default: false })
+  isEmailVerified: boolean;
+
+  @Prop({ type: Date, default: null })
+  emailVerifiedAt: Date | null;
+
   @Prop({ type: String, default: null, select: false })
   resetPasswordToken: string | null;
 

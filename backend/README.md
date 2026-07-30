@@ -20,6 +20,8 @@ npm run seed:admin      # tạo tài khoản admin từ ADMIN_EMAIL/ADMIN_PASSWO
 npm run start:dev
 ```
 
+`MAIL_HOST` trong `.env` có thể để trống khi chạy local/demo — `MailService` tự log token xác thực email/reset password ra console thay vì gửi SMTP thật (xem `.env.example`). Điền đủ `MAIL_HOST/PORT/USER/PASS/FROM` để gửi email thật.
+
 API mặc định chạy tại `http://localhost:3000/api/v1`, tài liệu Swagger tại `http://localhost:3000/api/docs`.
 
 Health check: `GET /api/v1/health` (kiểm tra kết nối MongoDB qua `@nestjs/terminus`).
@@ -42,23 +44,32 @@ Xem chi tiết trong [`backend.md`](../backend.md) mục 3. Tóm tắt:
 
 ```
 src/
-├── auth/            # đăng ký/đăng nhập/refresh token
-├── users/            # hồ sơ, avatar, đổi mật khẩu
-├── films/            # phim + tập phim
-├── actors/           # diễn viên
-├── types/            # thể loại
-├── comments/         # bình luận + vote
-├── ratings/           # đánh giá phim
-├── favorites/         # yêu thích phim/diễn viên
-├── histories/          # lịch sử xem / xem tiếp
-├── playlists/          # danh mục do user tạo
-├── avatars/             # avatar mẫu (type + image)
-├── film-reports/        # báo lỗi phim
-├── crawler/              # đồng bộ dữ liệu từ ophim.cc
-├── health/               # health check
-├── common/               # guard, decorator, filter, interceptor dùng chung
-├── config/                # cấu hình + validate biến môi trường
-└── database/              # kết nối Mongoose
+├── auth/              # đăng ký/đăng nhập/refresh token/quên-đặt lại mật khẩu/verify email
+├── users/              # hồ sơ, đổi mật khẩu
+├── films/               # phim (embedded episodes dùng cho crawler + trang xem công khai)
+├── episodes/             # quản lý tập phim cho admin (collection riêng, xem episode.schema.ts)
+├── actors/                # diễn viên
+├── directors/              # đạo diễn
+├── categories/              # thể loại (đổi tên từ "types")
+├── countries/                # quốc gia
+├── comments/                  # bình luận + vote
+├── ratings/                     # đánh giá phim
+├── favorites/                    # yêu thích phim/diễn viên
+├── histories/                     # lịch sử xem / xem tiếp
+├── playlists/                      # danh mục do user tạo
+├── avatars/                         # avatar mẫu (type + image)
+├── uploads/                          # upload file thật (poster/thumbnail/avatar) — Phase 31
+├── mail/                              # gửi email qua SMTP, dev-only console fallback — Phase 33
+├── notifications/                      # thông báo trong app cho user — Phase 34
+├── dashboard/                           # thống kê tổng quan cho admin — Phase 32
+├── film-reports/                         # báo lỗi phim
+├── crawler/                                # đồng bộ dữ liệu từ ophim.cc
+├── crawler-history/                         # lịch sử các lần crawl
+├── roles/, permissions/, role-permissions/    # RBAC
+├── health/                                     # health check
+├── common/                                      # guard, decorator, filter, interceptor dùng chung
+├── config/                                       # cấu hình + validate biến môi trường
+└── database/                                      # kết nối Mongoose, seed & migration scripts
 ```
 
 ## Ghi chú triển khai so với `backend.md`

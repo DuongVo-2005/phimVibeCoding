@@ -26,3 +26,6 @@ pnpm-debug.log*
 .env
 .env.local
 .env.*.local
+
+# Uploaded files (Phase 31 — local disk storage, không phải asset của repo)
+/uploads

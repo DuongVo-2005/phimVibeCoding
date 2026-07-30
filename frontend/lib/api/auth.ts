@@ -54,4 +54,27 @@ export const authApi = {
       body: { token, newPassword },
     });
   },
+
+  /** Phase 33 (Verify Email) — yêu cầu đăng nhập (khớp `@CurrentUser()` ở backend, không nhận
+   * email qua body). */
+  sendVerificationEmail(accessToken: string) {
+    return request<{ message: string }>(AUTH_ENDPOINTS.sendVerificationEmail, {
+      method: 'POST',
+      accessToken,
+    });
+  },
+
+  resendVerificationEmail(accessToken: string) {
+    return request<{ message: string }>(AUTH_ENDPOINTS.resendVerificationEmail, {
+      method: 'POST',
+      accessToken,
+    });
+  },
+
+  /** Public — token tự chứng minh danh tính (giống `resetPassword`), không cần accessToken. */
+  verifyEmail(token: string) {
+    return request<{ message: string }>(AUTH_ENDPOINTS.verifyEmail, {
+      query: { token },
+    });
+  },
 };

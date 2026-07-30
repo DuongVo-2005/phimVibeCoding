@@ -1,4 +1,9 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
 import { FilterQuery, Model, Types } from 'mongoose';
@@ -132,7 +137,7 @@ export class UsersService {
 
     const isMatch = await bcrypt.compare(dto.currentPassword, user.password);
     if (!isMatch) {
-      throw new ConflictException('Mật khẩu hiện tại không đúng');
+      throw new UnauthorizedException('Mật khẩu hiện tại không đúng');
     }
 
     user.password = await bcrypt.hash(dto.newPassword, SALT_ROUNDS);
@@ -182,7 +187,10 @@ export class UsersService {
   }
 
   async findRoles(id: string): Promise<RoleDocument[]> {
-    const user = await this.userModel.findById(id).populate<{ roleIds: RoleDocument[] }>('roleIds').exec();
+    const user = await this.userModel
+      .findById(id)
+      .populate<{ roleIds: RoleDocument[] }>('roleIds')
+      .exec();
     if (!user) {
       throw new NotFoundException('Không tìm thấy người dùng');
     }
@@ -209,7 +217,11 @@ export class UsersService {
     return roles;
   }
 
-  async removeRole(actingUserId: string, targetId: string, roleId: string): Promise<RoleDocument[]> {
+  async removeRole(
+    actingUserId: string,
+    targetId: string,
+    roleId: string,
+  ): Promise<RoleDocument[]> {
     this.ensureNotSelf(actingUserId, targetId, 'gỡ role');
 
     const user = await this.userModel.findById(targetId).exec();
@@ -268,6 +280,15 @@ export class UsersService {
     return this.userModel.findOne({ email }).select('+password').exec();
   }
 
+  /** Phase 33 (Verify Email) — đánh dấu email đã xác thực. `verifyEmail()` ở `AuthService` đã tự
+   * kiểm tra `isEmailVerified` trước khi gọi hàm này (idempotent theo thiết kế, nhưng service tầng
+   * dưới không giả định điều đó — set thẳng giá trị mới, không đọc lại trạng thái cũ). */
+  async markEmailVerified(id: string): Promise<void> {
+    await this.userModel
+      .findByIdAndUpdate(id, { isEmailVerified: true, emailVerifiedAt: new Date() })
+      .exec();
+  }
+
   private async getDefaultRoleIds(): Promise<Types.ObjectId[]> {
     const defaultRole = await this.rolesService.findByName(USER_ROLE_NAME);
     return defaultRole ? [defaultRole._id as Types.ObjectId] : [];
@@ -288,7 +309,9 @@ export class UsersService {
 
   private ensureNotSelf(actingUserId: string, targetId: string, action: string): void {
     if (actingUserId === targetId) {
-      throw new ConflictException(`Không thể tự ${action} tài khoản admin của chính mình qua endpoint này`);
+      throw new ConflictException(
+        `Không thể tự ${action} tài khoản admin của chính mình qua endpoint này`,
+      );
     }
   }
 }

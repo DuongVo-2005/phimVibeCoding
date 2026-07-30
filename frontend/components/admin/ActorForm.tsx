@@ -2,11 +2,12 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { ACTOR_FORM_DEFAULTS, actorFormSchema, type ActorFormValues } from '@/lib/validation/actor';
 import type { ActorDetail, CreateActorInput, UpdateActorInput } from '@/lib/types/actor';
+import { ImageUpload } from './ImageUpload';
 
 function actorToFormValues(actor: ActorDetail): ActorFormValues {
   return {
@@ -28,9 +29,10 @@ function formValuesToBody(values: ActorFormValues): CreateActorInput {
   };
 }
 
-/** ActorForm — form dùng chung Create + Edit diễn viên (Phase 19B.5). Không có upload file (avatar
- * là URL text) — đúng BLOCKER Phase 19B (chưa có UploadModule). Sửa tên sẽ đổi slug (cùng hành vi
- * `countries`/`actors.service.ts`'s `update()`), ghi chú như `CountryForm`. */
+/** ActorForm — form dùng chung Create + Edit diễn viên (Phase 19B.5). Avatar hỗ trợ cả dán URL
+ * lẫn upload file thật (Phase 31 — `ImageUpload`, purpose="avatar"), thay cho BLOCKER "chưa có
+ * UploadModule" trước đây. Sửa tên sẽ đổi slug (cùng hành vi `countries`/`actors.service.ts`'s
+ * `update()`), ghi chú như `CountryForm`. */
 export function ActorForm({
   mode,
   initialActor,
@@ -49,6 +51,7 @@ export function ActorForm({
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm<ActorFormValues>({
     resolver: zodResolver(actorFormSchema),
@@ -61,7 +64,19 @@ export function ActorForm({
     <form onSubmit={handleSubmit(submit)} noValidate className="flex flex-col gap-lg">
       <section className="flex flex-col gap-md rounded-2xl bg-surface-container p-lg">
         <Input label="Tên diễn viên" error={errors.name?.message} {...register('name')} />
-        <Input label="URL Avatar" error={errors.avatar?.message} {...register('avatar')} />
+        <Controller
+          control={control}
+          name="avatar"
+          render={({ field }) => (
+            <ImageUpload
+              label="Avatar"
+              value={field.value ?? ''}
+              onChange={field.onChange}
+              purpose="avatar"
+              error={errors.avatar?.message}
+            />
+          )}
+        />
         <div className="flex flex-col gap-xs">
           <label
             htmlFor="actor-bio"

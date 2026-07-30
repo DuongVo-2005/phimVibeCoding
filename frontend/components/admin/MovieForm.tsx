@@ -16,6 +16,7 @@ import {
 } from '@/lib/query/options';
 import { FILM_FORM_DEFAULTS, filmFormSchema, type FilmFormValues } from '@/lib/validation/film';
 import type { CreateFilmInput, FilmDetail, UpdateFilmInput } from '@/lib/types/film';
+import { ImageUpload } from './ImageUpload';
 import { Select } from './Select';
 import { SearchableMultiSelect, type SelectableItem } from './SearchableMultiSelect';
 
@@ -183,10 +184,35 @@ export function MovieForm({
           Hình ảnh &amp; Trailer
         </h2>
         <p className="text-label-md text-on-surface-variant">
-          Backend chưa hỗ trợ upload file — nhập URL đã host sẵn (xem BLOCKER Phase 19B).
+          Poster/Thumbnail: dán URL có sẵn hoặc upload file thật (Phase 31). Trailer vẫn chỉ nhận
+          URL — đây là link video/embed, không phải ảnh, ngoài phạm vi `POST /uploads/image`.
         </p>
-        <Input label="URL Poster" error={errors.posterUrl?.message} {...register('posterUrl')} />
-        <Input label="URL Thumbnail" error={errors.thumbUrl?.message} {...register('thumbUrl')} />
+        <Controller
+          control={control}
+          name="posterUrl"
+          render={({ field }) => (
+            <ImageUpload
+              label="Poster"
+              value={field.value ?? ''}
+              onChange={field.onChange}
+              purpose="poster"
+              error={errors.posterUrl?.message}
+            />
+          )}
+        />
+        <Controller
+          control={control}
+          name="thumbUrl"
+          render={({ field }) => (
+            <ImageUpload
+              label="Thumbnail"
+              value={field.value ?? ''}
+              onChange={field.onChange}
+              purpose="thumbnail"
+              error={errors.thumbUrl?.message}
+            />
+          )}
+        />
         <Input label="URL Trailer" error={errors.trailerUrl?.message} {...register('trailerUrl')} />
       </section>
 

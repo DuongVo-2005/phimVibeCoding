@@ -3,11 +3,9 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { useNotification } from '@/hooks/useNotification';
 import { useMovieSearch } from '@/hooks/useMovieSearch';
+import { NotificationBell } from './NotificationBell';
 import { Navigation } from './Navigation';
-
-const LOGIN_REQUIRED_MESSAGE = 'Bạn cần đăng nhập để sử dụng chức năng này.';
 
 /**
  * Route nào cần biến thể "quay lại" — khớp `design/moviedentail.html` (`/phim/[slug]`). Phase
@@ -39,8 +37,12 @@ const BACK_BUTTON_ROUTES: Array<{ prefix: string; backHref: string }> = [
  * của dự án).
  *
  * Phase 16A: Search input nối `useMovieSearch()` (dùng chung với `MovieListing`) — submit điều
- * hướng `/tim-kiem?q=...`, không tự lọc tại chỗ. Nút thông báo: chưa đăng nhập → `notify.info()`
- * (KHÔNG làm Notification Center — ngoài phạm vi). Nút "Thành viên": chưa đăng nhập →
+ * hướng `/tim-kiem?q=...`, không tự lọc tại chỗ.
+ *
+ * Phase 34: nút thông báo trước đây chỉ toast khi chưa đăng nhập, KHÔNG làm gì khi đã đăng nhập
+ * ("KHÔNG làm Notification Center — ngoài phạm vi", nay đã trong phạm vi) — thay bằng
+ * `NotificationBell` thật (badge chưa đọc + dropdown), giữ NGUYÊN hành vi toast cũ cho người chưa
+ * đăng nhập (xem `NotificationBell.tsx`). Nút "Thành viên": chưa đăng nhập →
  * `/dang-nhap`, đã đăng nhập → `/user/profile` (KHÔNG làm dropdown menu — ngoài phạm vi, quyết
  * định đã chốt). Icon avatar (`Link href="/user/profile"`) giữ nguyên hành vi cũ — route đã được
  * middleware bảo vệ sẵn (tự redirect `/dang-nhap` nếu chưa đăng nhập), không cần sửa.
@@ -53,15 +55,8 @@ export function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const { data: session } = useSession();
-  const notify = useNotification();
   const { value, setValue, handleSubmit } = useMovieSearch();
   const backHref = BACK_BUTTON_ROUTES.find((route) => pathname.startsWith(route.prefix))?.backHref;
-
-  const handleNotificationClick = () => {
-    if (!session) {
-      notify.info(LOGIN_REQUIRED_MESSAGE);
-    }
-  };
 
   const handleMemberClick = () => {
     router.push(session ? '/user/profile' : '/dang-nhap');
@@ -141,16 +136,7 @@ export function Header() {
             </span>
           </Link>
         ) : null}
-        <button
-          type="button"
-          onClick={handleNotificationClick}
-          className="p-2 hover:bg-white/5 rounded-full transition-all scale-95 active:scale-90"
-          aria-label="Thông báo"
-        >
-          <span className="material-symbols-outlined text-on-surface" aria-hidden="true">
-            notifications
-          </span>
-        </button>
+        <NotificationBell />
         <button
           type="button"
           onClick={handleMemberClick}

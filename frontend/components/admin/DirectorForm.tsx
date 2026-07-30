@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import {
@@ -15,6 +15,7 @@ import type {
   DirectorDetail,
   UpdateDirectorInput,
 } from '@/lib/types/director';
+import { ImageUpload } from './ImageUpload';
 
 function directorToFormValues(director: DirectorDetail): DirectorFormValues {
   return {
@@ -37,7 +38,8 @@ function formValuesToBody(values: DirectorFormValues): CreateDirectorInput {
 }
 
 /** DirectorForm — form dùng chung Create + Edit đạo diễn (Phase 19B.6). Cùng cấu trúc `ActorForm`
- * (schema backend giống hệt nhau) — không upload file, sửa tên đổi slug. */
+ * (schema backend giống hệt nhau) — avatar hỗ trợ upload file thật (Phase 31, `ImageUpload`),
+ * sửa tên đổi slug. */
 export function DirectorForm({
   mode,
   initialDirector,
@@ -56,6 +58,7 @@ export function DirectorForm({
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm<DirectorFormValues>({
     resolver: zodResolver(directorFormSchema),
@@ -68,7 +71,19 @@ export function DirectorForm({
     <form onSubmit={handleSubmit(submit)} noValidate className="flex flex-col gap-lg">
       <section className="flex flex-col gap-md rounded-2xl bg-surface-container p-lg">
         <Input label="Tên đạo diễn" error={errors.name?.message} {...register('name')} />
-        <Input label="URL Avatar" error={errors.avatar?.message} {...register('avatar')} />
+        <Controller
+          control={control}
+          name="avatar"
+          render={({ field }) => (
+            <ImageUpload
+              label="Avatar"
+              value={field.value ?? ''}
+              onChange={field.onChange}
+              purpose="avatar"
+              error={errors.avatar?.message}
+            />
+          )}
+        />
         <div className="flex flex-col gap-xs">
           <label
             htmlFor="director-bio"

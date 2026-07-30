@@ -18,6 +18,7 @@ import {
 import { avatarsQueryOptions } from '@/lib/query/options';
 import type { ImgAvatar, TypeAvatar } from '@/lib/types/avatar';
 import { ConfirmDialog } from './ConfirmDialog';
+import { ImageUpload } from './ImageUpload';
 import { Select } from './Select';
 
 /**
@@ -26,10 +27,11 @@ import { Select } from './Select';
  * trang duy nhất (không tách route `/moi`/`/[id]` như Category/Country/Actor/Director — những
  * module đó cần Edit thật).
  *
- * `url` là chuỗi text nhập tay (không upload file) — đúng BLOCKER đã xác nhận ở Phase 19B (chưa
- * có UploadModule). Ảnh preview dùng `<img>` thường (không phải `next/image`) — URL admin nhập tuỳ
- * ý, không giới hạn domain như `img.ophim.live` (đã whitelist trong `next.config.ts` cho phim),
- * `next/image` sẽ lỗi 400 với domain lạ chưa khai báo.
+ * Ảnh avatar hỗ trợ cả dán URL lẫn upload file thật (Phase 31 — `ImageUpload`, purpose="avatar"),
+ * thay cho BLOCKER "chưa có UploadModule" trước đây. Ảnh THUMBNAIL grid bên dưới (danh sách avatar
+ * đã tạo) vẫn dùng `<img>` thường (không phải `next/image`) — URL có thể là ảnh crawl ngoài hoặc
+ * ảnh đã upload, không giới hạn domain như `img.ophim.live` (đã whitelist trong `next.config.ts`
+ * cho phim), `next/image` sẽ lỗi 400 với domain lạ chưa khai báo.
  */
 export function AdminAvatarView() {
   const notify = useNotification();
@@ -91,7 +93,7 @@ export function AdminAvatarView() {
       <div>
         <h1 className="text-headline-lg font-headline-lg text-on-surface">Quản lý Avatar</h1>
         <p className="text-body-md text-on-surface-variant">
-          Danh sách avatar có sẵn cho người dùng chọn (URL ảnh, không upload file).
+          Danh sách avatar có sẵn cho người dùng chọn (dán URL hoặc upload file thật).
         </p>
       </div>
 
@@ -153,11 +155,11 @@ export function AdminAvatarView() {
             />
           </div>
           <div className="flex-1 w-full">
-            <Input
-              id="new-avatar-image-url"
-              label="URL ảnh"
+            <ImageUpload
+              label="Ảnh"
               value={newImageUrl}
-              onChange={(event) => setNewImageUrl(event.target.value)}
+              onChange={setNewImageUrl}
+              purpose="avatar"
             />
           </div>
           <Button

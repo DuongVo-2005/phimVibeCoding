@@ -266,18 +266,15 @@ describe('Users Admin (e2e) — Phase 6.3 Giai đoạn 2A', () => {
       expect(res.body.data.meta.totalPages).toBeGreaterThan(1);
     });
 
-    it('isActive=false qua query string thực tế -> PHÁT HIỆN: bị cast sai thành true (class-transformer @Type(()=>Boolean) trên chuỗi "false" -> Boolean("false") === true, không phải bug mới viết mà là hành vi hiện tại của QueryUserDto — xem Completion Report, KHÔNG sửa ở bước test)', async () => {
+    it('isActive=false qua query string -> chỉ trả về user inactive (regression test cho bug cast @Type(()=>Boolean) đã fix bằng @Transform, xem QueryUserDto)', async () => {
       const res = await request(app.getHttpServer())
         .get('/api/v1/users')
         .query({ isActive: 'false' })
         .set('Authorization', `Bearer ${adminToken}`);
       expect(res.status).toBe(200);
-      // Hành vi ĐÚNG mong đợi (nếu không có bug) là chỉ trả về user isActive=false.
-      // Assertion dưới đây phản ánh hành vi THỰC TẾ hiện tại (đã verify): "false" bị Boolean()
-      // cast thành true, nên filter thực ra là {isActive: true} — user isActive=false bị loại,
-      // toàn bộ user isActive=true (đa số) được trả về.
       const emails = res.body.data.items.map((u: any) => u.email);
-      expect(emails).not.toContain(INACTIVE_USER.email);
+      expect(emails).toContain(INACTIVE_USER.email);
+      expect(res.body.data.items.every((u: any) => u.isActive === false)).toBe(true);
     });
 
     it('isActive=true qua query string -> chỉ trả về user active (không bị ảnh hưởng bởi bug ở trên)', async () => {
